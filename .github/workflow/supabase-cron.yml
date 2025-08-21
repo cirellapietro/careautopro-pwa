@@ -2,7 +2,7 @@ name: Supabase Cron Job
 
 on:
   schedule:
-    - cron: '0 8 * * *'  # Esegue ogni giorno alle 08:00 UTC
+    - cron: '0 8 * * *'  # Esegue ogni giorno alle 10:00 UTC
   workflow_dispatch:      # Permette l'esecuzione manuale
 
 jobs:
