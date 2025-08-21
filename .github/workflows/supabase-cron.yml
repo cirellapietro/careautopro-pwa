@@ -1,0 +1,17 @@
+name: Supabase Cron Job
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # Esegue ogni giorno alle 10:00 UTC
+  workflow_dispatch:      # Permette l'esecuzione manuale
+
+jobs:
+  call-supabase-function:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Supabase Edge Function
+        run: |
+          curl -X POST \
+          "https://${{ secrets.jamttxwhexlvbkjccrqm}}.supabase.co/functions/v1/${{ secrets.checkManutenzioni }}" \
+          -H "Authorization: Bearer ${{ secrets.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbXR0eHdoZXhsdmJramNjcnFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2NTE5MDIsImV4cCI6MjA2OTIyNzkwMn0.MkQarY2dOUuwhFnOdaLHqb6idFocTGSfZKjqVoeDYBs }}" \
+          -H "Content-Type: application/json"
