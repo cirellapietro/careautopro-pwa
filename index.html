@@ -284,6 +284,14 @@
             outline: none;
         }
         
+        .password-info {
+            font-size: 12px;
+            color: #718096;
+            text-align: left;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+        
         .social-login {
             display: grid;
             gap: 10px;
@@ -368,52 +376,74 @@
             padding: 8px 12px;
             font-size: 12px;
         }
+
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.9);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+        }
     </style>
 </head>
 <body>
+    <div class="language-selector">
+        <select id="languageSelect" onchange="changeLanguage(this.value)">
+            <option value="it">🇮🇹 Italiano</option>
+            <option value="en">🇬🇧 English</option>
+            <option value="es">🇪🇸 Español</option>
+            <option value="fr">🇫🇷 Français</option>
+        </select>
+    </div>
+
     <div class="app-container">
         <!-- Header -->
         <div class="header">
             <div class="icon">🚗</div>
-            <h1 class="title">CareAutoPro</h1>
-            <p class="subtitle">Gestione Manutenzione Veicoli</p>
+            <h1 class="title" id="appTitle">CareAutoPro</h1>
+            <p class="subtitle" id="appSubtitle">Gestione Manutenzione Veicoli</p>
         </div>
 
         <!-- User Info (visibile dopo login) -->
         <div id="userInfo" class="user-info hidden">
             <span class="user-email" id="userEmail"></span>
             <button class="logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Logout
+                <i class="fas fa-sign-out-alt"></i> <span id="logoutText">Logout</span>
             </button>
         </div>
 
         <!-- Login Form -->
         <div id="loginContainer" class="login-container">
-            <h2>Accedi a CareAutoPro</h2>
+            <h2 id="loginTitle">Accedi a CareAutoPro</h2>
             
             <!-- Social Login -->
             <div class="social-login">
                 <button class="btn btn-google" onclick="loginWithGoogle()">
-                    <i class="fab fa-google"></i> Continua con Google
+                    <i class="fab fa-google"></i> <span id="googleLoginText">Continua con Google</span>
                 </button>
                 <button class="btn btn-facebook" onclick="loginWithFacebook()">
-                    <i class="fab fa-facebook"></i> Continua con Facebook
+                    <i class="fab fa-facebook"></i> <span id="facebookLoginText">Continua con Facebook</span>
                 </button>
             </div>
 
             <div class="divider">
-                <span>Oppure</span>
+                <span id="orText">Oppure</span>
             </div>
             
             <!-- Email/Password Login -->
             <div class="login-form">
                 <input type="email" id="email" class="form-input" placeholder="La tua email" required>
-                <input type="password" id="password" class="form-input" placeholder="Password" required>
+                <input type="password" id="password" class="form-input" placeholder="Password" required maxlength="72">
+                <div class="password-info" id="passwordInfo">
+                    🔒 La password deve essere tra 6 e 72 caratteri
+                </div>
                 <button class="btn" onclick="loginWithEmail()">
-                    <i class="fas fa-sign-in-alt"></i> Accedi
+                    <i class="fas fa-sign-in-alt"></i> <span id="loginButtonText">Accedi</span>
                 </button>
                 <button class="btn btn-success" onclick="signupWithEmail()">
-                    <i class="fas fa-user-plus"></i> Registrati con Email
+                    <i class="fas fa-user-plus"></i> <span id="signupButtonText">Registrati con Email</span>
                 </button>
             </div>
             
@@ -425,16 +455,16 @@
             <!-- Navigation Tabs -->
             <div class="nav-tabs">
                 <button class="nav-tab active" onclick="showTab('vehicles')">
-                    <i class="fas fa-car"></i> Veicoli
+                    <i class="fas fa-car"></i> <span id="vehiclesTabText">Veicoli</span>
                 </button>
                 <button class="nav-tab" onclick="showTab('maintenance')">
-                    <i class="fas fa-tools"></i> Manutenzione
+                    <i class="fas fa-tools"></i> <span id="maintenanceTabText">Manutenzione</span>
                 </button>
                 <button class="nav-tab" onclick="showTab('tracking')">
-                    <i class="fas fa-map-marker-alt"></i> Tracking
+                    <i class="fas fa-map-marker-alt"></i> <span id="trackingTabText">Tracking</span>
                 </button>
                 <button class="nav-tab" onclick="showTab('profile')">
-                    <i class="fas fa-user"></i> Profilo
+                    <i class="fas fa-user"></i> <span id="profileTabText">Profilo</span>
                 </button>
             </div>
 
@@ -444,36 +474,36 @@
                     <!-- Veicoli verranno caricati qui -->
                 </div>
                 <button class="btn btn-success" onclick="showAddVehicleForm()" style="margin-top: 15px;">
-                    <i class="fas fa-plus"></i> Aggiungi Veicolo
+                    <i class="fas fa-plus"></i> <span id="addVehicleButtonText">Aggiungi Veicolo</span>
                 </button>
 
                 <!-- Form Aggiunta Veicolo -->
                 <div id="addVehicleForm" class="add-vehicle-form hidden">
-                    <h3 style="margin-bottom: 15px;">Aggiungi Nuovo Veicolo</h3>
+                    <h3 style="margin-bottom: 15px;" id="addVehicleTitle">Aggiungi Nuovo Veicolo</h3>
                     <div class="form-group">
-                        <label class="form-label">Nome Veicolo</label>
+                        <label class="form-label" id="vehicleNameLabel">Nome Veicolo</label>
                         <input type="text" id="vehicleName" class="form-input" placeholder="Es: Auto Familiare">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Targa</label>
+                        <label class="form-label" id="vehiclePlateLabel">Targa</label>
                         <input type="text" id="vehiclePlate" class="form-input" placeholder="Es: AB123CD">
                     </div>
                     <div class="form-group">
-                        <label class="form-label">Tipo Veicolo</label>
+                        <label class="form-label" id="vehicleTypeLabel">Tipo Veicolo</label>
                         <select id="vehicleType" class="form-input">
-                            <option value="">Seleziona tipo...</option>
+                            <option value="" id="selectTypeText">Seleziona tipo...</option>
                         </select>
                     </div>
                     <div class="form-group">
-                        <label class="form-label">KM Attuali</label>
+                        <label class="form-label" id="vehicleKmLabel">KM Attuali</label>
                         <input type="number" id="vehicleKm" class="form-input" placeholder="Es: 50000">
                     </div>
                     <div class="vehicle-actions">
                         <button class="btn btn-success btn-small" onclick="addVehicle()">
-                            <i class="fas fa-save"></i> Salva
+                            <i class="fas fa-save"></i> <span id="saveButtonText">Salva</span>
                         </button>
                         <button class="btn btn-danger btn-small" onclick="hideAddVehicleForm()">
-                            <i class="fas fa-times"></i> Annulla
+                            <i class="fas fa-times"></i> <span id="cancelButtonText">Annulla</span>
                         </button>
                     </div>
                 </div>
@@ -488,40 +518,40 @@
             <div class="tab-content" id="trackingTab">
                 <div class="gps-controls">
                     <button class="btn btn-success" onclick="startTracking()">
-                        <i class="fas fa-play"></i> Inizia Tracking
+                        <i class="fas fa-play"></i> <span id="startTrackingText">Inizia Tracking</span>
                     </button>
                     <button class="btn btn-danger" onclick="stopTracking()">
-                        <i class="fas fa-stop"></i> Ferma Tracking
+                        <i class="fas fa-stop"></i> <span id="stopTrackingText">Ferma Tracking</span>
                     </button>
                     <button class="btn" onclick="getCurrentLocation()">
-                        <i class="fas fa-map-marker-alt"></i> Posizione Attuale
+                        <i class="fas fa-map-marker-alt"></i> <span id="currentLocationText">Posizione Attuale</span>
                     </button>
                 </div>
                 
                 <div class="tracking-info">
-                    <h3 style="margin-bottom: 15px;">Informazioni Tracking</h3>
+                    <h3 style="margin-bottom: 15px;" id="trackingInfoTitle">Informazioni Tracking</h3>
                     <div class="info-grid">
                         <div class="info-item">
-                            <span class="info-label">Stato:</span>
+                            <span class="info-label" id="statusLabel">Stato:</span>
                             <span class="info-value" id="trackingStatus">Fermo</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">Ultimo Aggiornamento:</span>
+                            <span class="info-label" id="lastUpdateLabel">Ultimo Aggiornamento:</span>
                             <span class="info-value" id="lastUpdate">-</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">Latitudine:</span>
+                            <span class="info-label" id="latitudeLabel">Latitudine:</span>
                             <span class="info-value" id="currentLat">-</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">Longitudine:</span>
+                            <span class="info-label" id="longitudeLabel">Longitudine:</span>
                             <span class="info-value" id="currentLng">-</span>
                         </div>
                     </div>
                 </div>
 
                 <div id="activeSessionInfo" class="tracking-info hidden">
-                    <h3 style="margin-bottom: 15px;">Sessione Attiva</h3>
+                    <h3 style="margin-bottom: 15px;" id="activeSessionTitle">Sessione Attiva</h3>
                     <div class="info-grid" id="sessionDetails">
                         <!-- Dettagli sessione attiva -->
                     </div>
@@ -530,29 +560,29 @@
 
             <div class="tab-content" id="profileTab">
                 <div class="tracking-info">
-                    <h3 style="margin-bottom: 15px;">Il Tuo Profilo</h3>
+                    <h3 style="margin-bottom: 15px;" id="profileTitle">Il Tuo Profilo</h3>
                     <div class="info-grid">
                         <div class="info-item">
-                            <span class="info-label">Email:</span>
+                            <span class="info-label" id="emailLabel">Email:</span>
                             <span class="info-value" id="profileEmail">-</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">ID Utente:</span>
+                            <span class="info-label" id="userIdLabel">ID Utente:</span>
                             <span class="info-value" id="profileId">-</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">Data Registrazione:</span>
+                            <span class="info-label" id="registrationDateLabel">Data Registrazione:</span>
                             <span class="info-value" id="profileCreated">-</span>
                         </div>
                         <div class="info-item">
-                            <span class="info-label">Veicoli Registrati:</span>
+                            <span class="info-label" id="vehiclesCountLabel">Veicoli Registrati:</span>
                             <span class="info-value" id="profileVehicles">-</span>
                         </div>
                     </div>
                 </div>
                 
                 <button class="btn btn-warning" onclick="updateProfile()" style="margin-top: 15px;">
-                    <i class="fas fa-sync"></i> Aggiorna Profilo
+                    <i class="fas fa-sync"></i> <span id="updateProfileText">Aggiorna Profilo</span>
                 </button>
             </div>
         </div>
@@ -570,11 +600,356 @@
         let activeSession = null;
         let trackingInterval = null;
         let currentVehicle = null;
+        let currentLanguage = 'it';
+
+        // Testi multilingua
+        const translations = {
+            it: {
+                appTitle: "CareAutoPro",
+                appSubtitle: "Gestione Manutenzione Veicoli",
+                loginTitle: "Accedi a CareAutoPro",
+                googleLoginText: "Continua con Google",
+                facebookLoginText: "Continua con Facebook",
+                orText: "Oppure",
+                emailPlaceholder: "La tua email",
+                passwordPlaceholder: "Password",
+                passwordInfo: "🔒 La password deve essere tra 6 e 72 caratteri",
+                loginButtonText: "Accedi",
+                signupButtonText: "Registrati con Email",
+                logoutText: "Logout",
+                vehiclesTabText: "Veicoli",
+                maintenanceTabText: "Manutenzione",
+                trackingTabText: "Tracking",
+                profileTabText: "Profilo",
+                addVehicleButtonText: "Aggiungi Veicolo",
+                addVehicleTitle: "Aggiungi Nuovo Veicolo",
+                vehicleNameLabel: "Nome Veicolo",
+                vehicleNamePlaceholder: "Es: Auto Familiare",
+                vehiclePlateLabel: "Targa",
+                vehiclePlatePlaceholder: "Es: AB123CD",
+                vehicleTypeLabel: "Tipo Veicolo",
+                selectTypeText: "Seleziona tipo...",
+                vehicleKmLabel: "KM Attuali",
+                vehicleKmPlaceholder: "Es: 50000",
+                saveButtonText: "Salva",
+                cancelButtonText: "Annulla",
+                startTrackingText: "Inizia Tracking",
+                stopTrackingText: "Ferma Tracking",
+                currentLocationText: "Posizione Attuale",
+                trackingInfoTitle: "Informazioni Tracking",
+                statusLabel: "Stato:",
+                lastUpdateLabel: "Ultimo Aggiornamento:",
+                latitudeLabel: "Latitudine:",
+                longitudeLabel: "Longitudine:",
+                activeSessionTitle: "Sessione Attiva",
+                profileTitle: "Il Tuo Profilo",
+                emailLabel: "Email:",
+                userIdLabel: "ID Utente:",
+                registrationDateLabel: "Data Registrazione:",
+                vehiclesCountLabel: "Veicoli Registrati:",
+                updateProfileText: "Aggiorna Profilo",
+                // Messaggi di errore
+                errorPasswordLength: "La password deve essere tra 6 e 72 caratteri",
+                errorEmailRequired: "Inserisci l'email",
+                errorPasswordRequired: "Inserisci la password",
+                errorInvalidEmail: "Email non valida",
+                errorWeakPassword: "La password è troppo debole",
+                errorEmailExists: "Questa email è già registrata",
+                errorInvalidCredentials: "Email o password non validi",
+                errorNetwork: "Errore di connessione. Riprova.",
+                errorUnknown: "Errore sconosciuto. Riprova.",
+                // Messaggi di successo
+                successRegistration: "Registrazione completata! Controlla la tua email per confermare l'account.",
+                successLogin: "Accesso effettuato con successo!",
+                successVehicleAdded: "Veicolo aggiunto con successo!",
+                successKmUpdated: "KM aggiornati con successo!",
+                successProfileUpdated: "Profilo aggiornato!",
+                // Messaggi di caricamento
+                loadingRegistration: "Registrazione in corso...",
+                loadingLogin: "Accesso in corso...",
+                loadingGoogle: "Accesso con Google...",
+                loadingFacebook: "Accesso con Facebook...",
+                loadingVehicles: "Caricamento veicoli...",
+                loadingMaintenance: "Caricamento interventi...",
+                // Altri testi
+                noVehiclesText: "Nessun veicolo trovato.",
+                noMaintenanceText: "Nessun intervento di manutenzione in programma.",
+                selectVehicleText: "Seleziona prima un veicolo",
+                gpsNotSupported: "GPS non supportato dal browser"
+            },
+            en: {
+                appTitle: "CareAutoPro",
+                appSubtitle: "Vehicle Maintenance Management",
+                loginTitle: "Login to CareAutoPro",
+                googleLoginText: "Continue with Google",
+                facebookLoginText: "Continue with Facebook",
+                orText: "Or",
+                emailPlaceholder: "Your email",
+                passwordPlaceholder: "Password",
+                passwordInfo: "🔒 Password must be between 6 and 72 characters",
+                loginButtonText: "Login",
+                signupButtonText: "Sign up with Email",
+                logoutText: "Logout",
+                vehiclesTabText: "Vehicles",
+                maintenanceTabText: "Maintenance",
+                trackingTabText: "Tracking",
+                profileTabText: "Profile",
+                addVehicleButtonText: "Add Vehicle",
+                addVehicleTitle: "Add New Vehicle",
+                vehicleNameLabel: "Vehicle Name",
+                vehicleNamePlaceholder: "Ex: Family Car",
+                vehiclePlateLabel: "License Plate",
+                vehiclePlatePlaceholder: "Ex: AB123CD",
+                vehicleTypeLabel: "Vehicle Type",
+                selectTypeText: "Select type...",
+                vehicleKmLabel: "Current KM",
+                vehicleKmPlaceholder: "Ex: 50000",
+                saveButtonText: "Save",
+                cancelButtonText: "Cancel",
+                startTrackingText: "Start Tracking",
+                stopTrackingText: "Stop Tracking",
+                currentLocationText: "Current Location",
+                trackingInfoTitle: "Tracking Information",
+                statusLabel: "Status:",
+                lastUpdateLabel: "Last Update:",
+                latitudeLabel: "Latitude:",
+                longitudeLabel: "Longitude:",
+                activeSessionTitle: "Active Session",
+                profileTitle: "Your Profile",
+                emailLabel: "Email:",
+                userIdLabel: "User ID:",
+                registrationDateLabel: "Registration Date:",
+                vehiclesCountLabel: "Registered Vehicles:",
+                updateProfileText: "Update Profile",
+                // Error messages
+                errorPasswordLength: "Password must be between 6 and 72 characters",
+                errorEmailRequired: "Enter email",
+                errorPasswordRequired: "Enter password",
+                errorInvalidEmail: "Invalid email",
+                errorWeakPassword: "Password is too weak",
+                errorEmailExists: "This email is already registered",
+                errorInvalidCredentials: "Invalid email or password",
+                errorNetwork: "Connection error. Please try again.",
+                errorUnknown: "Unknown error. Please try again.",
+                // Success messages
+                successRegistration: "Registration completed! Check your email to confirm your account.",
+                successLogin: "Login successful!",
+                successVehicleAdded: "Vehicle added successfully!",
+                successKmUpdated: "KM updated successfully!",
+                successProfileUpdated: "Profile updated!",
+                // Loading messages
+                loadingRegistration: "Registering...",
+                loadingLogin: "Logging in...",
+                loadingGoogle: "Logging in with Google...",
+                loadingFacebook: "Logging in with Facebook...",
+                loadingVehicles: "Loading vehicles...",
+                loadingMaintenance: "Loading maintenance...",
+                // Other texts
+                noVehiclesText: "No vehicles found.",
+                noMaintenanceText: "No maintenance scheduled.",
+                selectVehicleText: "Select a vehicle first",
+                gpsNotSupported: "GPS not supported by browser"
+            },
+            es: {
+                appTitle: "CareAutoPro",
+                appSubtitle: "Gestión de Mantenimiento de Vehículos",
+                loginTitle: "Iniciar sesión en CareAutoPro",
+                googleLoginText: "Continuar con Google",
+                facebookLoginText: "Continuar con Facebook",
+                orText: "O",
+                emailPlaceholder: "Tu email",
+                passwordPlaceholder: "Contraseña",
+                passwordInfo: "🔒 La contraseña debe tener entre 6 y 72 caracteres",
+                loginButtonText: "Iniciar sesión",
+                signupButtonText: "Registrarse con Email",
+                logoutText: "Cerrar sesión",
+                vehiclesTabText: "Vehículos",
+                maintenanceTabText: "Mantenimiento",
+                trackingTabText: "Seguimiento",
+                profileTabText: "Perfil",
+                addVehicleButtonText: "Añadir Vehículo",
+                addVehicleTitle: "Añadir Nuevo Vehículo",
+                vehicleNameLabel: "Nombre del Vehículo",
+                vehicleNamePlaceholder: "Ej: Coche Familiar",
+                vehiclePlateLabel: "Matrícula",
+                vehiclePlatePlaceholder: "Ej: AB123CD",
+                vehicleTypeLabel: "Tipo de Vehículo",
+                selectTypeText: "Seleccionar tipo...",
+                vehicleKmLabel: "KM Actuales",
+                vehicleKmPlaceholder: "Ej: 50000",
+                saveButtonText: "Guardar",
+                cancelButtonText: "Cancelar",
+                startTrackingText: "Iniciar Seguimiento",
+                stopTrackingText: "Detener Seguimiento",
+                currentLocationText: "Ubicación Actual",
+                trackingInfoTitle: "Información de Seguimiento",
+                statusLabel: "Estado:",
+                lastUpdateLabel: "Última Actualización:",
+                latitudeLabel: "Latitud:",
+                longitudeLabel: "Longitud:",
+                activeSessionTitle: "Sesión Activa",
+                profileTitle: "Tu Perfil",
+                emailLabel: "Email:",
+                userIdLabel: "ID de Usuario:",
+                registrationDateLabel: "Fecha de Registro:",
+                vehiclesCountLabel: "Vehículos Registrados:",
+                updateProfileText: "Actualizar Perfil",
+                // Mensajes de error
+                errorPasswordLength: "La contraseña debe tener entre 6 y 72 caracteres",
+                errorEmailRequired: "Ingresa el email",
+                errorPasswordRequired: "Ingresa la contraseña",
+                errorInvalidEmail: "Email no válido",
+                errorWeakPassword: "La contraseña es demasiado débil",
+                errorEmailExists: "Este email ya está registrado",
+                errorInvalidCredentials: "Email o contraseña no válidos",
+                errorNetwork: "Error de conexión. Intenta nuevamente.",
+                errorUnknown: "Error desconocido. Intenta nuevamente.",
+                // Mensajes de éxito
+                successRegistration: "¡Registro completado! Revisa tu email para confirmar tu cuenta.",
+                successLogin: "¡Inicio de sesión exitoso!",
+                successVehicleAdded: "¡Vehículo añadido exitosamente!",
+                successKmUpdated: "¡KM actualizados exitosamente!",
+                successProfileUpdated: "¡Perfil actualizado!",
+                // Mensajes de carga
+                loadingRegistration: "Registrando...",
+                loadingLogin: "Iniciando sesión...",
+                loadingGoogle: "Iniciando sesión con Google...",
+                loadingFacebook: "Iniciando sesión con Facebook...",
+                loadingVehicles: "Cargando vehículos...",
+                loadingMaintenance: "Cargando mantenimiento...",
+                // Otros textos
+                noVehiclesText: "No se encontraron vehículos.",
+                noMaintenanceText: "No hay mantenimiento programado.",
+                selectVehicleText: "Selecciona un vehículo primero",
+                gpsNotSupported: "GPS no compatible con el navegador"
+            },
+            fr: {
+                appTitle: "CareAutoPro",
+                appSubtitle: "Gestion de Maintenance Véhicule",
+                loginTitle: "Connectez-vous à CareAutoPro",
+                googleLoginText: "Continuer avec Google",
+                facebookLoginText: "Continuer avec Facebook",
+                orText: "Ou",
+                emailPlaceholder: "Votre email",
+                passwordPlaceholder: "Mot de passe",
+                passwordInfo: "🔒 Le mot de passe doit contenir entre 6 et 72 caractères",
+                loginButtonText: "Se connecter",
+                signupButtonText: "S'inscrire avec Email",
+                logoutText: "Déconnexion",
+                vehiclesTabText: "Véhicules",
+                maintenanceTabText: "Maintenance",
+                trackingTabText: "Suivi",
+                profileTabText: "Profil",
+                addVehicleButtonText: "Ajouter Véhicule",
+                addVehicleTitle: "Ajouter un Nouveau Véhicule",
+                vehicleNameLabel: "Nom du Véhicule",
+                vehicleNamePlaceholder: "Ex: Voiture Familiale",
+                vehiclePlateLabel: "Plaque d'immatriculation",
+                vehiclePlatePlaceholder: "Ex: AB123CD",
+                vehicleTypeLabel: "Type de Véhicule",
+                selectTypeText: "Sélectionner le type...",
+                vehicleKmLabel: "KM Actuels",
+                vehicleKmPlaceholder: "Ex: 50000",
+                saveButtonText: "Sauvegarder",
+                cancelButtonText: "Annuler",
+                startTrackingText: "Démarrer le Suivi",
+                stopTrackingText: "Arrêter le Suivi",
+                currentLocationText: "Position Actuelle",
+                trackingInfoTitle: "Informations de Suivi",
+                statusLabel: "Statut:",
+                lastUpdateLabel: "Dernière Mise à Jour:",
+                latitudeLabel: "Latitude:",
+                longitudeLabel: "Longitude:",
+                activeSessionTitle: "Session Active",
+                profileTitle: "Votre Profil",
+                emailLabel: "Email:",
+                userIdLabel: "ID Utilisateur:",
+                registrationDateLabel: "Date d'Inscription:",
+                vehiclesCountLabel: "Véhicules Enregistrés:",
+                updateProfileText: "Mettre à jour le Profil",
+                // Messages d'erreur
+                errorPasswordLength: "Le mot de passe doit contenir entre 6 et 72 caractères",
+                errorEmailRequired: "Entrez l'email",
+                errorPasswordRequired: "Entrez le mot de passe",
+                errorInvalidEmail: "Email invalide",
+                errorWeakPassword: "Le mot de passe est trop faible",
+                errorEmailExists: "Cet email est déjà enregistré",
+                errorInvalidCredentials: "Email ou mot de passe invalide",
+                errorNetwork: "Erreur de connexion. Veuillez réessayer.",
+                errorUnknown: "Erreur inconnue. Veuillez réessayer.",
+                // Messages de succès
+                successRegistration: "Inscription terminée ! Vérifiez votre email pour confirmer votre compte.",
+                successLogin: "Connexion réussie !",
+                successVehicleAdded: "Véhicule ajouté avec succès !",
+                successKmUpdated: "KM mis à jour avec succès !",
+                successProfileUpdated: "Profil mis à jour !",
+                // Messages de chargement
+                loadingRegistration: "Inscription en cours...",
+                loadingLogin: "Connexion en cours...",
+                loadingGoogle: "Connexion avec Google...",
+                loadingFacebook: "Connexion avec Facebook...",
+                loadingVehicles: "Chargement des véhicules...",
+                loadingMaintenance: "Chargement de la maintenance...",
+                // Autres textes
+                noVehiclesText: "Aucun véhicule trouvé.",
+                noMaintenanceText: "Aucune maintenance programmée.",
+                selectVehicleText: "Sélectionnez d'abord un véhicule",
+                gpsNotSupported: "GPS non supporté par le navigateur"
+            }
+        };
+
+        // Funzione per cambiare lingua
+        function changeLanguage(lang) {
+            currentLanguage = lang;
+            updateUITexts();
+        }
+
+        // Aggiorna tutti i testi dell'interfaccia
+        function updateUITexts() {
+            const t = translations[currentLanguage];
+            
+            // Aggiorna tutti gli elementi con ID
+            Object.keys(t).forEach(key => {
+                const element = document.getElementById(key);
+                if (element) {
+                    if (key.includes('Placeholder')) {
+                        element.placeholder = t[key];
+                    } else {
+                        element.textContent = t[key];
+                    }
+                }
+            });
+        }
+
+        // Gestione errori multilingua
+        function getErrorMessage(error, language = currentLanguage) {
+            const t = translations[language];
+            
+            if (error.message.includes('Password should be at least 6 characters') || 
+                error.message.includes('Password cannot be longer than 72 characters')) {
+                return t.errorPasswordLength;
+            } else if (error.message.includes('Invalid login credentials')) {
+                return t.errorInvalidCredentials;
+            } else if (error.message.includes('Email not confirmed')) {
+                return "Email non confermata. Controlla la tua casella di posta.";
+            } else if (error.message.includes('User already registered')) {
+                return t.errorEmailExists;
+            } else if (error.message.includes('Invalid email')) {
+                return t.errorInvalidEmail;
+            } else if (error.message.includes('Password is too weak')) {
+                return t.errorWeakPassword;
+            } else if (error.message.includes('Failed to fetch')) {
+                return t.errorNetwork;
+            } else {
+                return t.errorUnknown + " (" + error.message + ")";
+            }
+        }
 
         // Inizializzazione app
         document.addEventListener('DOMContentLoaded', async () => {
             await checkAuthState();
             setupEventListeners();
+            updateUITexts();
         });
 
         // Controllo stato autenticazione
@@ -611,8 +986,10 @@
         // Login con Google
         async function loginWithGoogle() {
             const status = document.getElementById('loginStatus');
+            const t = translations[currentLanguage];
+            
             status.className = 'status-message status-loading';
-            status.textContent = 'Accesso con Google...';
+            status.textContent = t.loadingGoogle;
 
             const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
@@ -623,15 +1000,17 @@
 
             if (error) {
                 status.className = 'status-message status-error';
-                status.textContent = 'Errore: ' + error.message;
+                status.textContent = getErrorMessage(error);
             }
         }
 
         // Login con Facebook
         async function loginWithFacebook() {
             const status = document.getElementById('loginStatus');
+            const t = translations[currentLanguage];
+            
             status.className = 'status-message status-loading';
-            status.textContent = 'Accesso con Facebook...';
+            status.textContent = t.loadingFacebook;
 
             const { data, error } = await supabase.auth.signInWithOAuth({
                 provider: 'facebook',
@@ -642,7 +1021,7 @@
 
             if (error) {
                 status.className = 'status-message status-error';
-                status.textContent = 'Errore: ' + error.message;
+                status.textContent = getErrorMessage(error);
             }
         }
 
@@ -651,15 +1030,29 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const status = document.getElementById('loginStatus');
+            const t = translations[currentLanguage];
 
-            if (!email || !password) {
+            // Validazione
+            if (!email) {
                 status.className = 'status-message status-error';
-                status.textContent = 'Inserisci email e password';
+                status.textContent = t.errorEmailRequired;
+                return;
+            }
+
+            if (!password) {
+                status.className = 'status-message status-error';
+                status.textContent = t.errorPasswordRequired;
+                return;
+            }
+
+            if (password.length < 6 || password.length > 72) {
+                status.className = 'status-message status-error';
+                status.textContent = t.errorPasswordLength;
                 return;
             }
 
             status.className = 'status-message status-loading';
-            status.textContent = 'Accesso in corso...';
+            status.textContent = t.loadingLogin;
 
             const { data, error } = await supabase.auth.signInWithPassword({
                 email: email,
@@ -668,7 +1061,7 @@
 
             if (error) {
                 status.className = 'status-message status-error';
-                status.textContent = 'Errore: ' + error.message;
+                status.textContent = getErrorMessage(error);
             } else {
                 currentUser = data.user;
                 showApp();
@@ -681,21 +1074,29 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const status = document.getElementById('loginStatus');
+            const t = translations[currentLanguage];
 
-            if (!email || !password) {
+            // Validazione
+            if (!email) {
                 status.className = 'status-message status-error';
-                status.textContent = 'Inserisci email e password';
+                status.textContent = t.errorEmailRequired;
                 return;
             }
 
-            if (password.length < 6) {
+            if (!password) {
                 status.className = 'status-message status-error';
-                status.textContent = 'La password deve essere di almeno 6 caratteri';
+                status.textContent = t.errorPasswordRequired;
+                return;
+            }
+
+            if (password.length < 6 || password.length > 72) {
+                status.className = 'status-message status-error';
+                status.textContent = t.errorPasswordLength;
                 return;
             }
 
             status.className = 'status-message status-loading';
-            status.textContent = 'Registrazione in corso...';
+            status.textContent = t.loadingRegistration;
 
             const { data, error } = await supabase.auth.signUp({
                 email: email,
@@ -707,10 +1108,10 @@
 
             if (error) {
                 status.className = 'status-message status-error';
-                status.textContent = 'Errore: ' + error.message;
+                status.textContent = getErrorMessage(error);
             } else {
                 status.className = 'status-message status-success';
-                status.textContent = 'Registrazione completata! Controlla la tua email per confermare l\'account.';
+                status.textContent = t.successRegistration;
                 
                 // Pulisci i campi
                 document.getElementById('email').value = '';
@@ -747,7 +1148,8 @@
 
                 if (!error && tipi) {
                     const select = document.getElementById('vehicleType');
-                    select.innerHTML = '<option value="">Seleziona tipo...</option>' +
+                    const t = translations[currentLanguage];
+                    select.innerHTML = `<option value="">${t.selectTypeText}</option>` +
                         tipi.map(tipo => 
                             `<option value="${tipo.tipoveicolo_id}">${tipo.descrizione}</option>`
                         ).join('');
@@ -760,7 +1162,8 @@
         // Caricamento veicoli
         async function loadVehicles() {
             const vehiclesList = document.getElementById('vehiclesList');
-            vehiclesList.innerHTML = '<div class="status-message status-loading">Caricamento veicoli...</div>';
+            const t = translations[currentLanguage];
+            vehiclesList.innerHTML = `<div class="status-message status-loading">${t.loadingVehicles}</div>`;
 
             try {
                 const { data: veicoli, error } = await supabase
@@ -783,8 +1186,8 @@
                 if (veicoli.length === 0) {
                     vehiclesList.innerHTML = `
                         <div class="status-message">
-                            <i class="fas fa-info-circle"></i> Nessun veicolo trovato.
-                            <br><small>Aggiungi il tuo primo veicolo!</small>
+                            <i class="fas fa-info-circle"></i> ${t.noVehiclesText}
+                            <br><small>${t.addVehicleButtonText}!</small>
                         </div>
                     `;
                     return;
@@ -803,10 +1206,10 @@
                         </div>
                         <div class="vehicle-actions">
                             <button class="btn btn-success btn-small" onclick="selectVehicle('${vehicle.veicolo_id}')">
-                                <i class="fas fa-play"></i> Usa
+                                <i class="fas fa-play"></i> ${currentLanguage === 'it' ? 'Usa' : 'Use'}
                             </button>
                             <button class="btn btn-warning btn-small" onclick="updateVehicleKm('${vehicle.veicolo_id}')">
-                                <i class="fas fa-sync"></i> Aggiorna KM
+                                <i class="fas fa-sync"></i> ${currentLanguage === 'it' ? 'Aggiorna KM' : 'Update KM'}
                             </button>
                         </div>
                     </div>
@@ -814,7 +1217,7 @@
 
             } catch (error) {
                 console.error('Errore caricamento veicoli:', error);
-                vehiclesList.innerHTML = '<div class="status-message status-error">Errore nel caricamento dei veicoli</div>';
+                vehiclesList.innerHTML = `<div class="status-message status-error">${getErrorMessage(error)}</div>`;
             }
         }
 
@@ -824,9 +1227,10 @@
             const targa = document.getElementById('vehiclePlate').value;
             const tipoId = document.getElementById('vehicleType').value;
             const km = parseInt(document.getElementById('vehicleKm').value) || 0;
+            const t = translations[currentLanguage];
 
             if (!nome || !targa) {
-                alert('Inserisci almeno nome e targa del veicolo');
+                alert(currentLanguage === 'it' ? 'Inserisci almeno nome e targa del veicolo' : 'Enter at least vehicle name and license plate');
                 return;
             }
 
@@ -849,17 +1253,18 @@
                 await loadVehicles();
                 hideAddVehicleForm();
                 
-                alert('Veicolo aggiunto con successo!');
+                alert(t.successVehicleAdded);
 
             } catch (error) {
                 console.error('Errore aggiunta veicolo:', error);
-                alert('Errore nell\'aggiunta del veicolo: ' + error.message);
+                alert(getErrorMessage(error));
             }
         }
 
         // Aggiorna KM veicolo
         async function updateVehicleKm(vehicleId) {
-            const nuovoKm = prompt('Inserisci i nuovi KM del veicolo:');
+            const t = translations[currentLanguage];
+            const nuovoKm = prompt(currentLanguage === 'it' ? 'Inserisci i nuovi KM del veicolo:' : 'Enter new vehicle KM:');
             if (!nuovoKm || isNaN(nuovoKm)) return;
 
             try {
@@ -874,11 +1279,11 @@
                 if (error) throw error;
 
                 await loadVehicles();
-                alert('KM aggiornati con successo!');
+                alert(t.successKmUpdated);
 
             } catch (error) {
                 console.error('Errore aggiornamento KM:', error);
-                alert('Errore nell\'aggiornamento dei KM');
+                alert(getErrorMessage(error));
             }
         }
 
@@ -887,7 +1292,8 @@
         // Caricamento interventi manutenzione
         async function loadMaintenance() {
             const maintenanceList = document.getElementById('maintenanceList');
-            maintenanceList.innerHTML = '<div class="status-message status-loading">Caricamento interventi...</div>';
+            const t = translations[currentLanguage];
+            maintenanceList.innerHTML = `<div class="status-message status-loading">${t.loadingMaintenance}</div>`;
 
             try {
                 const { data: interventi, error } = await supabase
@@ -910,7 +1316,7 @@
                 if (interventi.length === 0) {
                     maintenanceList.innerHTML = `
                         <div class="status-message">
-                            <i class="fas fa-check-circle"></i> Nessun intervento di manutenzione in programma.
+                            <i class="fas fa-check-circle"></i> ${t.noMaintenanceText}
                         </div>
                     `;
                     return;
@@ -939,7 +1345,7 @@
 
             } catch (error) {
                 console.error('Errore caricamento interventi:', error);
-                maintenanceList.innerHTML = '<div class="status-message status-error">Errore nel caricamento degli interventi</div>';
+                maintenanceList.innerHTML = `<div class="status-message status-error">${getErrorMessage(error)}</div>`;
             }
         }
 
@@ -978,13 +1384,15 @@
 
         // Inizia tracking GPS
         async function startTracking() {
+            const t = translations[currentLanguage];
+            
             if (!navigator.geolocation) {
-                alert('GPS non supportato dal browser');
+                alert(t.gpsNotSupported);
                 return;
             }
 
             if (!currentVehicle) {
-                alert('Seleziona prima un veicolo dalla tab Veicoli');
+                alert(t.selectVehicleText);
                 showTab('vehicles');
                 return;
             }
@@ -1004,7 +1412,7 @@
 
             if (error) {
                 console.error('Errore creazione sessione:', error);
-                alert('Errore nell\'avvio del tracking');
+                alert(getErrorMessage(error));
                 return;
             }
 
@@ -1012,7 +1420,7 @@
             updateActiveSessionUI(sessione);
             startTrackingInterval();
 
-            document.getElementById('trackingStatus').textContent = 'Attivo';
+            document.getElementById('trackingStatus').textContent = currentLanguage === 'it' ? 'Attivo' : 'Active';
             document.getElementById('trackingStatus').style.color = '#48bb78';
         }
 
@@ -1053,7 +1461,7 @@
                 console.error('Errore aggiornamento sessione:', error);
             }
 
-            document.getElementById('trackingStatus').textContent = 'Fermo';
+            document.getElementById('trackingStatus').textContent = currentLanguage === 'it' ? 'Fermo' : 'Stopped';
             document.getElementById('trackingStatus').style.color = '#e53e3e';
             document.getElementById('activeSessionInfo').classList.add('hidden');
             
@@ -1112,8 +1520,10 @@
 
         // Posizione attuale (una tantum)
         async function getCurrentLocation() {
+            const t = translations[currentLanguage];
+            
             if (!navigator.geolocation) {
-                alert('GPS non supportato dal browser');
+                alert(t.gpsNotSupported);
                 return;
             }
 
@@ -1125,10 +1535,17 @@
                     document.getElementById('currentLng').textContent = longitude.toFixed(6);
                     document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
                     
-                    alert(`Posizione attuale:\nLat: ${latitude.toFixed(6)}\nLng: ${longitude.toFixed(6)}\nPrecisione: ${accuracy}m`);
+                    const message = currentLanguage === 'it' 
+                        ? `Posizione attuale:\nLat: ${latitude.toFixed(6)}\nLng: ${longitude.toFixed(6)}\nPrecisione: ${accuracy}m`
+                        : `Current location:\nLat: ${latitude.toFixed(6)}\nLng: ${longitude.toFixed(6)}\nAccuracy: ${accuracy}m`;
+                    
+                    alert(message);
                 },
                 (error) => {
-                    alert('Errore GPS: ' + error.message);
+                    const errorMsg = currentLanguage === 'it' 
+                        ? 'Errore GPS: ' + error.message
+                        : 'GPS Error: ' + error.message;
+                    alert(errorMsg);
                 }
             );
         }
@@ -1145,7 +1562,11 @@
                 .single();
 
             if (vehicle) {
-                alert(`Veicolo selezionato: ${vehicle.nomeveicolo} (${vehicle.targa})\n\nOra puoi avviare il tracking dalla tab Tracking.`);
+                const message = currentLanguage === 'it'
+                    ? `Veicolo selezionato: ${vehicle.nomeveicolo} (${vehicle.targa})\n\nOra puoi avviare il tracking dalla tab Tracking.`
+                    : `Vehicle selected: ${vehicle.nomeveicolo} (${vehicle.targa})\n\nYou can now start tracking from the Tracking tab.`;
+                
+                alert(message);
                 showTab('tracking');
             }
         }
@@ -1164,21 +1585,23 @@
         // Aggiorna UI sessione attiva
         function updateActiveSessionUI(sessione) {
             document.getElementById('activeSessionInfo').classList.remove('hidden');
+            const t = translations[currentLanguage];
+            
             document.getElementById('sessionDetails').innerHTML = `
                 <div class="info-item">
-                    <span class="info-label">Veicolo:</span>
+                    <span class="info-label">${t.vehicleNameLabel}:</span>
                     <span class="info-value">${sessione.veicoli.nomeveicolo}</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">Targa:</span>
+                    <span class="info-label">${t.vehiclePlateLabel}:</span>
                     <span class="info-value">${sessione.veicoli.targa}</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">Iniziata:</span>
+                    <span class="info-label">${currentLanguage === 'it' ? 'Iniziata' : 'Started'}:</span>
                     <span class="info-value">${new Date(sessione.dataora_inizio).toLocaleString()}</span>
                 </div>
                 <div class="info-item">
-                    <span class="info-label">KM Iniziali:</span>
+                    <span class="info-label">${currentLanguage === 'it' ? 'KM Iniziali' : 'Initial KM'}:</span>
                     <span class="info-value">${sessione.km_iniziali || 0}</span>
                 </div>
             `;
@@ -1204,7 +1627,8 @@
 
         async function updateProfile() {
             await updateProfileInfo();
-            alert('Profilo aggiornato!');
+            const t = translations[currentLanguage];
+            alert(t.successProfileUpdated);
         }
 
         // ==================== UI HELPERS ====================
@@ -1243,6 +1667,13 @@
             // Enter per login
             document.getElementById('password').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') loginWithEmail();
+            });
+
+            // Limita la lunghezza della password
+            document.getElementById('password').addEventListener('input', (e) => {
+                if (e.target.value.length > 72) {
+                    e.target.value = e.target.value.substring(0, 72);
+                }
             });
         }
 
