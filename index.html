@@ -1,1 +1,366 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚗 CareAutoPro</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .app-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .icon {
+            font-size: 80px;
+            margin-bottom: 15px;
+        }
+        
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            color: #718096;
+            font-size: 16px;
+        }
+        
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        
+        .menu-btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .menu-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .menu-btn.gps { background: #48bb78; }
+        .menu-btn.maintenance { background: #9f7aea; }
+        .menu-btn.fuel { background: #ed8936; }
+        
+        .menu-btn .emoji {
+            font-size: 20px;
+        }
+        
+        .features {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .feature {
+            color: #4a5568;
+            margin: 10px 0;
+            padding-left: 24px;
+            position: relative;
+            font-size: 14px;
+        }
+        
+        .feature:before {
+            content: "✅";
+            position: absolute;
+            left: 0;
+        }
+        
+        .status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .status.connected {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status.error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .status.loading {
+            background: #bee3f8;
+            color: #2a4365;
+        }
 
+        .status.warning {
+            background: #feebc8;
+            color: #744210;
+        }
+
+        .debug-info {
+            background: #edf2f7;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #4a5568;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div class="icon">🚗</div>
+            <h1 class="title">CareAutoPro</h1>
+            <p class="subtitle">Gestione Manutenzione Veicoli</p>
+        </div>
+        
+        <div class="menu-buttons">
+            <button class="menu-btn" onclick="caricaVeicoli()">
+                <span class="emoji">📊</span>
+                Dashboard Veicoli
+            </button>
+            
+            <button class="menu-btn gps" onclick="avviaTracciamentoGPS()">
+                <span class="emoji">📍</span>
+                Tracciamento GPS
+            </button>
+            
+            <button class="menu-btn maintenance" onclick="gestisciManutenzioni()">
+                <span class="emoji">🔧</span>
+                Manutenzioni
+            </button>
+            
+            <button class="menu-btn fuel" onclick="gestisciRifornimenti()">
+                <span class="emoji">⛽</span>
+                Rifornimenti
+            </button>
+        </div>
+        
+        <div class="features">
+            <div class="feature">PWA Ready - Installa come app</div>
+            <div class="feature">GPS Tracking - Tracciamento percorsi</div>
+            <div class="feature">Mobile First - Ottimizzato per smartphone</div>
+            <div class="feature">Notifiche Manutenzione - Alert automatici</div>
+        </div>
+
+        <div class="menu-buttons">
+            <button class="menu-btn" onclick="testConnessioneCompleto()" style="background: #d69e2e;">
+                <span class="emoji">🧪</span>
+                Test Connessione Database
+            </button>
+        </div>
+        
+        <div id="status" class="status loading">
+            🔗 Inizializzazione connessione...
+        </div>
+
+        <div id="debug" class="debug-info" style="display: none;">
+            Debug info apparirà qui
+        </div>
+    </div>
+
+    <script>
+        // Configurazione Supabase
+        const SUPABASE_URL = 'https://jamttxwhexlvbkjccrqm.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbXR0eHdoZXhsdmJramNjcnFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2NTE5MDIsImV4cCI6MjA2OTIyNzkwMn0.MkQarY2dOUuwhFnOdaLHqb6idFocTGSfZKjqVoeDYBs';
+
+        const statusElement = document.getElementById('status');
+        const debugElement = document.getElementById('debug');
+
+        // Funzione per chiamate API dirette
+        async function supabaseFetch(endpoint, method = 'GET', body = null) {
+            const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
+            const options = {
+                method: method,
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                }
+            };
+            
+            if (body && (method === 'POST' || method === 'PATCH' || method === 'PUT')) {
+                options.body = JSON.stringify(body);
+            }
+            
+            try {
+                console.log(`🔗 Fetch a: ${url}`);
+                const response = await fetch(url, options);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Fetch riuscito:', data);
+                    return { data, error: null };
+                } else {
+                    const errorText = await response.text();
+                    console.error('❌ Fetch fallito:', response.status, errorText);
+                    return { data: null, error: `HTTP ${response.status}: ${errorText}` };
+                }
+            } catch (error) {
+                console.error('❌ Errore fetch:', error);
+                return { data: null, error: error.message };
+            }
+        }
+
+        // Test connessione completo
+        async function testConnessioneCompleto() {
+            statusElement.className = 'status loading';
+            statusElement.textContent = '🧪 Test connessione in corso...';
+            debugElement.style.display = 'block';
+            debugElement.innerHTML = 'Iniziando test connessione...<br>';
+            
+            // Test tabelle REALI dal tuo database
+            const tabelle = [
+                'veicoli?select=veicolo_id,nomeveicolo&limit=1',
+                'utenti?select=utente_id,nominativo&limit=1', 
+                'config?select=*&limit=1',
+                'tipoveicoli?select=tipoveicolo_id,descrizione&limit=1',
+                'operazioni?select=operazione_id,descrizione&limit=1'
+            ];
+            
+            let connessioneRiuscita = false;
+            let tabelleAccessibili = [];
+            
+            for (const tabella of tabelle) {
+                const nomeTabella = tabella.split('?')[0];
+                debugElement.innerHTML += `<br>🔍 Test: ${nomeTabella}...`;
+                
+                const { data, error } = await supabaseFetch(tabella);
+                
+                if (!error && data !== null) {
+                    debugElement.innerHTML += ` ✅ Accessibile (${data.length} record)<br>`;
+                    connessioneRiuscita = true;
+                    tabelleAccessibili.push(nomeTabella);
+                } else {
+                    debugElement.innerHTML += ` ❌ ${error ? error.split('\n')[0] : 'Nessun dato'}<br>`;
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+            
+            if (connessioneRiuscita) {
+                statusElement.className = 'status connected';
+                statusElement.textContent = `✅ Database connesso! Tabelle: ${tabelleAccessibili.join(', ')}`;
+                debugElement.innerHTML += `<br><strong>🎉 CONNESSIONE RIUSCITA!</strong><br>Tabelle accessibili: ${tabelleAccessibili.join(', ')}`;
+            } else {
+                statusElement.className = 'status error';
+                statusElement.textContent = '❌ Nessuna tabella accessibile';
+                debugElement.innerHTML += '<br><strong>❌ PROBLEMA CONNESSIONE</strong><br>Controlla: 1) CORS settings in Supabase 2) Nomi tabelle corretti';
+            }
+        }
+
+        // Carica veicoli
+        async function caricaVeicoli() {
+            try {
+                statusElement.className = 'status loading';
+                statusElement.textContent = '📊 Caricamento veicoli...';
+                
+                const { data, error } = await supabaseFetch('veicoli?select=veicolo_id,nomeveicolo,targa,kmattuali&order=nomeveicolo');
+              
+                if (error) throw new Error(error);
+                
+                if (data && data.length > 0) {
+                    const lista = data.map(v => 
+                        `• ${v.nomeveicolo} (${v.targa}) - ${v.kmattuali || 0} km`
+                    ).join('\n');
+                    
+                    alert(`📊 I TUOI VEICOLI (${data.length}):\n${lista}`);
+                    statusElement.className = 'status connected';
+                    statusElement.textContent = '✅ Veicoli caricati con successo!';
+                } else {
+                    alert('📊 Nessun veicolo trovato nel database');
+                    statusElement.className = 'status warning';
+                    statusElement.textContent = '⚠️ Nessun veicolo trovato';
+                }
+                
+            } catch (error) {
+                statusElement.className = 'status error';
+                statusElement.textContent = '❌ Errore caricamento dati';
+                alert('❌ Errore caricamento veicoli: ' + error.message);
+            }
+        }
+
+        // Tracciamento GPS
+        function avviaTracciamentoGPS() {
+            if (!navigator.geolocation) {
+                alert('❌ GPS non supportato dal browser');
+                return;
+            }
+
+            alert('📍 Avviando tracciamento GPS...');
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    alert(`📍 Posizione rilevata:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}`);
+                },
+                (error) => {
+                    alert('❌ Errore GPS: ' + error.message);
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        function gestisciManutenzioni() {
+            alert('🔧 Gestione manutenzioni - Prossima feature!');
+        }
+
+        function gestisciRifornimenti() {
+            alert('⛽ Gestione rifornimenti - Prossima feature!');
+        }
+
+        // Inizializza app
+        window.addEventListener('load', () => {
+            console.log('🚗 CareAutoPro avviato su:', window.location.hostname);
+            statusElement.textContent = '✅ App caricata - Clicca "Test Connessione"';
+            statusElement.className = 'status connected';
+        });
+    </script>
+</body>
+</html>
