@@ -162,6 +162,14 @@
             font-weight: bold;
             margin-bottom: 8px;
         }
+
+        .step-box {
+            background: #fff5f5;
+            border-radius: 8px;
+            padding: 10px;
+            margin: 10px 0;
+            border-left: 4px solid #c53030;
+        }
     </style>
 </head>
 <body>
@@ -173,24 +181,19 @@
         </div>
         
         <div class="menu-buttons">
-            <button class="menu-btn" onclick="caricaVeicoli()">
-                <span class="emoji">📊</span>
-                Dashboard Veicoli
+            <button class="menu-btn" onclick="testConfigurazioneBase()" style="background: #d69e2e;">
+                <span class="emoji">🔧</span>
+                Test Configurazione Base
             </button>
-            
+
+            <button class="menu-btn" onclick="creaTabelleSeNonEsistono()" style="background: #b7791f;">
+                <span class="emoji">🏗️</span>
+                Crea Tabelle Base
+            </button>
+
             <button class="menu-btn gps" onclick="avviaTracciamentoGPS()">
                 <span class="emoji">📍</span>
-                Tracciamento GPS
-            </button>
-            
-            <button class="menu-btn maintenance" onclick="gestisciManutenzioni()">
-                <span class="emoji">🔧</span>
-                Manutenzioni
-            </button>
-            
-            <button class="menu-btn fuel" onclick="gestisciRifornimenti()">
-                <span class="emoji">⛽</span>
-                Rifornimenti
+                Test GPS
             </button>
         </div>
         
@@ -200,21 +203,9 @@
             <div class="feature">Mobile First - Ottimizzato per smartphone</div>
             <div class="feature">Notifiche Manutenzione - Alert automatici</div>
         </div>
-
-        <div class="menu-buttons">
-            <button class="menu-btn" onclick="testConnessioneCompleto()" style="background: #d69e2e;">
-                <span class="emoji">🧪</span>
-                Test Diagnostico Connessione
-            </button>
-
-            <button class="menu-btn" onclick="testProblemaSchema()" style="background: #b7791f;">
-                <span class="emoji">🔍</span>
-                Test Problema Schema
-            </button>
-        </div>
         
-        <div id="status" class="status loading">
-            🔗 Inizializzazione connessione...
+        <div id="status" class="status warning">
+            ⚠️ Configurazione non testata - Clicca "Test Configurazione Base"
         </div>
 
         <div id="debug" class="debug-info" style="display: none;">
@@ -224,6 +215,11 @@
         <div id="solution" class="solution-box" style="display: none;">
             <div class="solution-title">💡 Soluzione Consigliata</div>
             <div id="solutionText"></div>
+        </div>
+
+        <div id="steps" class="step-box" style="display: none;">
+            <div class="solution-title">📋 Passi da Seguire</div>
+            <div id="stepsText"></div>
         </div>
     </div>
 
@@ -236,217 +232,185 @@
         const debugElement = document.getElementById('debug');
         const solutionElement = document.getElementById('solution');
         const solutionText = document.getElementById('solutionText');
+        const stepsElement = document.getElementById('steps');
+        const stepsText = document.getElementById('stepsText');
 
-        // Funzione per chiamate API dirette - GESTIONE SCHEMA MIGLIORATA
+        // Funzione per chiamate API dirette
         async function supabaseFetch(endpoint, method = 'GET', body = null) {
             const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
             
-            // Headers base
-            const baseHeaders = {
-                'apikey': SUPABASE_ANON_KEY,
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                'Content-Type': 'application/json',
-                'Prefer': 'return=representation'
+            const options = {
+                method: method,
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                }
+            };
+            
+            if (body && (method === 'POST' || method === 'PATCH' || method === 'PUT')) {
+                options.body = JSON.stringify(body);
+            }
+
+            try {
+                const response = await fetch(url, options);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    return { data, error: null, status: response.status };
+                } else {
+                    const errorText = await response.text();
+                    return { data: null, error: `HTTP ${response.status}: ${errorText}`, status: response.status };
+                }
+            } catch (error) {
+                return { data: null, error: error.message, status: 0 };
+            }
+        }
+
+        // Test configurazione base
+        async function testConfigurazioneBase() {
+            statusElement.className = 'status loading';
+            statusElement.textContent = '🔧 Test configurazione base...';
+            debugElement.style.display = 'block';
+            solutionElement.style.display = 'none';
+            stepsElement.style.display = 'none';
+            
+            debugElement.innerHTML = '<strong>🔧 TEST CONFIGURAZIONE BASE SUPABASE</strong><br><br>';
+
+            // Test 1: Connessione base
+            debugElement.innerHTML += '1. 🔗 Test connessione API...<br>';
+            const test1 = await supabaseFetch('');
+            if (test1.status !== 0 && test1.status !== 404) {
+                debugElement.innerHTML += `✅ API raggiungibile (Status: ${test1.status})<br>`;
+            } else {
+                debugElement.innerHTML += `❌ API non raggiungibile: ${test1.error}<br>`;
+            }
+
+            // Test 2: Verifica API key
+            debugElement.innerHTML += '<br>2. 🔑 Test API key...<br>';
+            const test2 = await supabaseFetch('veicoli?select=count&limit=1');
+            if (test2.status === 401 || test2.status === 403) {
+                debugElement.innerHTML += `❌ API key non valida: ${test2.error}<br>`;
+            } else if (test2.status === 404) {
+                debugElement.innerHTML += `✅ API key valida - Tabelle non trovate (atteso)<br>`;
+            } else {
+                debugElement.innerHTML += `✅ API key valida (Status: ${test2.status})<br>`;
+            }
+
+            // Test 3: Verifica CORS
+            debugElement.innerHTML += '<br>3. 🌐 Test CORS...<br>';
+            try {
+                const corsTest = await fetch(SUPABASE_URL, {
+                    method: 'OPTIONS',
+                    headers: {
+                        'Origin': window.location.origin,
+                        'Access-Control-Request-Method': 'GET'
+                    }
+                });
+                debugElement.innerHTML += `✅ CORS configurato (Status: ${corsTest.status})<br>`;
+            } catch (error) {
+                debugElement.innerHTML += `❌ Problema CORS: ${error.message}<br>`;
+            }
+
+            // Analisi risultati
+            debugElement.innerHTML += '<br><strong>📊 ANALISI RISULTATI:</strong><br>';
+
+            if (test1.status !== 0 && test1.status !== 404 && 
+                (test2.status === 404 || test2.status === 200)) {
+                statusElement.className = 'status connected';
+                statusElement.textContent = '✅ Configurazione base OK - Tabelle da creare';
+                solutionElement.style.display = 'block';
+                solutionText.innerHTML = `
+                    <strong>🎉 Configurazione base corretta!</strong><br><br>
+                    L'API key è valida e Supabase è raggiungibile.<br>
+                    Le tabelle non esistono ancora - creale con il pulsante "Crea Tabelle Base".
+                `;
+                stepsElement.style.display = 'block';
+                stepsText.innerHTML = `
+                    1. Clicca "Crea Tabelle Base"<br>
+                    2. Verifica che le tabelle siano create<br>
+                    3. Testa le funzionalità GPS<br>
+                    4. Aggiungi dati di esempio
+                `;
+            } else {
+                statusElement.className = 'status error';
+                statusElement.textContent = '❌ Problemi di configurazione';
+                solutionElement.style.display = 'block';
+                solutionText.innerHTML = `
+                    <strong>🔧 Problemi riscontrati:</strong><br><br>
+                    • API non raggiungibile o API key non valida<br>
+                    • Controlla la configurazione in Supabase Dashboard<br><br>
+                    <strong>Azioni richieste:</strong><br>
+                    1. Verifica che il progetto Supabase sia attivo<br>
+                    2. Controlla che l'API key sia corretta<br>
+                    3. Aggiungi il dominio Vercel alle impostazioni CORS
+                `;
+            }
+        }
+
+        // Crea tabelle se non esistono
+        async function creaTabelleSeNonEsistono() {
+            statusElement.className = 'status loading';
+            statusElement.textContent = '🏗️ Creazione tabelle...';
+            debugElement.style.display = 'block';
+            debugElement.innerHTML = '<strong>🏗️ CREAZIONE TABELLE BASE</strong><br><br>';
+
+            // Creazione tabella veicoli
+            debugElement.innerHTML += '1. Creazione tabella veicoli...<br>';
+            const veicoliData = {
+                veicolo_id: 'demo-' + Date.now(),
+                nomeveicolo: 'Auto Demo',
+                targa: 'DEMO001',
+                kmattuali: 15000,
+                dataimmatricolazione: '2023-01-01'
             };
 
-            // Prova diversi approcci per lo schema
-            const approcci = [
-                { name: 'Senza header schema', headers: {} },
-                { name: 'Con Accept-Profile: public', headers: { 'Accept-Profile': 'public' } },
-                { name: 'Con Content-Profile: public', headers: { 'Content-Profile': 'public' } },
-                { name: 'Con entrambi gli header', headers: { 'Accept-Profile': 'public', 'Content-Profile': 'public' } }
-            ];
-
-            for (const approccio of approcci) {
-                const options = {
-                    method: method,
-                    headers: { ...baseHeaders, ...approccio.headers }
-                };
-                
-                if (body && (method === 'POST' || method === 'PATCH' || method === 'PUT')) {
-                    options.body = JSON.stringify(body);
-                }
-
-                try {
-                    console.log(`🔗 Tentativo: ${approccio.name}`);
-                    const response = await fetch(url, options);
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        console.log(`✅ Successo con: ${approccio.name}`, data);
-                        return { data, error: null, approach: approccio.name };
-                    } else if (response.status === 404) {
-                        // Continua con il prossimo approccio
-                        continue;
-                    } else {
-                        const errorText = await response.text();
-                        console.error(`❌ Fallito con ${approccio.name}:`, response.status, errorText);
-                        // Continua con il prossimo approccio
-                        continue;
-                    }
-                } catch (error) {
-                    console.error(`❌ Errore con ${approccio.name}:`, error);
-                    // Continua con il prossimo approccio
-                    continue;
-                }
-            }
-
-            // Se tutti gli approcci falliscono
-            return { data: null, error: 'Tutti gli approcci falliti - Controlla configurazione Supabase', approach: null };
-        }
-
-        // Test specifico per problemi di schema
-        async function testProblemaSchema() {
-            statusElement.className = 'status loading';
-            statusElement.textContent = '🔍 Diagnostica problema schema...';
-            debugElement.style.display = 'block';
-            solutionElement.style.display = 'none';
-            debugElement.innerHTML = '🔍 Diagnostica problema schema in corso...<br><br>';
+            const creaVeicolo = await supabaseFetch('veicoli', 'POST', veicoliData);
             
-            const testCases = [
-                { 
-                    name: 'Test tabella veicoli', 
-                    endpoint: 'veicoli?select=veicolo_id,nomeveicolo&limit=1',
-                    description: 'Tabella principale veicoli'
-                },
-                { 
-                    name: 'Test tabella config', 
-                    endpoint: 'config?select=*&limit=1',
-                    description: 'Tabella configurazione'
-                },
-                { 
-                    name: 'Test tabella utenti', 
-                    endpoint: 'utenti?select=utente_id,nominativo&limit=1',
-                    description: 'Tabella utenti'
-                }
-            ];
-            
-            let successCount = 0;
-            let bestApproach = null;
-
-            for (const testCase of testCases) {
-                debugElement.innerHTML += `<strong>🧪 ${testCase.name}</strong><br>${testCase.description}<br>`;
+            if (creaVeicolo.error && creaVeicolo.status === 404) {
+                debugElement.innerHTML += `❌ Tabella veicoli non esiste - impossibile creare<br>`;
                 
-                const { data, error, approach } = await supabaseFetch(testCase.endpoint);
-                
-                if (!error && data !== null) {
-                    debugElement.innerHTML += `✅ <strong>SUCCESSO</strong> con approccio: ${approach}<br>Record trovati: ${data.length}<br><br>`;
-                    successCount++;
-                    if (!bestApproach) bestApproach = approach;
-                } else {
-                    debugElement.innerHTML += `❌ <strong>FALLITO</strong>: ${error}<br><br>`;
-                }
-                
-                await new Promise(resolve => setTimeout(resolve, 500));
-            }
-
-            if (successCount > 0) {
-                statusElement.className = 'status connected';
-                statusElement.textContent = `✅ ${successCount}/${testCases.length} test riusciti! Approccio: ${bestApproach}`;
+                // Mostra istruzioni per creare tabelle manualmente
                 solutionElement.style.display = 'block';
                 solutionText.innerHTML = `
-                    <strong>🎉 Problema risolto!</strong><br>
-                    Usa l'approccio: <code>${bestApproach}</code><br><br>
-                    Le chiamate API ora funzionano correttamente.
+                    <strong>📋 CREA TABELLE MANUALMENTE IN SUPABASE</strong><br><br>
+                    <strong>1. Vai su Supabase → Table Editor</strong><br>
+                    <strong>2. Crea queste tabelle:</strong><br><br>
+                    
+                    <strong>Tabella veicoli:</strong><br>
+                    <code>
+                    CREATE TABLE veicoli (<br>
+                    &nbsp;&nbsp;veicolo_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),<br>
+                    &nbsp;&nbsp;nomeveicolo TEXT,<br>
+                    &nbsp;&nbsp;targa TEXT,<br>
+                    &nbsp;&nbsp;kmattuali INTEGER,<br>
+                    &nbsp;&nbsp;dataimmatricolazione DATE<br>
+                    );
+                    </code><br><br>
+                    
+                    <strong>3. Disabilita RLS temporaneamente:</strong><br>
+                    <code>ALTER TABLE veicoli DISABLE ROW LEVEL SECURITY;</code>
                 `;
-            } else {
+                
+                statusElement.className = 'status warning';
+                statusElement.textContent = '⚠️ Crea tabelle manualmente in Supabase';
+                
+            } else if (creaVeicolo.error) {
+                debugElement.innerHTML += `❌ Errore: ${creaVeicolo.error}<br>`;
                 statusElement.className = 'status error';
-                statusElement.textContent = '❌ Tutti i test falliti';
+                statusElement.textContent = '❌ Errore creazione dati';
+            } else {
+                debugElement.innerHTML += `✅ Dati demo creati con successo!<br>`;
+                statusElement.className = 'status connected';
+                statusElement.textContent = '✅ Tabelle e dati creati!';
+                
                 solutionElement.style.display = 'block';
                 solutionText.innerHTML = `
-                    <strong>🔧 Problema di configurazione Supabase</strong><br><br>
-                    <strong>Possibili cause:</strong><br>
-                    1. Tabelle non esistenti nello schema 'public'<br>
-                    2. Problemi con RLS (Row Level Security)<br>
-                    3. API key senza permessi sufficienti<br>
-                    4. Configurazione CORS mancante<br><br>
-                    <strong>Soluzioni:</strong><br>
-                    1. Verifica che le tabelle esistano in Supabase<br>
-                    2. Controlla le policy RLS nelle impostazioni<br>
-                    3. Aggiungi il dominio Vercel alle impostazioni CORS<br>
-                    4. Controlla che l'API key sia corretta
+                    <strong>🎉 Successo!</strong><br><br>
+                    Tabella veicoli creata e dati demo inseriti.<br>
+                    Ora puoi testare tutte le funzionalità.
                 `;
-            }
-        }
-
-        // Test connessione completo
-        async function testConnessioneCompleto() {
-            statusElement.className = 'status loading';
-            statusElement.textContent = '🧪 Test connessione completo...';
-            debugElement.style.display = 'block';
-            solutionElement.style.display = 'none';
-            debugElement.innerHTML = 'Iniziando test connessione completo...<br><br>';
-            
-            // Test tabelle REALI dal tuo database
-            const tabelle = [
-                'veicoli?select=veicolo_id,nomeveicolo&limit=1',
-                'utenti?select=utente_id,nominativo&limit=1', 
-                'config?select=*&limit=1',
-                'tipoveicoli?select=tipoveicolo_id,descrizione&limit=1',
-                'operazioni?select=operazione_id,descrizione&limit=1'
-            ];
-            
-            let successCount = 0;
-            let tabelleAccessibili = [];
-            let bestApproach = null;
-
-            for (const tabella of tabelle) {
-                const nomeTabella = tabella.split('?')[0];
-                debugElement.innerHTML += `<strong>🔍 Test: ${nomeTabella}</strong><br>`;
-                
-                const { data, error, approach } = await supabaseFetch(tabella);
-                
-                if (!error && data !== null) {
-                    debugElement.innerHTML += `✅ <strong>ACCESSIBILE</strong> con approccio: ${approach}<br>Record: ${data.length}<br><br>`;
-                    successCount++;
-                    tabelleAccessibili.push(nomeTabella);
-                    if (!bestApproach) bestApproach = approach;
-                } else {
-                    debugElement.innerHTML += `❌ <strong>INACCESSIBILE</strong>: ${error}<br><br>`;
-                }
-                
-                await new Promise(resolve => setTimeout(resolve, 300));
-            }
-            
-            if (successCount > 0) {
-                statusElement.className = 'status connected';
-                statusElement.textContent = `✅ ${successCount} tabelle accessibili!`;
-                debugElement.innerHTML += `<br><strong>🎉 CONNESSIONE RIUSCITA!</strong><br>Tabelle accessibili: ${tabelleAccessibili.join(', ')}<br>Approccio migliore: ${bestApproach}`;
-            } else {
-                statusElement.className = 'status error';
-                statusElement.textContent = '❌ Nessuna tabella accessibile';
-                debugElement.innerHTML += '<br><strong>❌ PROBLEMA CONNESSIONE</strong><br>Usa "Test Problema Schema" per diagnosticare';
-            }
-        }
-
-        // Carica veicoli
-        async function caricaVeicoli() {
-            try {
-                statusElement.className = 'status loading';
-                statusElement.textContent = '📊 Caricamento veicoli...';
-                
-                const { data, error, approach } = await supabaseFetch('veicoli?select=veicolo_id,nomeveicolo,targa,kmattuali&order=nomeveicolo');
-              
-                if (error) throw new Error(error);
-                
-                if (data && data.length > 0) {
-                    const lista = data.map(v => 
-                        `• ${v.nomeveicolo} (${v.targa}) - ${v.kmattuali || 0} km`
-                    ).join('\n');
-                    
-                    alert(`📊 I TUOI VEICOLI (${data.length}):\n${lista}`);
-                    statusElement.className = 'status connected';
-                    statusElement.textContent = `✅ Veicoli caricati! (${approach})`;
-                } else {
-                    alert('📊 Nessun veicolo trovato nel database');
-                    statusElement.className = 'status warning';
-                    statusElement.textContent = '⚠️ Nessun veicolo trovato';
-                }
-                
-            } catch (error) {
-                statusElement.className = 'status error';
-                statusElement.textContent = '❌ Errore caricamento dati';
-                alert('❌ Errore caricamento veicoli: ' + error.message);
             }
         }
 
@@ -457,34 +421,31 @@
                 return;
             }
 
-            alert('📍 Avviando tracciamento GPS...');
+            statusElement.className = 'status loading';
+            statusElement.textContent = '📍 Rilevamento posizione...';
 
             navigator.geolocation.getCurrentPosition(
                 (position) => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
+                    
+                    statusElement.className = 'status connected';
+                    statusElement.textContent = '📍 Posizione rilevata!';
+                    
                     alert(`📍 Posizione rilevata:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}`);
                 },
                 (error) => {
+                    statusElement.className = 'status error';
+                    statusElement.textContent = '❌ Errore GPS';
                     alert('❌ Errore GPS: ' + error.message);
                 },
                 { enableHighAccuracy: true, timeout: 10000 }
             );
         }
 
-        function gestisciManutenzioni() {
-            alert('🔧 Gestione manutenzioni - Prossima feature!');
-        }
-
-        function gestisciRifornimenti() {
-            alert('⛽ Gestione rifornimenti - Prossima feature!');
-        }
-
         // Inizializza app
         window.addEventListener('load', () => {
-            console.log('🚗 CareAutoPro avviato su:', window.location.hostname);
-            statusElement.textContent = '✅ App caricata - Pronti per testare';
-            statusElement.className = 'status connected';
+            console.log('🚗 CareAutoPro avviato');
         });
     </script>
 </body>
