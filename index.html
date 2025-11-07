@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚗 CareAutoPro</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * {
             margin: 0;
@@ -157,6 +156,15 @@
             width: 100%;
             margin-top: 10px;
         }
+
+        .debug-info {
+            background: #edf2f7;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 12px;
+            color: #4a5568;
+        }
     </style>
 </head>
 <body>
@@ -198,15 +206,19 @@
 
         <div class="demo-data">
             <p style="color: #234e52; font-size: 14px; margin-bottom: 10px;">
-                <strong>💡 Modalità Demo:</strong> File locale - Alcune funzioni limitate
+                <strong>🔧 Modalità Fetch Diretto</strong> - Bypass CORS
             </p>
-            <button class="demo-btn" onclick="caricaDatiDemo()">
-                🚗 Carica Dati Demo
+            <button class="demo-btn" onclick="testConnessioneCompleto()">
+                🧪 Test Connessione Completo
             </button>
         </div>
         
-        <div id="status" class="status warning">
-            ⚠️ File locale - Alcune funzioni potrebbero non funzionare
+        <div id="status" class="status loading">
+            🔗 Inizializzazione connessione...
+        </div>
+
+        <div id="debug" class="debug-info" style="display: none;">
+            Debug info apparirà qui
         </div>
     </div>
 
@@ -216,106 +228,115 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbXR0eHdoZXhsdmJramNjcnFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2NTE5MDIsImV4cCI6MjA2OTIyNzkwMn0.MkQarY2dOUuwhFnOdaLHqb6idFocTGSfZKjqVoeDYBs';
 
         const statusElement = document.getElementById('status');
-        let supabaseClient = null;
+        const debugElement = document.getElementById('debug');
 
-        // Prova a inizializzare Supabase solo se siamo su HTTPS
-        function inizializzaSupabase() {
+        // Funzione per chiamate API dirette (bypass CORS)
+        async function supabaseFetch(endpoint, method = 'GET', body = null) {
+            const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
+            const options = {
+                method: method,
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                    'Content-Type': 'application/json',
+                    'Prefer': 'return=representation'
+                }
+            };
+            
+            if (body && (method === 'POST' || method === 'PATCH' || method === 'PUT')) {
+                options.body = JSON.stringify(body);
+            }
+            
             try {
-                if (window.location.protocol === 'https:' || window.location.hostname === 'localhost') {
-                    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                    testConnessione();
+                console.log(`🔗 Fetch a: ${url}`);
+                const response = await fetch(url, options);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    console.log('✅ Fetch riuscito:', data);
+                    return { data, error: null };
                 } else {
-                    statusElement.className = 'status warning';
-                    statusElement.innerHTML = '⚠️ File locale - <a href="#" onclick="mostraIstruzioni()" style="color: #744210; text-decoration: underline;">Come risolvere</a>';
+                    const errorText = await response.text();
+                    console.error('❌ Fetch fallito:', response.status, errorText);
+                    return { data: null, error: `HTTP ${response.status}: ${errorText}` };
                 }
             } catch (error) {
-                statusElement.className = 'status error';
-                statusElement.textContent = '❌ Errore inizializzazione app';
+                console.error('❌ Errore fetch:', error);
+                return { data: null, error: error.message };
             }
         }
 
-        function mostraIstruzioni() {
-            alert(`🔧 PER RISOLVERE:
-
-1. INSTALLA "Web Server for Chrome"
-2. SELEZIONA LA CARTELLA DEL FILE
-3. AVVIA IL SERVER
-4. APRI http://localhost:8887
-
-Oppure carica il file su:
-• GitHub Pages
-• Vercel
-• Netlify
-
-Così Supabase funzionerà!`);
+        // Test connessione completo
+        async function testConnessioneCompleto() {
+            statusElement.className = 'status loading';
+            statusElement.textContent = '🧪 Test connessione in corso...';
+            debugElement.style.display = 'block';
+            debugElement.innerHTML = 'Iniziando test...<br>';
+            
+            // Test diverse tabelle
+            const tabelle = ['veicoli', 'utenti', 'profiles', 'config'];
+            let connessioneRiuscita = false;
+            
+            for (const tabella of tabelle) {
+                debugElement.innerHTML += `<br>🔍 Test tabella: ${tabella}...`;
+                
+                const { data, error } = await supabaseFetch(`${tabella}?select=*&limit=1`);
+                
+                if (!error) {
+                    debugElement.innerHTML += ` ✅ Accessibile<br>`;
+                    connessioneRiuscita = true;
+                    break;
+                } else {
+                    debugElement.innerHTML += ` ❌ ${error}<br>`;
+                }
+                
+                // Aspetta tra un test e l'altro
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+            
+            if (connessioneRiuscita) {
+                statusElement.className = 'status connected';
+                statusElement.textContent = '✅ Database connesso con successo!';
+                debugElement.innerHTML += '<br><strong>🎉 CONNESSIONE RIUSCITA!</strong>';
+            } else {
+                statusElement.className = 'status error';
+                statusElement.textContent = '❌ Impossibile connettersi al database';
+                debugElement.innerHTML += '<br><strong>❌ TUTTI I TEST FALLITI</strong><br>Controlla configurazione CORS in Supabase';
+            }
         }
 
-        // Test connessione
-        async function testConnessione() {
-            if (!supabaseClient) return;
-            
+        // Carica veicoli
+        async function caricaVeicoli() {
             try {
                 statusElement.className = 'status loading';
-                statusElement.textContent = '🔗 Test connessione database...';
+                statusElement.textContent = '📊 Caricamento veicoli...';
                 
-                const { data, error } = await supabaseClient
-                    .from('veicoli')
-                    .select('veicolo_id, nomeveicolo, targa')
-                    .limit(1);
-                
-                if (error) throw error;
+                const { data, error } = await supabaseFetch('veicoli?select=veicolo_id,nomeveicolo,targa,kmattuali&order=nomeveicolo');
+              
+                if (error) throw new Error(error);
                 
                 statusElement.className = 'status connected';
                 statusElement.textContent = '✅ Database connesso con successo!';
                 
+                if (data && data.length > 0) {
+                    const lista = data.map(v => 
+                        `• ${v.nomeveicolo} (${v.targa}) - ${v.kmattuali || 0} km`
+                    ).join('\n');
+                    
+                    alert(`📊 I TUOI VEICOLI (${data.length}):\n${lista}`);
+                } else {
+                    alert('📊 Nessun veicolo trovato nel database');
+                }
+                
             } catch (error) {
                 statusElement.className = 'status error';
-                statusElement.textContent = '❌ Errore connessione database';
+                statusElement.textContent = '❌ Errore caricamento dati';
+                alert('❌ Errore caricamento veicoli: ' + error.message);
+                console.error('Errore:', error);
             }
         }
 
-        // Carica veicoli con fallback a demo
-        async function caricaVeicoli() {
-            if (supabaseClient) {
-                try {
-                    const { data, error } = await supabaseClient
-                        .from('veicoli')
-                        .select('veicolo_id, nomeveicolo, targa, kmattuali')
-                        .order('nomeveicolo');
-                  
-                    if (!error && data && data.length > 0) {
-                        const lista = data.map(v => 
-                            `• ${v.nomeveicolo} (${v.targa}) - ${v.kmattuali || 0} km`
-                        ).join('\n');
-                        
-                        alert(`📊 I TUOI VEICOLI (${data.length}):\n${lista}`);
-                        return;
-                    }
-                } catch (error) {
-                    console.log('Fallback a dati demo');
-                }
-            }
-            
-            // Fallback a dati demo
-            caricaDatiDemo();
-        }
-
-        // Dati demo
-        function caricaDatiDemo() {
-            const veicoliDemo = [
-                { nomeveicolo: 'Fiat Panda', targa: 'AB123CD', kmattuali: 15200 },
-                { nomeveicolo: 'Volkswagen Golf', targa: 'EF456GH', kmattuali: 87500 },
-                { nomeveicolo: 'Ford Focus', targa: 'IJ789KL', kmattuali: 12300 }
-            ];
-            
-            const lista = veicoliDemo.map(v => 
-                `• ${v.nomeveicolo} (${v.targa}) - ${v.kmattuali} km`
-            ).join('\n');
-            
-            alert(`📊 DATI DEMO (${veicoliDemo.length} veicoli):\n${lista}\n\n💡 Per dati reali: usa un server web`);
-        }
-
-        // Altre funzioni (GPS funziona anche in locale)
+        // Tracciamento GPS
         function avviaTracciamentoGPS() {
             if (!navigator.geolocation) {
                 alert('❌ GPS non supportato dal browser');
@@ -329,6 +350,9 @@ Così Supabase funzionerà!`);
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
                     alert(`📍 Posizione rilevata:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}`);
+                    
+                    // Qui potremmo salvare la posizione su Supabase
+                    console.log('📍 Posizione GPS:', { lat, lng });
                 },
                 (error) => {
                     alert('❌ Errore GPS: ' + error.message);
@@ -346,7 +370,16 @@ Così Supabase funzionerà!`);
         }
 
         // Inizializza app
-        window.addEventListener('load', inizializzaSupabase);
+        window.addEventListener('load', () => {
+            console.log('🚗 CareAutoPro avviato su:', window.location.hostname);
+            statusElement.textContent = '✅ App caricata - Pronti per testare';
+            statusElement.className = 'status connected';
+        });
+
+        // Utility: mostra informazioni debug
+        function mostraDebug() {
+            debugElement.style.display = debugElement.style.display === 'none' ? 'block' : 'none';
+        }
     </script>
 </body>
 </html>
