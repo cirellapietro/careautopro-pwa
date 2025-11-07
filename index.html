@@ -83,7 +83,6 @@
         .menu-btn.gps { background: #48bb78; }
         .menu-btn.maintenance { background: #9f7aea; }
         .menu-btn.fuel { background: #ed8936; }
-        .menu-btn.stats { background: #ed64a6; }
         
         .menu-btn .emoji {
             font-size: 20px;
@@ -149,33 +148,6 @@
             max-height: 200px;
             overflow-y: auto;
         }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin: 15px 0;
-        }
-
-        .stat-card {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        }
-
-        .stat-value {
-            font-size: 24px;
-            font-weight: bold;
-            color: #2d3748;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            color: #718096;
-            margin-top: 5px;
-        }
     </style>
 </head>
 <body>
@@ -187,62 +159,26 @@
         </div>
         
         <div class="menu-buttons">
-            <button class="menu-btn" onclick="caricaVeicoli()">
-                <span class="emoji">📊</span>
-                Dashboard Veicoli
+            <button class="menu-btn" onclick="testConnessione()">
+                <span class="emoji">🔧</span>
+                Test Connessione Database
             </button>
             
             <button class="menu-btn gps" onclick="avviaTracciamentoGPS()">
                 <span class="emoji">📍</span>
-                Tracciamento GPS
+                Test GPS
             </button>
-            
-            <button class="menu-btn maintenance" onclick="gestisciManutenzioni()">
-                <span class="emoji">🔧</span>
-                Manutenzioni
-            </button>
-            
-            <button class="menu-btn fuel" onclick="gestisciRifornimenti()">
-                <span class="emoji">⛽</span>
-                Rifornimenti
-            </button>
-
-            <button class="menu-btn stats" onclick="mostraStatistiche()">
-                <span class="emoji">📈</span>
-                Statistiche
-            </button>
-        </div>
-
-        <div id="statsContainer" style="display: none;">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-value" id="totalVeicoli">0</div>
-                    <div class="stat-label">Veicoli</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="totalKm">0</div>
-                    <div class="stat-label">KM Totali</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="manutenzioniCount">0</div>
-                    <div class="stat-label">Manutenzioni</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-value" id="rifornimentiCount">0</div>
-                    <div class="stat-label">Rifornimenti</div>
-                </div>
-            </div>
         </div>
         
         <div class="features">
             <div class="feature">PWA Ready - Installa come app</div>
             <div class="feature">GPS Tracking - Tracciamento percorsi</div>
             <div class="feature">Mobile First - Ottimizzato per smartphone</div>
-            <div class="feature">Notifiche Manutenzione - Alert automatici</div>
+            <div class="feature">Database Supabase - Dati in cloud</div>
         </div>
         
-        <div id="status" class="status connected">
-            ✅ App Pronta - Tabelle caricate
+        <div id="status" class="status warning">
+            ⚠️ Clicca "Test Connessione" per verificare il database
         </div>
 
         <div id="debug" class="debug-info" style="display: none;">
@@ -257,14 +193,10 @@
 
         const statusElement = document.getElementById('status');
         const debugElement = document.getElementById('debug');
-        const statsContainer = document.getElementById('statsContainer');
 
-        // Variabili globali
-        let veicoliData = [];
-        let currentPosition = null;
-
-        // Funzione per chiamate API dirette
+        // Funzione per chiamate API con schema public forzato
         async function supabaseFetch(endpoint, method = 'GET', body = null) {
+            // FORZA schema public nell'URL
             const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
             
             const options = {
@@ -273,7 +205,10 @@
                     'apikey': SUPABASE_ANON_KEY,
                     'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
                     'Content-Type': 'application/json',
-                    'Prefer': 'return=representation'
+                    'Prefer': 'return=representation',
+                    // FORZA schema public con questi headers
+                    'Accept-Profile': 'public',
+                    'Content-Profile': 'public'
                 }
             };
             
@@ -282,83 +217,153 @@
             }
 
             try {
+                console.log(`🔗 Fetch a: ${url}`);
                 const response = await fetch(url, options);
                 
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('✅ Fetch riuscito:', data);
                     return { data, error: null, status: response.status };
                 } else {
                     const errorText = await response.text();
+                    console.error('❌ Fetch fallito:', response.status, errorText);
+                    
+                    // Se fallisce con schema public, prova senza
+                    if (response.status === 404 && options.headers['Accept-Profile']) {
+                        console.log('🔄 Tentativo senza header schema...');
+                        delete options.headers['Accept-Profile'];
+                        delete options.headers['Content-Profile'];
+                        
+                        const response2 = await fetch(url, options);
+                        if (response2.ok) {
+                            const data = await response2.json();
+                            return { data, error: null, status: response2.status };
+                        }
+                    }
+                    
                     return { data: null, error: errorText, status: response.status };
                 }
             } catch (error) {
+                console.error('❌ Errore fetch:', error);
                 return { data: null, error: error.message, status: 0 };
             }
         }
 
-        // Carica tutti i veicoli
-        async function caricaVeicoli() {
-            try {
-                statusElement.className = 'status loading';
-                statusElement.textContent = '📊 Caricamento veicoli...';
+        // Test connessione completo
+        async function testConnessione() {
+            statusElement.className = 'status loading';
+            statusElement.textContent = '🔧 Test configurazione...';
+            debugElement.style.display = 'block';
+            debugElement.innerHTML = '<strong>🔧 TEST CONFIGURAZIONE SUPABASE</strong><br><br>';
+
+            // Test 1: Connessione base
+            debugElement.innerHTML += '1. 🔗 Test connessione API...<br>';
+            const test1 = await fetch(SUPABASE_URL, {
+                headers: {
+                    'apikey': SUPABASE_ANON_KEY,
+                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+                }
+            });
+            
+            if (test1.status !== 0 && test1.status !== 404) {
+                debugElement.innerHTML += `✅ API raggiungibile (Status: ${test1.status})<br>`;
+            } else {
+                debugElement.innerHTML += `❌ API non raggiungibile<br>`;
+            }
+
+            // Test 2: Schema e tabelle
+            debugElement.innerHTML += '<br>2. 🗃️ Test schema e tabelle...<br>';
+            
+            const tabelle = ['veicoli', 'config', 'utenti', 'sessioniutilizzo'];
+            let tabelleTrovate = [];
+            
+            for (const tabella of tabelle) {
+                const { data, error, status } = await supabaseFetch(`${tabella}?select=count&limit=1`);
                 
-                const { data, error } = await supabaseFetch('veicoli?select=*&order=nomeveicolo');
-              
-                if (error) throw new Error(error);
-                
-                veicoliData = data || [];
-                
-                if (veicoliData.length > 0) {
-                    const lista = veicoliData.map(v => 
-                        `• ${v.nomeveicolo || 'Senza nome'} (${v.targa || 'N/D'}) - ${v.kmattuali || 0} km`
-                    ).join('\n');
-                    
-                    alert(`📊 I TUOI VEICOLI (${veicoliData.length}):\n${lista}`);
-                    statusElement.className = 'status connected';
-                    statusElement.textContent = `✅ ${veicoliData.length} veicoli caricati`;
+                if (status === 200) {
+                    debugElement.innerHTML += `✅ ${tabella} - Accessibile<br>`;
+                    tabelleTrovate.push(tabella);
+                } else if (status === 404) {
+                    debugElement.innerHTML += `❌ ${tabella} - Non trovata (404)<br>`;
                 } else {
-                    alert('📊 Nessun veicolo trovato nel database');
-                    statusElement.className = 'status warning';
-                    statusElement.textContent = '⚠️ Nessun veicolo trovato';
+                    debugElement.innerHTML += `⚠️ ${tabella} - Errore ${status}<br>`;
                 }
                 
-            } catch (error) {
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+
+            // Test 3: Dati reali
+            debugElement.innerHTML += '<br>3. 📊 Test dati reali...<br>';
+            const { data: veicoli, error: veicoliError } = await supabaseFetch('veicoli?select=veicolo_id,nomeveicolo,targa,kmattuali&limit=5');
+            
+            if (veicoliError) {
+                debugElement.innerHTML += `❌ Errore caricamento veicoli: ${veicoliError}<br>`;
+            } else if (veicoli && veicoli.length > 0) {
+                debugElement.innerHTML += `✅ ${veicoli.length} veicoli trovati:<br>`;
+                veicoli.forEach(v => {
+                    debugElement.innerHTML += `&nbsp;&nbsp;• ${v.nomeveicolo} (${v.targa}) - ${v.kmattuali} km<br>`;
+                });
+            } else {
+                debugElement.innerHTML += `⚠️ Nessun veicolo trovato nel database<br>`;
+            }
+
+            // Risultati finali
+            debugElement.innerHTML += '<br><strong>📊 RISULTATI FINALI:</strong><br>';
+            
+            if (tabelleTrovate.length > 0) {
+                statusElement.className = 'status connected';
+                statusElement.textContent = `✅ Database connesso - ${tabelleTrovate.length} tabelle accessibili`;
+                debugElement.innerHTML += `🎉 <strong>SUCCESSO!</strong> Tabelle accessibili: ${tabelleTrovate.join(', ')}`;
+            } else {
                 statusElement.className = 'status error';
-                statusElement.textContent = '❌ Errore caricamento dati';
-                alert('❌ Errore caricamento veicoli: ' + error.message);
+                statusElement.textContent = '❌ Nessuna tabella accessibile';
+                debugElement.innerHTML += `❌ <strong>PROBLEMA:</strong> Nessuna tabella accessibile nello schema public<br><br>`;
+                debugElement.innerHTML += `💡 <strong>SOLUZIONE:</strong><br>`;
+                debugElement.innerHTML += `1. Verifica che le tabelle esistano in Supabase Table Editor<br>`;
+                debugElement.innerHTML += `2. Controlla che siano nello schema 'public'<br>`;
+                debugElement.innerHTML += `3. Disabilita temporaneamente RLS (Row Level Security)<br>`;
+                debugElement.innerHTML += `4. Controlla le policy di accesso alle tabelle`;
             }
         }
 
-        // Tracciamento GPS avanzato
-        async function avviaTracciamentoGPS() {
+        // Tracciamento GPS
+        function avviaTracciamentoGPS() {
             if (!navigator.geolocation) {
                 alert('❌ GPS non supportato dal browser');
                 return;
             }
 
             statusElement.className = 'status loading';
-            statusElement.textContent = '📍 Rilevamento posizione GPS...';
+            statusElement.textContent = '📍 Rilevamento posizione...';
 
             navigator.geolocation.getCurrentPosition(
-                async (position) => {
+                (position) => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
-                    currentPosition = { lat, lng };
-                    
-                    // Salva la posizione nel database se ci sono veicoli
-                    if (veicoliData.length > 0) {
-                        await salvaPosizioneGPS(veicoliData[0].veicolo_id, lat, lng);
-                    }
                     
                     statusElement.className = 'status connected';
-                    statusElement.textContent = '📍 Posizione salvata!';
+                    statusElement.textContent = '📍 Posizione rilevata!';
                     
-                    alert(`📍 Posizione rilevata e salvata:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}`);
+                    alert(`📍 Posizione rilevata:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}\n\nAltitudine: ${position.coords.altitude || 'N/D'}m\nPrecisione: ${position.coords.accuracy}m`);
                 },
                 (error) => {
                     statusElement.className = 'status error';
                     statusElement.textContent = '❌ Errore GPS';
-                    alert('❌ Errore GPS: ' + error.message);
+                    
+                    let errorMessage = 'Errore sconosciuto';
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage = 'Permesso GPS negato';
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage = 'Posizione non disponibile';
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage = 'Timeout rilevamento posizione';
+                            break;
+                    }
+                    
+                    alert(`❌ Errore GPS: ${errorMessage}`);
                 },
                 { 
                     enableHighAccuracy: true, 
@@ -368,150 +373,9 @@
             );
         }
 
-        // Salva posizione GPS nel database
-        async function salvaPosizioneGPS(veicoloId, lat, lng) {
-            try {
-                const posizioneData = {
-                    veicolo_id: veicoloId,
-                    latitude: lat,
-                    longitude: lng,
-                    dataora: new Date().toISOString()
-                };
-
-                // Prova a salvare in trackinggps se esiste
-                const { error } = await supabaseFetch('trackinggps', 'POST', posizioneData);
-                
-                if (error && error.includes('relation')) {
-                    // Tabella trackinggps non esiste, salva in sessioniutilizzo
-                    const sessioneData = {
-                        veicolo_id: veicoloId,
-                        posizione_inizio_lat: lat,
-                        posizione_inizio_lng: lng,
-                        dataora_inizio: new Date().toISOString(),
-                        sessione_attiva: true
-                    };
-                    
-                    await supabaseFetch('sessioniutilizzo', 'POST', sessioneData);
-                }
-                
-                console.log('📍 Posizione GPS salvata');
-            } catch (error) {
-                console.log('⚠️ Posizione non salvata:', error.message);
-            }
-        }
-
-        // Gestione manutenzioni
-        async function gestisciManutenzioni() {
-            if (veicoliData.length === 0) {
-                alert('📋 Prima carica i veicoli con "Dashboard Veicoli"');
-                return;
-            }
-
-            try {
-                // Carica manutenzioni esistenti
-                const { data: manutenzioni, error } = await supabaseFetch('interventi?select=*&order=dataoraintervento.desc');
-                
-                let message = '🔧 GESTIONE MANUTENZIONI\n\n';
-                
-                if (manutenzioni && manutenzioni.length > 0) {
-                    message += `Manutenzioni trovate: ${manutenzioni.length}\n\n`;
-                    manutenzioni.slice(0, 5).forEach(m => {
-                        message += `• ${m.descrizioneaggiuntiva || 'Manutenzione'} - ${m.kmintervento || 0} km\n`;
-                    });
-                } else {
-                    message += 'Nessuna manutenzione trovata\n';
-                }
-                
-                message += '\nVuoi aggiungere una nuova manutenzione?';
-                
-                if (confirm(message)) {
-                    const descrizione = prompt('Descrizione manutenzione:');
-                    const km = prompt('KM attuali:');
-                    
-                    if (descrizione && km) {
-                        const nuovaManutenzione = {
-                            veicolo_id: veicoliData[0].veicolo_id,
-                            descrizioneaggiuntiva: descrizione,
-                            kmintervento: parseInt(km),
-                            dataoraintervento: new Date().toISOString()
-                        };
-                        
-                        const { error } = await supabaseFetch('interventi', 'POST', nuovaManutenzione);
-                        
-                        if (error) throw new Error(error);
-                        
-                        alert('✅ Manutenzione aggiunta con successo!');
-                    }
-                }
-                
-            } catch (error) {
-                alert('❌ Errore gestione manutenzioni: ' + error.message);
-            }
-        }
-
-        // Gestione rifornimenti
-        async function gestisciRifornimenti() {
-            alert('⛽ Gestione rifornimenti - Prossima feature!\n\nFunzionalità in sviluppo:\n• Registrazione rifornimenti\n• Calcolo consumo carburante\n• Cronologia spese');
-        }
-
-        // Mostra statistiche
-        async function mostraStatistiche() {
-            try {
-                statusElement.className = 'status loading';
-                statusElement.textContent = '📈 Calcolo statistiche...';
-                
-                // Calcola statistiche
-                const totalVeicoli = veicoliData.length;
-                const totalKm = veicoliData.reduce((sum, v) => sum + (v.kmattuali || 0), 0);
-                
-                // Aggiorna UI
-                document.getElementById('totalVeicoli').textContent = totalVeicoli;
-                document.getElementById('totalKm').textContent = totalKm.toLocaleString();
-                document.getElementById('manutenzioniCount').textContent = '0';
-                document.getElementById('rifornimentiCount').textContent = '0';
-                
-                statsContainer.style.display = 'block';
-                statusElement.className = 'status connected';
-                statusElement.textContent = `📈 ${totalVeicoli} veicoli, ${totalKm} km totali`;
-                
-            } catch (error) {
-                statusElement.className = 'status error';
-                statusElement.textContent = '❌ Errore statistiche';
-            }
-        }
-
-        // Carica dati iniziali
-        async function caricaDatiIniziali() {
-            try {
-                const { data, error } = await supabaseFetch('veicoli?select=*&order=nomeveicolo');
-                if (!error && data) {
-                    veicoliData = data;
-                    statusElement.textContent = `✅ ${veicoliData.length} veicoli caricati`;
-                }
-            } catch (error) {
-                console.log('Caricamento iniziale non riuscito:', error);
-            }
-        }
-
         // Inizializza app
         window.addEventListener('load', () => {
-            console.log('🚗 CareAutoPro avviato - Tabelle pronte');
-            caricaDatiIniziali();
-            
-            // Aggiungi listener per installazione PWA
-            if ('serviceWorker' in navigator) {
-                navigator.serviceWorker.register('/sw.js')
-                    .then(() => console.log('✅ Service Worker registrato'))
-                    .catch(() => console.log('⚠️ Service Worker non supportato'));
-            }
-        });
-
-        // Gestione installazione PWA
-        let deferredPrompt;
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            console.log('📱 PWA pronta per installazione');
+            console.log('🚗 CareAutoPro avviato');
         });
     </script>
 </body>
