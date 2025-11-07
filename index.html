@@ -5,200 +5,897 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🚗 CareAutoPro</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* I tuoi stili CSS rimangono identici */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
+        
         .app-container {
             background: white;
             border-radius: 20px;
-            padding: 30px;
             max-width: 400px;
             width: 100%;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            margin: 0 auto;
+            overflow: hidden;
         }
-        /* ... resto del CSS identico ... */
+        
+        .header {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .icon {
+            font-size: 50px;
+            margin-bottom: 10px;
+        }
+        
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        
+        .user-info {
+            background: #ebf8ff;
+            padding: 12px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #bee3f8;
+        }
+        
+        .user-email {
+            font-size: 14px;
+            color: #2b6cb0;
+        }
+        
+        .logout-btn {
+            background: #e53e3e;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            background: #f7fafc;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .nav-tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            color: #718096;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-tab.active {
+            color: #4299e1;
+            border-bottom: 3px solid #4299e1;
+            background: white;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+            min-height: 400px;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .vehicles-grid {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .vehicle-card {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .vehicle-card:hover {
+            border-color: #4299e1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .vehicle-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .vehicle-name {
+            font-weight: bold;
+            font-size: 16px;
+            color: #2d3748;
+        }
+        
+        .vehicle-plate {
+            background: #4299e1;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .vehicle-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            font-size: 12px;
+            color: #718096;
+        }
+        
+        .maintenance-list {
+            display: grid;
+            gap: 12px;
+        }
+        
+        .maintenance-item {
+            background: white;
+            border-left: 4px solid #ed8936;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .maintenance-item.urgent {
+            border-left-color: #e53e3e;
+            background: #fed7d7;
+        }
+        
+        .maintenance-vehicle {
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+        
+        .maintenance-type {
+            color: #4a5568;
+            margin-bottom: 5px;
+        }
+        
+        .maintenance-details {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: #718096;
+        }
+        
+        .gps-controls {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+        
+        .btn-success { background: #48bb78; }
+        .btn-warning { background: #ed8936; }
+        .btn-danger { background: #e53e3e; }
+        
+        .tracking-info {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            font-size: 12px;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .info-label {
+            color: #718096;
+            font-weight: 600;
+        }
+        
+        .info-value {
+            color: #2d3748;
+            font-weight: bold;
+        }
+        
+        .login-container {
+            padding: 30px 20px;
+            text-align: center;
+        }
+        
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .form-input {
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .form-input:focus {
+            border-color: #4299e1;
+            outline: none;
+        }
+        
+        .status-message {
+            padding: 12px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        .status-success {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status-error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .status-loading {
+            background: #bee3f8;
+            color: #2a4365;
+        }
+        
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div class="app-container">
+        <!-- Header -->
         <div class="header">
             <div class="icon">🚗</div>
             <h1 class="title">CareAutoPro</h1>
             <p class="subtitle">Gestione Manutenzione Veicoli</p>
         </div>
-        
-        <div class="menu-buttons">
-            <button class="menu-btn gps" onclick="avviaTracciamentoGPS()">
-                <span class="emoji">📍</span>
-                Test GPS (Funziona!)
-            </button>
 
-            <button class="menu-btn" onclick="testSupabaseCorretto()" style="background: #48bb78;">
-                <span class="emoji">🔄</span>
-                Test Supabase Corretto
-            </button>
-
-            <button class="menu-btn" onclick="creaTabellaVeicoli()" style="background: #ed8936;">
-                <span class="emoji">📊</span>
-                Crea Tabella Veicoli
+        <!-- User Info (visibile dopo login) -->
+        <div id="userInfo" class="user-info hidden">
+            <span class="user-email" id="userEmail"></span>
+            <button class="logout-btn" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> Logout
             </button>
         </div>
-        
-        <div class="features">
-            <div class="feature">✅ GPS Funzionante</div>
-            <div class="feature">📱 PWA Pronta</div>
-            <div class="feature">🎨 Design Mobile</div>
-            <div class="feature">🔄 Supabase SDK Configurato</div>
-        </div>
-        
-        <div id="status" class="status loading">
-            🔄 Configura CORS in Supabase Dashboard
+
+        <!-- Login Form -->
+        <div id="loginContainer" class="login-container">
+            <h2>Accedi a CareAutoPro</h2>
+            <div class="login-form">
+                <input type="email" id="email" class="form-input" placeholder="La tua email" required>
+                <input type="password" id="password" class="form-input" placeholder="Password" required>
+                <button class="btn" onclick="login()">
+                    <i class="fas fa-sign-in-alt"></i> Accedi
+                </button>
+                <button class="btn btn-success" onclick="signup()">
+                    <i class="fas fa-user-plus"></i> Registrati
+                </button>
+            </div>
+            <div id="loginStatus" class="status-message"></div>
         </div>
 
-        <div id="debug" class="debug-info" style="display: none;">
-            Debug info apparirà qui
+        <!-- Main App (visibile dopo login) -->
+        <div id="mainApp" class="hidden">
+            <!-- Navigation Tabs -->
+            <div class="nav-tabs">
+                <button class="nav-tab active" onclick="showTab('vehicles')">
+                    <i class="fas fa-car"></i> Veicoli
+                </button>
+                <button class="nav-tab" onclick="showTab('maintenance')">
+                    <i class="fas fa-tools"></i> Manutenzione
+                </button>
+                <button class="nav-tab" onclick="showTab('tracking')">
+                    <i class="fas fa-map-marker-alt"></i> Tracking
+                </button>
+            </div>
+
+            <!-- Tab Contents -->
+            <div class="tab-content active" id="vehiclesTab">
+                <div class="vehicles-grid" id="vehiclesList">
+                    <!-- Veicoli verranno caricati qui -->
+                </div>
+                <button class="btn btn-success" onclick="showAddVehicleForm()" style="margin-top: 15px;">
+                    <i class="fas fa-plus"></i> Aggiungi Veicolo
+                </button>
+            </div>
+
+            <div class="tab-content" id="maintenanceTab">
+                <div class="maintenance-list" id="maintenanceList">
+                    <!-- Interventi di manutenzione verranno caricati qui -->
+                </div>
+            </div>
+
+            <div class="tab-content" id="trackingTab">
+                <div class="gps-controls">
+                    <button class="btn btn-success" onclick="startTracking()">
+                        <i class="fas fa-play"></i> Inizia Tracking
+                    </button>
+                    <button class="btn btn-danger" onclick="stopTracking()">
+                        <i class="fas fa-stop"></i> Ferma Tracking
+                    </button>
+                    <button class="btn" onclick="getCurrentLocation()">
+                        <i class="fas fa-map-marker-alt"></i> Posizione Attuale
+                    </button>
+                </div>
+                
+                <div class="tracking-info">
+                    <h3 style="margin-bottom: 15px;">Informazioni Tracking</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Stato:</span>
+                            <span class="info-value" id="trackingStatus">Fermo</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Ultimo Aggiornamento:</span>
+                            <span class="info-value" id="lastUpdate">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Latitudine:</span>
+                            <span class="info-value" id="currentLat">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Longitudine:</span>
+                            <span class="info-value" id="currentLng">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="activeSessionInfo" class="tracking-info hidden">
+                    <h3 style="margin-bottom: 15px;">Sessione Attiva</h3>
+                    <div class="info-grid" id="sessionDetails">
+                        <!-- Dettagli sessione attiva -->
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        const statusElement = document.getElementById('status');
-        const debugElement = document.getElementById('debug');
-
-        // ✅ CONFIGURAZIONE SUPABASE CORRETTA
+        // Configurazione Supabase
         const SUPABASE_URL = 'https://jamttxwhexlvbkjccrqm.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbXR0eHdoZXhsdmJramNjcnFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2NTE5MDIsImV4cCI6MjA2OTIyNzkwMn0.MkQarY2dOUuwhFnOdaLHqb6idFocTGSfZKjqVoeDYBs';
 
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // 🎯 TEST SUPABASE CORRETTO
-        async function testSupabaseCorretto() {
-            statusElement.className = 'status loading';
-            statusElement.textContent = '🔍 Test Supabase SDK...';
-            debugElement.style.display = 'block';
-            debugElement.innerHTML = '<strong>🔍 TEST SUPABASE CON CLIENT SDK</strong><br><br>';
+        // Variabili globali
+        let currentUser = null;
+        let activeSession = null;
+        let trackingInterval = null;
+        let currentVehicle = null;
+
+        // Inizializzazione app
+        document.addEventListener('DOMContentLoaded', async () => {
+            await checkAuthState();
+            setupEventListeners();
+        });
+
+        // Controllo stato autenticazione
+        async function checkAuthState() {
+            const { data: { user }, error } = await supabase.auth.getUser();
+            
+            if (user && !error) {
+                currentUser = user;
+                showApp();
+                await loadUserData();
+            } else {
+                showLogin();
+            }
+        }
+
+        // Mostra interfaccia login
+        function showLogin() {
+            document.getElementById('loginContainer').classList.remove('hidden');
+            document.getElementById('mainApp').classList.add('hidden');
+            document.getElementById('userInfo').classList.add('hidden');
+        }
+
+        // Mostra app principale
+        function showApp() {
+            document.getElementById('loginContainer').classList.add('hidden');
+            document.getElementById('mainApp').classList.remove('hidden');
+            document.getElementById('userInfo').classList.remove('hidden');
+            document.getElementById('userEmail').textContent = currentUser.email;
+        }
+
+        // Login
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const status = document.getElementById('loginStatus');
+
+            status.className = 'status-message status-loading';
+            status.textContent = 'Accesso in corso...';
+
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                status.className = 'status-message status-error';
+                status.textContent = 'Errore: ' + error.message;
+            } else {
+                currentUser = data.user;
+                showApp();
+                await loadUserData();
+            }
+        }
+
+        // Registrazione
+        async function signup() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const status = document.getElementById('loginStatus');
+
+            status.className = 'status-message status-loading';
+            status.textContent = 'Registrazione in corso...';
+
+            const { data, error } = await supabase.auth.signUp({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                status.className = 'status-message status-error';
+                status.textContent = 'Errore: ' + error.message;
+            } else {
+                status.className = 'status-message status-success';
+                status.textContent = 'Registrazione completata! Controlla la tua email per la conferma.';
+            }
+        }
+
+        // Logout
+        async function logout() {
+            await supabase.auth.signOut();
+            currentUser = null;
+            activeSession = null;
+            showLogin();
+        }
+
+        // Caricamento dati utente
+        async function loadUserData() {
+            await loadVehicles();
+            await loadMaintenance();
+            await checkActiveSession();
+        }
+
+        // Caricamento veicoli
+        async function loadVehicles() {
+            const vehiclesList = document.getElementById('vehiclesList');
+            vehiclesList.innerHTML = '<div class="status-message status-loading">Caricamento veicoli...</div>';
 
             try {
-                // Test della connessione
-                const { data, error } = await supabase
-                    .from('vehicles')
-                    .select('count')
-                    .limit(1)
+                const { data: veicoli, error } = await supabase
+                    .from('veicoli')
+                    .select(`
+                        veicolo_id,
+                        nomeveicolo,
+                        targa,
+                        kmattuali,
+                        dataimmatricolazione,
+                        tipoveicolo_id,
+                        tipoveicoli (descrizione)
+                    `)
+                    .eq('utente_id', currentUser.id)
+                    .is('dataoraelimina', null)
+                    .order('nomeveicolo');
+
+                if (error) throw error;
+
+                if (veicoli.length === 0) {
+                    vehiclesList.innerHTML = `
+                        <div class="status-message">
+                            <i class="fas fa-info-circle"></i> Nessun veicolo trovato.
+                            <br><small>Aggiungi il tuo primo veicolo!</small>
+                        </div>
+                    `;
+                    return;
+                }
+
+                vehiclesList.innerHTML = veicoli.map(vehicle => `
+                    <div class="vehicle-card" onclick="selectVehicle('${vehicle.veicolo_id}')">
+                        <div class="vehicle-header">
+                            <span class="vehicle-name">${vehicle.nomeveicolo || 'Veicolo'}</span>
+                            <span class="vehicle-plate">${vehicle.targa || 'N/D'}</span>
+                        </div>
+                        <div class="vehicle-details">
+                            <div><strong>KM:</strong> ${vehicle.kmattuali || 0}</div>
+                            <div><strong>Tipo:</strong> ${vehicle.tipoveicoli?.descrizione || 'N/D'}</div>
+                            <div><strong>Immatricolazione:</strong> ${vehicle.dataimmatricolazione ? new Date(vehicle.dataimmatricolazione).toLocaleDateString() : 'N/D'}</div>
+                            <div><strong>ID:</strong> ${vehicle.veicolo_id.substring(0, 8)}...</div>
+                        </div>
+                    </div>
+                `).join('');
+
+            } catch (error) {
+                console.error('Errore caricamento veicoli:', error);
+                vehiclesList.innerHTML = '<div class="status-message status-error">Errore nel caricamento dei veicoli</div>';
+            }
+        }
+
+        // Caricamento interventi manutenzione
+        async function loadMaintenance() {
+            const maintenanceList = document.getElementById('maintenanceList');
+            maintenanceList.innerHTML = '<div class="status-message status-loading">Caricamento interventi...</div>';
+
+            try {
+                const { data: interventi, error } = await supabase
+                    .from('interventi')
+                    .select(`
+                        intervento_id,
+                        descrizioneaggiuntiva,
+                        kmintervento,
+                        dataoraintervento,
+                        veicolo_id,
+                        veicoli (nomeveicolo, targa),
+                        interventistato (descrizione)
+                    `)
+                    .eq('veicoli.utente_id', currentUser.id)
+                    .is('interventi.dataoraelimina', null)
+                    .order('dataoraintervento', { ascending: true });
+
+                if (error) throw error;
+
+                if (interventi.length === 0) {
+                    maintenanceList.innerHTML = `
+                        <div class="status-message">
+                            <i class="fas fa-check-circle"></i> Nessun intervento di manutenzione in programma.
+                        </div>
+                    `;
+                    return;
+                }
+
+                maintenanceList.innerHTML = interventi.map(intervento => {
+                    const isUrgent = new Date(intervento.dataoraintervento) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+                    const urgentClass = isUrgent ? 'urgent' : '';
+                    
+                    return `
+                        <div class="maintenance-item ${urgentClass}">
+                            <div class="maintenance-vehicle">
+                                ${intervento.veicoli.nomeveicolo} (${intervento.veicoli.targa})
+                            </div>
+                            <div class="maintenance-type">
+                                ${intervento.descrizioneaggiuntiva || 'Manutenzione programmata'}
+                            </div>
+                            <div class="maintenance-details">
+                                <span>KM: ${intervento.kmintervento || 'N/D'}</span>
+                                <span>Data: ${new Date(intervento.dataoraintervento).toLocaleDateString()}</span>
+                                <span>Stato: ${intervento.interventistato.descrizione}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (error) {
+                console.error('Errore caricamento interventi:', error);
+                maintenanceList.innerHTML = '<div class="status-message status-error">Errore nel caricamento degli interventi</div>';
+            }
+        }
+
+        // Controlla sessione attiva
+        async function checkActiveSession() {
+            try {
+                const { data: sessioni, error } = await supabase
+                    .from('sessioniutilizzo')
+                    .select(`
+                        sessione_id,
+                        veicolo_id,
+                        dataora_inizio,
+                        km_iniziali,
+                        veicoli (nomeveicolo, targa)
+                    `)
+                    .eq('utente_id', currentUser.id)
+                    .eq('sessione_attiva', true)
+                    .is('dataoraelimina', null)
                     .single();
 
-                if (error && error.code !== 'PGRST116') {
-                    // PGRST116 è normale se la tabella non esiste
-                    debugElement.innerHTML += `⚠️ Errore: ${error.message}<br>`;
-                    debugElement.innerHTML += `📝 Creiamo la tabella vehicles...<br>`;
-                    
-                    // Crea la tabella vehicles
-                    await creaTabellaVeicoli();
-                    
-                } else {
-                    debugElement.innerHTML += `✅ Connessione Supabase riuscita!<br>`;
-                    statusElement.className = 'status connected';
-                    statusElement.textContent = '✅ Supabase Connesso!';
+                if (error && error.code !== 'PGRST116') throw error;
+
+                if (sessioni) {
+                    activeSession = sessioni;
+                    currentVehicle = sessioni.veicolo_id;
+                    updateActiveSessionUI(sessioni);
                 }
 
             } catch (error) {
-                debugElement.innerHTML += `❌ Errore di connessione: ${error.message}<br>`;
-                debugElement.innerHTML += `🎯 SOLUZIONE: Configura CORS in Supabase Dashboard<br>`;
-                statusElement.className = 'status error';
-                statusElement.textContent = '❌ Configura CORS in Supabase';
+                console.error('Errore controllo sessione attiva:', error);
             }
         }
 
-        // 📊 CREA TABELLA VEICOLI
-        async function creaTabellaVeicoli() {
-            debugElement.innerHTML += '🛠️ Creazione tabella vehicles...<br>';
-            
-            // In una app reale, questa operazione si farebbe via SQL in Supabase Dashboard
-            // Per ora simuliamo la creazione di un veicolo di test
-            
-            const vehicleData = {
-                plate: 'TEST001',
-                brand: 'Fiat',
-                model: 'Panda',
-                year: 2020,
-                created_at: new Date().toISOString()
-            };
-
-            const { data, error } = await supabase
-                .from('vehicles')
-                .insert([vehicleData])
-                .select();
-
-            if (error) {
-                debugElement.innerHTML += `❌ Impossibile creare veicolo: ${error.message}<br>`;
-                debugElement.innerHTML += `💡 Crea la tabella manualmente in Supabase:<br>`;
-                debugElement.innerHTML += `CREATE TABLE vehicles (id BIGSERIAL PRIMARY KEY, plate TEXT, brand TEXT, model TEXT, year INTEGER);<br>`;
-            } else {
-                debugElement.innerHTML += `✅ Veicolo di test creato: ${data[0].plate}<br>`;
-                statusElement.className = 'status connected';
-                statusElement.textContent = '✅ Tabella Veicoli Pronta!';
-            }
-        }
-
-        // 📍 FUNZIONE GPS (rimane identica)
-        function avviaTracciamentoGPS() {
+        // Inizia tracking GPS
+        async function startTracking() {
             if (!navigator.geolocation) {
-                alert('❌ GPS non supportato dal browser');
+                alert('GPS non supportato dal browser');
                 return;
             }
 
-            statusElement.className = 'status loading';
-            statusElement.textContent = '📍 Rilevamento posizione...';
+            if (!currentVehicle) {
+                alert('Seleziona prima un veicolo dalla tab Veicoli');
+                showTab('vehicles');
+                return;
+            }
+
+            // Crea nuova sessione
+            const { data: sessione, error } = await supabase
+                .from('sessioniutilizzo')
+                .insert([{
+                    veicolo_id: currentVehicle,
+                    utente_id: currentUser.id,
+                    dataora_inizio: new Date().toISOString(),
+                    sessione_attiva: true,
+                    km_iniziali: await getCurrentKm(currentVehicle)
+                }])
+                .select()
+                .single();
+
+            if (error) {
+                console.error('Errore creazione sessione:', error);
+                alert('Errore nell\'avvio del tracking');
+                return;
+            }
+
+            activeSession = sessione;
+            updateActiveSessionUI(sessione);
+
+            // Avvia tracking continuo
+            trackingInterval = setInterval(() => {
+                updateGPSPosition();
+            }, 30000); // Aggiorna ogni 30 secondi
+
+            // Primo aggiornamento immediato
+            updateGPSPosition();
+
+            document.getElementById('trackingStatus').textContent = 'Attivo';
+            document.getElementById('trackingStatus').style.color = '#48bb78';
+        }
+
+        // Ferma tracking
+        async function stopTracking() {
+            if (!activeSession || !trackingInterval) return;
+
+            clearInterval(trackingInterval);
+            trackingInterval = null;
+
+            const kmFinali = await getCurrentKm(currentVehicle);
+
+            // Aggiorna sessione
+            const { error } = await supabase
+                .from('sessioniutilizzo')
+                .update({
+                    dataora_fine: new Date().toISOString(),
+                    sessione_attiva: false,
+                    km_finali: kmFinali,
+                    km_percorsi: kmFinali - (activeSession.km_iniziali || 0),
+                    durata_minuti: Math.floor((new Date() - new Date(activeSession.dataora_inizio)) / 60000)
+                })
+                .eq('sessione_id', activeSession.sessione_id);
+
+            if (error) {
+                console.error('Errore aggiornamento sessione:', error);
+            }
+
+            document.getElementById('trackingStatus').textContent = 'Fermo';
+            document.getElementById('trackingStatus').style.color = '#e53e3e';
+            document.getElementById('activeSessionInfo').classList.add('hidden');
+            
+            activeSession = null;
+            currentVehicle = null;
+        }
+
+        // Aggiorna posizione GPS
+        async function updateGPSPosition() {
+            if (!activeSession) return;
 
             navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const lat = position.coords.latitude;
-                    const lng = position.coords.longitude;
-                    
-                    statusElement.className = 'status connected';
-                    statusElement.textContent = '📍 GPS Funziona!';
-                    
-                    const sessionData = {
-                        lat: lat,
-                        lng: lng,
-                        timestamp: new Date().toISOString(),
-                        accuracy: position.coords.accuracy
-                    };
-                    
-                    localStorage.setItem('ultima_posizione', JSON.stringify(sessionData));
-                    
-                    alert(`🎉 GPS FUNZIONANTE!\n\nPosizione:\n• Lat: ${lat.toFixed(6)}\n• Lng: ${lng.toFixed(6)}\n• Precisione: ${position.coords.accuracy}m`);
+                async (position) => {
+                    const { latitude, longitude, accuracy } = position.coords;
+
+                    // Salva posizione nel database
+                    const { error } = await supabase
+                        .from('trackinggps')
+                        .insert([{
+                            sessione_id: activeSession.sessione_id,
+                            latitude: latitude,
+                            longitude: longitude,
+                            precisione: accuracy,
+                            dataora: new Date().toISOString()
+                        }]);
+
+                    if (error) {
+                        console.error('Errore salvataggio posizione:', error);
+                        return;
+                    }
+
+                    // Aggiorna UI
+                    document.getElementById('currentLat').textContent = latitude.toFixed(6);
+                    document.getElementById('currentLng').textContent = longitude.toFixed(6);
+                    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+
+                    // Aggiorna ultima posizione veicolo
+                    await supabase
+                        .from('veicoli')
+                        .update({
+                            ultimo_aggiornamento_tracking: new Date().toISOString()
+                        })
+                        .eq('veicolo_id', currentVehicle);
+
                 },
                 (error) => {
-                    statusElement.className = 'status error';
-                    statusElement.textContent = '❌ Errore GPS';
-                    alert('❌ Errore GPS: ' + error.message);
+                    console.error('Errore GPS:', error);
                 },
                 { 
-                    enableHighAccuracy: true, 
-                    timeout: 10000 
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 30000
                 }
             );
         }
 
-        // 🎯 INIZIALIZZAZIONE
-        window.addEventListener('load', () => {
-            console.log('🚗 CareAutoPro - Inizializzata');
-            statusElement.textContent = '✅ App pronta - Configura CORS in Supabase';
-        });
+        // Posizione attuale (una tantum)
+        async function getCurrentLocation() {
+            if (!navigator.geolocation) {
+                alert('GPS non supportato dal browser');
+                return;
+            }
 
-        // Service Worker per PWA
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
-                .then(() => console.log('✅ PWA Ready'))
-                .catch(() => console.log('⚠️ PWA non supportata'));
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const { latitude, longitude, accuracy } = position.coords;
+                    
+                    document.getElementById('currentLat').textContent = latitude.toFixed(6);
+                    document.getElementById('currentLng').textContent = longitude.toFixed(6);
+                    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+                    
+                    alert(`Posizione attuale:\nLat: ${latitude.toFixed(6)}\nLng: ${longitude.toFixed(6)}\nPrecisione: ${accuracy}m`);
+                },
+                (error) => {
+                    alert('Errore GPS: ' + error.message);
+                }
+            );
+        }
+
+        // Seleziona veicolo per tracking
+        async function selectVehicle(vehicleId) {
+            currentVehicle = vehicleId;
+            
+            // Carica dettagli veicolo
+            const { data: vehicle } = await supabase
+                .from('veicoli')
+                .select('nomeveicolo, targa')
+                .eq('veicolo_id', vehicleId)
+                .single();
+
+            if (vehicle) {
+                alert(`Veicolo selezionato: ${vehicle.nomeveicolo} (${vehicle.targa})\n\nOra puoi avviare il tracking dalla tab Tracking.`);
+                showTab('tracking');
+            }
+        }
+
+        // Ottieni KM corrente del veicolo
+        async function getCurrentKm(vehicleId) {
+            const { data: vehicle } = await supabase
+                .from('veicoli')
+                .select('kmattuali')
+                .eq('veicolo_id', vehicleId)
+                .single();
+
+            return vehicle?.kmattuali || 0;
+        }
+
+        // Aggiorna UI sessione attiva
+        function updateActiveSessionUI(sessione) {
+            document.getElementById('activeSessionInfo').classList.remove('hidden');
+            document.getElementById('sessionDetails').innerHTML = `
+                <div class="info-item">
+                    <span class="info-label">Veicolo:</span>
+                    <span class="info-value">${sessione.veicoli.nomeveicolo}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Targa:</span>
+                    <span class="info-value">${sessione.veicoli.targa}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Iniziata:</span>
+                    <span class="info-value">${new Date(sessione.dataora_inizio).toLocaleString()}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">KM Iniziali:</span>
+                    <span class="info-value">${sessione.km_iniziali || 0}</span>
+                </div>
+            `;
+        }
+
+        // Gestione tab
+        function showTab(tabName) {
+            // Nascondi tutti i tab
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Mostra tab selezionato
+            document.getElementById(tabName + 'Tab').classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Enter per login
+            document.getElementById('password').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') login();
+            });
+        }
+
+        // Aggiungi veicolo (placeholder)
+        function showAddVehicleForm() {
+            alert('Funzionalità di aggiunta veicolo in sviluppo!\n\nPer ora, puoi aggiungere veicoli direttamente dal database Supabase.');
         }
     </script>
 </body>
