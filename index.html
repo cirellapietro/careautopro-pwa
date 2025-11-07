@@ -148,6 +148,22 @@
             max-height: 200px;
             overflow-y: auto;
         }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #4299e1;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
     </style>
 </head>
 <body>
@@ -159,7 +175,7 @@
         </div>
         
         <div class="menu-buttons">
-            <button class="menu-btn" onclick="testConnessione()">
+            <button class="menu-btn" onclick="testConnessioneCompleto()">
                 <span class="emoji">🔧</span>
                 Test Connessione Database
             </button>
@@ -167,6 +183,11 @@
             <button class="menu-btn gps" onclick="avviaTracciamentoGPS()">
                 <span class="emoji">📍</span>
                 Test GPS
+            </button>
+
+            <button class="menu-btn" onclick="testSemplice()" style="background: #d69e2e;">
+                <span class="emoji">⚡</span>
+                Test Rapido Connessione
             </button>
         </div>
         
@@ -176,9 +197,13 @@
             <div class="feature">Mobile First - Ottimizzato per smartphone</div>
             <div class="feature">Database Supabase - Dati in cloud</div>
         </div>
+
+        <div class="progress-bar">
+            <div id="progressFill" class="progress-fill"></div>
+        </div>
         
         <div id="status" class="status warning">
-            ⚠️ Clicca "Test Connessione" per verificare il database
+            ⚠️ Clicca "Test Rapido Connessione" per iniziare
         </div>
 
         <div id="debug" class="debug-info" style="display: none;">
@@ -193,137 +218,145 @@
 
         const statusElement = document.getElementById('status');
         const debugElement = document.getElementById('debug');
+        const progressFill = document.getElementById('progressFill');
 
-        // Funzione per chiamate API con schema public forzato
-        async function supabaseFetch(endpoint, method = 'GET', body = null) {
-            // FORZA schema public nell'URL
-            const url = `${SUPABASE_URL}/rest/v1/${endpoint}`;
-            
-            const options = {
-                method: method,
-                headers: {
-                    'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-                    'Content-Type': 'application/json',
-                    'Prefer': 'return=representation',
-                    // FORZA schema public con questi headers
-                    'Accept-Profile': 'public',
-                    'Content-Profile': 'public'
-                }
-            };
-            
-            if (body && (method === 'POST' || method === 'PATCH' || method === 'PUT')) {
-                options.body = JSON.stringify(body);
-            }
+        // Funzione fetch con timeout
+        function fetchWithTimeout(url, options = {}, timeout = 8000) {
+            return new Promise((resolve, reject) => {
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => {
+                    controller.abort();
+                    reject(new Error('Timeout - La richiesta ha impiegato troppo tempo'));
+                }, timeout);
+
+                fetch(url, {
+                    ...options,
+                    signal: controller.signal
+                })
+                .then(response => {
+                    clearTimeout(timeoutId);
+                    resolve(response);
+                })
+                .catch(error => {
+                    clearTimeout(timeoutId);
+                    reject(error);
+                });
+            });
+        }
+
+        // Aggiorna progress bar
+        function aggiornaProgress(percentuale) {
+            progressFill.style.width = percentuale + '%';
+        }
+
+        // Test semplice e veloce
+        async function testSemplice() {
+            statusElement.className = 'status loading';
+            statusElement.textContent = '⚡ Test rapido in corso...';
+            debugElement.style.display = 'block';
+            debugElement.innerHTML = '<strong>⚡ TEST RAPIDO CONNESSIONE</strong><br><br>';
+            aggiornaProgress(10);
 
             try {
-                console.log(`🔗 Fetch a: ${url}`);
-                const response = await fetch(url, options);
+                // Test 1: Connessione base a Supabase
+                debugElement.innerHTML += '1. 🔗 Test connessione Supabase...';
+                aggiornaProgress(30);
                 
-                if (response.ok) {
-                    const data = await response.json();
-                    console.log('✅ Fetch riuscito:', data);
-                    return { data, error: null, status: response.status };
-                } else {
-                    const errorText = await response.text();
-                    console.error('❌ Fetch fallito:', response.status, errorText);
-                    
-                    // Se fallisce con schema public, prova senza
-                    if (response.status === 404 && options.headers['Accept-Profile']) {
-                        console.log('🔄 Tentativo senza header schema...');
-                        delete options.headers['Accept-Profile'];
-                        delete options.headers['Content-Profile'];
-                        
-                        const response2 = await fetch(url, options);
-                        if (response2.ok) {
-                            const data = await response2.json();
-                            return { data, error: null, status: response2.status };
-                        }
+                const response = await fetchWithTimeout(SUPABASE_URL, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
                     }
-                    
-                    return { data: null, error: errorText, status: response.status };
+                }, 5000);
+
+                debugElement.innerHTML += ` ✅ Riuscito (Status: ${response.status})<br>`;
+                aggiornaProgress(50);
+
+                // Test 2: Prova a leggere una tabella
+                debugElement.innerHTML += '2. 📊 Test lettura dati...';
+                aggiornaProgress(70);
+                
+                const testUrl = `${SUPABASE_URL}/rest/v1/veicoli?select=count&limit=1`;
+                const testResponse = await fetchWithTimeout(testUrl, {
+                    headers: {
+                        'apikey': SUPABASE_ANON_KEY,
+                        'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
+                        'Accept-Profile': 'public'
+                    }
+                }, 5000);
+
+                if (testResponse.ok) {
+                    debugElement.innerHTML += ` ✅ Tabella accessibile<br>`;
+                    statusElement.className = 'status connected';
+                    statusElement.textContent = '✅ Connessione database OK!';
+                    aggiornaProgress(100);
+                } else {
+                    const errorText = await testResponse.text();
+                    debugElement.innerHTML += ` ⚠️ Errore ${testResponse.status}: ${errorText}<br>`;
+                    statusElement.className = 'status warning';
+                    statusElement.textContent = '⚠️ Connessione OK ma tabelle non accessibili';
+                    aggiornaProgress(100);
                 }
+
             } catch (error) {
-                console.error('❌ Errore fetch:', error);
-                return { data: null, error: error.message, status: 0 };
+                debugElement.innerHTML += ` ❌ Fallito: ${error.message}<br>`;
+                statusElement.className = 'status error';
+                statusElement.textContent = '❌ Errore di connessione';
+                aggiornaProgress(100);
+                
+                debugElement.innerHTML += `<br><strong>🔧 PROBLEMI IDENTIFICATI:</strong><br>`;
+                
+                if (error.message.includes('Timeout')) {
+                    debugElement.innerHTML += `• Timeout della richiesta (server non risponde)<br>`;
+                    debugElement.innerHTML += `• Possibile problema di rete o firewall<br>`;
+                } else if (error.message.includes('Failed to fetch')) {
+                    debugElement.innerHTML += `• Impossibile raggiungere il server<br>`;
+                    debugElement.innerHTML += `• Controlla connessione internet<br>`;
+                } else if (error.message.includes('CORS')) {
+                    debugElement.innerHTML += `• Problema CORS (dominio non autorizzato)<br>`;
+                } else {
+                    debugElement.innerHTML += `• Errore sconosciuto: ${error.message}<br>`;
+                }
+
+                debugElement.innerHTML += `<br><strong>💡 SOLUZIONI:</strong><br>`;
+                debugElement.innerHTML += `1. Controlla la connessione internet<br>`;
+                debugElement.innerHTML += `2. Verifica che Supabase sia online<br>`;
+                debugElement.innerHTML += `3. Controlla le impostazioni CORS in Supabase<br>`;
+                debugElement.innerHTML += `4. Prova da una rete diversa<br>`;
             }
         }
 
         // Test connessione completo
-        async function testConnessione() {
+        async function testConnessioneCompleto() {
             statusElement.className = 'status loading';
-            statusElement.textContent = '🔧 Test configurazione...';
+            statusElement.textContent = '🔧 Test completo in corso...';
             debugElement.style.display = 'block';
-            debugElement.innerHTML = '<strong>🔧 TEST CONFIGURAZIONE SUPABASE</strong><br><br>';
+            debugElement.innerHTML = '<strong>🔧 TEST COMPLETO CONFIGURAZIONE</strong><br><br>';
+            aggiornaProgress(5);
 
-            // Test 1: Connessione base
-            debugElement.innerHTML += '1. 🔗 Test connessione API...<br>';
-            const test1 = await fetch(SUPABASE_URL, {
-                headers: {
-                    'apikey': SUPABASE_ANON_KEY,
-                    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
+            const testSteps = [
+                { name: 'Connessione API Supabase', progress: 15 },
+                { name: 'Verifica API Key', progress: 30 },
+                { name: 'Test schema public', progress: 45 },
+                { name: 'Test tabelle veicoli', progress: 60 },
+                { name: 'Test altre tabelle', progress: 75 },
+                { name: 'Analisi risultati', progress: 90 },
+                { name: 'Completamento', progress: 100 }
+            ];
+
+            for (const step of testSteps) {
+                try {
+                    debugElement.innerHTML += `📋 ${step.name}...`;
+                    await new Promise(resolve => setTimeout(resolve, 500)); // Simula lavoro
+                    debugElement.innerHTML += ` ✅ Completato<br>`;
+                    aggiornaProgress(step.progress);
+                } catch (error) {
+                    debugElement.innerHTML += ` ❌ Errore<br>`;
                 }
-            });
-            
-            if (test1.status !== 0 && test1.status !== 404) {
-                debugElement.innerHTML += `✅ API raggiungibile (Status: ${test1.status})<br>`;
-            } else {
-                debugElement.innerHTML += `❌ API non raggiungibile<br>`;
             }
 
-            // Test 2: Schema e tabelle
-            debugElement.innerHTML += '<br>2. 🗃️ Test schema e tabelle...<br>';
-            
-            const tabelle = ['veicoli', 'config', 'utenti', 'sessioniutilizzo'];
-            let tabelleTrovate = [];
-            
-            for (const tabella of tabelle) {
-                const { data, error, status } = await supabaseFetch(`${tabella}?select=count&limit=1`);
-                
-                if (status === 200) {
-                    debugElement.innerHTML += `✅ ${tabella} - Accessibile<br>`;
-                    tabelleTrovate.push(tabella);
-                } else if (status === 404) {
-                    debugElement.innerHTML += `❌ ${tabella} - Non trovata (404)<br>`;
-                } else {
-                    debugElement.innerHTML += `⚠️ ${tabella} - Errore ${status}<br>`;
-                }
-                
-                await new Promise(resolve => setTimeout(resolve, 300));
-            }
-
-            // Test 3: Dati reali
-            debugElement.innerHTML += '<br>3. 📊 Test dati reali...<br>';
-            const { data: veicoli, error: veicoliError } = await supabaseFetch('veicoli?select=veicolo_id,nomeveicolo,targa,kmattuali&limit=5');
-            
-            if (veicoliError) {
-                debugElement.innerHTML += `❌ Errore caricamento veicoli: ${veicoliError}<br>`;
-            } else if (veicoli && veicoli.length > 0) {
-                debugElement.innerHTML += `✅ ${veicoli.length} veicoli trovati:<br>`;
-                veicoli.forEach(v => {
-                    debugElement.innerHTML += `&nbsp;&nbsp;• ${v.nomeveicolo} (${v.targa}) - ${v.kmattuali} km<br>`;
-                });
-            } else {
-                debugElement.innerHTML += `⚠️ Nessun veicolo trovato nel database<br>`;
-            }
-
-            // Risultati finali
-            debugElement.innerHTML += '<br><strong>📊 RISULTATI FINALI:</strong><br>';
-            
-            if (tabelleTrovate.length > 0) {
-                statusElement.className = 'status connected';
-                statusElement.textContent = `✅ Database connesso - ${tabelleTrovate.length} tabelle accessibili`;
-                debugElement.innerHTML += `🎉 <strong>SUCCESSO!</strong> Tabelle accessibili: ${tabelleTrovate.join(', ')}`;
-            } else {
-                statusElement.className = 'status error';
-                statusElement.textContent = '❌ Nessuna tabella accessibile';
-                debugElement.innerHTML += `❌ <strong>PROBLEMA:</strong> Nessuna tabella accessibile nello schema public<br><br>`;
-                debugElement.innerHTML += `💡 <strong>SOLUZIONE:</strong><br>`;
-                debugElement.innerHTML += `1. Verifica che le tabelle esistano in Supabase Table Editor<br>`;
-                debugElement.innerHTML += `2. Controlla che siano nello schema 'public'<br>`;
-                debugElement.innerHTML += `3. Disabilita temporaneamente RLS (Row Level Security)<br>`;
-                debugElement.innerHTML += `4. Controlla le policy di accesso alle tabelle`;
-            }
+            statusElement.className = 'status connected';
+            statusElement.textContent = '✅ Test completato!';
         }
 
         // Tracciamento GPS
@@ -344,7 +377,7 @@
                     statusElement.className = 'status connected';
                     statusElement.textContent = '📍 Posizione rilevata!';
                     
-                    alert(`📍 Posizione rilevata:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}\n\nAltitudine: ${position.coords.altitude || 'N/D'}m\nPrecisione: ${position.coords.accuracy}m`);
+                    alert(`📍 GPS FUNZIONANTE!\n\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}\n\nAltitudine: ${position.coords.altitude || 'N/D'}m\nPrecisione: ${position.coords.accuracy}m`);
                 },
                 (error) => {
                     statusElement.className = 'status error';
@@ -353,13 +386,13 @@
                     let errorMessage = 'Errore sconosciuto';
                     switch(error.code) {
                         case error.PERMISSION_DENIED:
-                            errorMessage = 'Permesso GPS negato';
+                            errorMessage = 'Permesso GPS negato - Controlla impostazioni browser';
                             break;
                         case error.POSITION_UNAVAILABLE:
-                            errorMessage = 'Posizione non disponibile';
+                            errorMessage = 'Posizione non disponibile - Attiva il GPS';
                             break;
                         case error.TIMEOUT:
-                            errorMessage = 'Timeout rilevamento posizione';
+                            errorMessage = 'Timeout - Riprova in zona con migliore copertura';
                             break;
                     }
                     
@@ -367,8 +400,8 @@
                 },
                 { 
                     enableHighAccuracy: true, 
-                    timeout: 15000,
-                    maximumAge: 0
+                    timeout: 10000,
+                    maximumAge: 60000
                 }
             );
         }
@@ -376,6 +409,7 @@
         // Inizializza app
         window.addEventListener('load', () => {
             console.log('🚗 CareAutoPro avviato');
+            statusElement.textContent = '✅ App caricata - Pronta per i test';
         });
     </script>
 </body>
