@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚗 CareAutoPro</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .app-container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .icon {
+            font-size: 80px;
+            margin-bottom: 15px;
+        }
+        
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1a202c;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            color: #718096;
+            font-size: 16px;
+        }
+        
+        .menu-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+        
+        .menu-btn {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .menu-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .menu-btn.gps { background: #48bb78; }
+        .menu-btn.maintenance { background: #9f7aea; }
+        .menu-btn.fuel { background: #ed8936; }
+        
+        .menu-btn .emoji {
+            font-size: 20px;
+        }
+        
+        .features {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .feature {
+            color: #4a5568;
+            margin: 10px 0;
+            padding-left: 24px;
+            position: relative;
+            font-size: 14px;
+        }
+        
+        .feature:before {
+            content: "✅";
+            position: absolute;
+            left: 0;
+        }
+        
+        .status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
+        }
+        
+        .status.connected {
+            background: #c6f6d5;
+            color: #22543d;
+        }
+        
+        .status.error {
+            background: #fed7d7;
+            color: #742a2a;
+        }
+        
+        .status.loading {
+            background: #bee3f8;
+            color: #2a4365;
+        }
+
+        .status.warning {
+            background: #feebc8;
+            color: #744210;
+        }
+
+        .demo-data {
+            background: #e6fffa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        .demo-btn {
+            background: #234e52;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <div class="icon">🚗</div>
+            <h1 class="title">CareAutoPro</h1>
+            <p class="subtitle">Gestione Manutenzione Veicoli</p>
+        </div>
+        
+        <div class="menu-buttons">
+            <button class="menu-btn" onclick="caricaVeicoli()">
+                <span class="emoji">📊</span>
+                Dashboard Veicoli
+            </button>
+            
+            <button class="menu-btn gps" onclick="avviaTracciamentoGPS()">
+                <span class="emoji">📍</span>
+                Tracciamento GPS
+            </button>
+            
+            <button class="menu-btn maintenance" onclick="gestisciManutenzioni()">
+                <span class="emoji">🔧</span>
+                Manutenzioni
+            </button>
+            
+            <button class="menu-btn fuel" onclick="gestisciRifornimenti()">
+                <span class="emoji">⛽</span>
+                Rifornimenti
+            </button>
+        </div>
+        
+        <div class="features">
+            <div class="feature">PWA Ready - Installa come app</div>
+            <div class="feature">GPS Tracking - Tracciamento percorsi</div>
+            <div class="feature">Mobile First - Ottimizzato per smartphone</div>
+            <div class="feature">Notifiche Manutenzione - Alert automatici</div>
+        </div>
+
+        <div class="demo-data">
+            <p style="color: #234e52; font-size: 14px; margin-bottom: 10px;">
+                <strong>💡 Modalità Demo:</strong> File locale - Alcune funzioni limitate
+            </p>
+            <button class="demo-btn" onclick="caricaDatiDemo()">
+                🚗 Carica Dati Demo
+            </button>
+        </div>
+        
+        <div id="status" class="status warning">
+            ⚠️ File locale - Alcune funzioni potrebbero non funzionare
+        </div>
+    </div>
+
+    <script>
+        // Configurazione Supabase
+        const SUPABASE_URL = 'https://jamttxwhexlvbkjccrqm.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbXR0eHdoZXhsdmJramNjcnFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2NTE5MDIsImV4cCI6MjA2OTIyNzkwMn0.MkQarY2dOUuwhFnOdaLHqb6idFocTGSfZKjqVoeDYBs';
+
+        const statusElement = document.getElementById('status');
+        let supabaseClient = null;
+
+        // Prova a inizializzare Supabase solo se siamo su HTTPS
+        function inizializzaSupabase() {
+            try {
+                if (window.location.protocol === 'https:' || window.location.hostname === 'localhost') {
+                    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                    testConnessione();
+                } else {
+                    statusElement.className = 'status warning';
+                    statusElement.innerHTML = '⚠️ File locale - <a href="#" onclick="mostraIstruzioni()" style="color: #744210; text-decoration: underline;">Come risolvere</a>';
+                }
+            } catch (error) {
+                statusElement.className = 'status error';
+                statusElement.textContent = '❌ Errore inizializzazione app';
+            }
+        }
+
+        function mostraIstruzioni() {
+            alert(`🔧 PER RISOLVERE:
+
+1. INSTALLA "Web Server for Chrome"
+2. SELEZIONA LA CARTELLA DEL FILE
+3. AVVIA IL SERVER
+4. APRI http://localhost:8887
+
+Oppure carica il file su:
+• GitHub Pages
+• Vercel
+• Netlify
+
+Così Supabase funzionerà!`);
+        }
+
+        // Test connessione
+        async function testConnessione() {
+            if (!supabaseClient) return;
+            
+            try {
+                statusElement.className = 'status loading';
+                statusElement.textContent = '🔗 Test connessione database...';
+                
+                const { data, error } = await supabaseClient
+                    .from('veicoli')
+                    .select('veicolo_id, nomeveicolo, targa')
+                    .limit(1);
+                
+                if (error) throw error;
+                
+                statusElement.className = 'status connected';
+                statusElement.textContent = '✅ Database connesso con successo!';
+                
+            } catch (error) {
+                statusElement.className = 'status error';
+                statusElement.textContent = '❌ Errore connessione database';
+            }
+        }
+
+        // Carica veicoli con fallback a demo
+        async function caricaVeicoli() {
+            if (supabaseClient) {
+                try {
+                    const { data, error } = await supabaseClient
+                        .from('veicoli')
+                        .select('veicolo_id, nomeveicolo, targa, kmattuali')
+                        .order('nomeveicolo');
+                  
+                    if (!error && data && data.length > 0) {
+                        const lista = data.map(v => 
+                            `• ${v.nomeveicolo} (${v.targa}) - ${v.kmattuali || 0} km`
+                        ).join('\n');
+                        
+                        alert(`📊 I TUOI VEICOLI (${data.length}):\n${lista}`);
+                        return;
+                    }
+                } catch (error) {
+                    console.log('Fallback a dati demo');
+                }
+            }
+            
+            // Fallback a dati demo
+            caricaDatiDemo();
+        }
+
+        // Dati demo
+        function caricaDatiDemo() {
+            const veicoliDemo = [
+                { nomeveicolo: 'Fiat Panda', targa: 'AB123CD', kmattuali: 15200 },
+                { nomeveicolo: 'Volkswagen Golf', targa: 'EF456GH', kmattuali: 87500 },
+                { nomeveicolo: 'Ford Focus', targa: 'IJ789KL', kmattuali: 12300 }
+            ];
+            
+            const lista = veicoliDemo.map(v => 
+                `• ${v.nomeveicolo} (${v.targa}) - ${v.kmattuali} km`
+            ).join('\n');
+            
+            alert(`📊 DATI DEMO (${veicoliDemo.length} veicoli):\n${lista}\n\n💡 Per dati reali: usa un server web`);
+        }
+
+        // Altre funzioni (GPS funziona anche in locale)
+        function avviaTracciamentoGPS() {
+            if (!navigator.geolocation) {
+                alert('❌ GPS non supportato dal browser');
+                return;
+            }
+
+            alert('📍 Avviando tracciamento GPS...');
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    alert(`📍 Posizione rilevata:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}`);
+                },
+                (error) => {
+                    alert('❌ Errore GPS: ' + error.message);
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        function gestisciManutenzioni() {
+            alert('🔧 Gestione manutenzioni - Prossima feature!\n💡 Funzionerà quando Supabase è connesso');
+        }
+
+        function gestisciRifornimenti() {
+            alert('⛽ Gestione rifornimenti - Prossima feature!\n💡 Funzionerà quando Supabase è connesso');
+        }
+
+        // Inizializza app
+        window.addEventListener('load', inizializzaSupabase);
+    </script>
+</body>
+</html>
