@@ -214,6 +214,10 @@
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
         }
         
         .btn:hover {
@@ -224,6 +228,8 @@
         .btn-success { background: #48bb78; }
         .btn-warning { background: #ed8936; }
         .btn-danger { background: #e53e3e; }
+        .btn-google { background: #db4437; }
+        .btn-facebook { background: #4267B2; }
         
         .tracking-info {
             background: #f7fafc;
@@ -278,6 +284,35 @@
             outline: none;
         }
         
+        .social-login {
+            display: grid;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            color: #718096;
+            position: relative;
+        }
+        
+        .divider::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: #e2e8f0;
+        }
+        
+        .divider span {
+            background: white;
+            padding: 0 15px;
+            position: relative;
+        }
+        
         .status-message {
             padding: 12px;
             border-radius: 8px;
@@ -304,6 +339,35 @@
         .hidden {
             display: none;
         }
+
+        .add-vehicle-form {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 15px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #4a5568;
+        }
+
+        .vehicle-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .btn-small {
+            padding: 8px 12px;
+            font-size: 12px;
+        }
     </style>
 </head>
 <body>
@@ -326,16 +390,33 @@
         <!-- Login Form -->
         <div id="loginContainer" class="login-container">
             <h2>Accedi a CareAutoPro</h2>
+            
+            <!-- Social Login -->
+            <div class="social-login">
+                <button class="btn btn-google" onclick="loginWithGoogle()">
+                    <i class="fab fa-google"></i> Continua con Google
+                </button>
+                <button class="btn btn-facebook" onclick="loginWithFacebook()">
+                    <i class="fab fa-facebook"></i> Continua con Facebook
+                </button>
+            </div>
+
+            <div class="divider">
+                <span>Oppure</span>
+            </div>
+            
+            <!-- Email/Password Login -->
             <div class="login-form">
                 <input type="email" id="email" class="form-input" placeholder="La tua email" required>
                 <input type="password" id="password" class="form-input" placeholder="Password" required>
-                <button class="btn" onclick="login()">
+                <button class="btn" onclick="loginWithEmail()">
                     <i class="fas fa-sign-in-alt"></i> Accedi
                 </button>
-                <button class="btn btn-success" onclick="signup()">
-                    <i class="fas fa-user-plus"></i> Registrati
+                <button class="btn btn-success" onclick="signupWithEmail()">
+                    <i class="fas fa-user-plus"></i> Registrati con Email
                 </button>
             </div>
+            
             <div id="loginStatus" class="status-message"></div>
         </div>
 
@@ -352,6 +433,9 @@
                 <button class="nav-tab" onclick="showTab('tracking')">
                     <i class="fas fa-map-marker-alt"></i> Tracking
                 </button>
+                <button class="nav-tab" onclick="showTab('profile')">
+                    <i class="fas fa-user"></i> Profilo
+                </button>
             </div>
 
             <!-- Tab Contents -->
@@ -362,6 +446,37 @@
                 <button class="btn btn-success" onclick="showAddVehicleForm()" style="margin-top: 15px;">
                     <i class="fas fa-plus"></i> Aggiungi Veicolo
                 </button>
+
+                <!-- Form Aggiunta Veicolo -->
+                <div id="addVehicleForm" class="add-vehicle-form hidden">
+                    <h3 style="margin-bottom: 15px;">Aggiungi Nuovo Veicolo</h3>
+                    <div class="form-group">
+                        <label class="form-label">Nome Veicolo</label>
+                        <input type="text" id="vehicleName" class="form-input" placeholder="Es: Auto Familiare">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Targa</label>
+                        <input type="text" id="vehiclePlate" class="form-input" placeholder="Es: AB123CD">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tipo Veicolo</label>
+                        <select id="vehicleType" class="form-input">
+                            <option value="">Seleziona tipo...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">KM Attuali</label>
+                        <input type="number" id="vehicleKm" class="form-input" placeholder="Es: 50000">
+                    </div>
+                    <div class="vehicle-actions">
+                        <button class="btn btn-success btn-small" onclick="addVehicle()">
+                            <i class="fas fa-save"></i> Salva
+                        </button>
+                        <button class="btn btn-danger btn-small" onclick="hideAddVehicleForm()">
+                            <i class="fas fa-times"></i> Annulla
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div class="tab-content" id="maintenanceTab">
@@ -412,6 +527,34 @@
                     </div>
                 </div>
             </div>
+
+            <div class="tab-content" id="profileTab">
+                <div class="tracking-info">
+                    <h3 style="margin-bottom: 15px;">Il Tuo Profilo</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Email:</span>
+                            <span class="info-value" id="profileEmail">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">ID Utente:</span>
+                            <span class="info-value" id="profileId">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Data Registrazione:</span>
+                            <span class="info-value" id="profileCreated">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Veicoli Registrati:</span>
+                            <span class="info-value" id="profileVehicles">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-warning" onclick="updateProfile()" style="margin-top: 15px;">
+                    <i class="fas fa-sync"></i> Aggiorna Profilo
+                </button>
+            </div>
         </div>
     </div>
 
@@ -460,13 +603,60 @@
             document.getElementById('mainApp').classList.remove('hidden');
             document.getElementById('userInfo').classList.remove('hidden');
             document.getElementById('userEmail').textContent = currentUser.email;
+            updateProfileInfo();
         }
 
-        // Login
-        async function login() {
+        // ==================== AUTENTICAZIONE ====================
+
+        // Login con Google
+        async function loginWithGoogle() {
+            const status = document.getElementById('loginStatus');
+            status.className = 'status-message status-loading';
+            status.textContent = 'Accesso con Google...';
+
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: window.location.origin
+                }
+            });
+
+            if (error) {
+                status.className = 'status-message status-error';
+                status.textContent = 'Errore: ' + error.message;
+            }
+        }
+
+        // Login con Facebook
+        async function loginWithFacebook() {
+            const status = document.getElementById('loginStatus');
+            status.className = 'status-message status-loading';
+            status.textContent = 'Accesso con Facebook...';
+
+            const { data, error } = await supabase.auth.signInWithOAuth({
+                provider: 'facebook',
+                options: {
+                    redirectTo: window.location.origin
+                }
+            });
+
+            if (error) {
+                status.className = 'status-message status-error';
+                status.textContent = 'Errore: ' + error.message;
+            }
+        }
+
+        // Login con email/password
+        async function loginWithEmail() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const status = document.getElementById('loginStatus');
+
+            if (!email || !password) {
+                status.className = 'status-message status-error';
+                status.textContent = 'Inserisci email e password';
+                return;
+            }
 
             status.className = 'status-message status-loading';
             status.textContent = 'Accesso in corso...';
@@ -486,18 +676,33 @@
             }
         }
 
-        // Registrazione
-        async function signup() {
+        // Registrazione con email
+        async function signupWithEmail() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const status = document.getElementById('loginStatus');
+
+            if (!email || !password) {
+                status.className = 'status-message status-error';
+                status.textContent = 'Inserisci email e password';
+                return;
+            }
+
+            if (password.length < 6) {
+                status.className = 'status-message status-error';
+                status.textContent = 'La password deve essere di almeno 6 caratteri';
+                return;
+            }
 
             status.className = 'status-message status-loading';
             status.textContent = 'Registrazione in corso...';
 
             const { data, error } = await supabase.auth.signUp({
                 email: email,
-                password: password
+                password: password,
+                options: {
+                    emailRedirectTo: window.location.origin
+                }
             });
 
             if (error) {
@@ -505,7 +710,11 @@
                 status.textContent = 'Errore: ' + error.message;
             } else {
                 status.className = 'status-message status-success';
-                status.textContent = 'Registrazione completata! Controlla la tua email per la conferma.';
+                status.textContent = 'Registrazione completata! Controlla la tua email per confermare l\'account.';
+                
+                // Pulisci i campi
+                document.getElementById('email').value = '';
+                document.getElementById('password').value = '';
             }
         }
 
@@ -517,11 +726,35 @@
             showLogin();
         }
 
+        // ==================== GESTIONE VEICOLI ====================
+
         // Caricamento dati utente
         async function loadUserData() {
+            await loadVehicleTypes();
             await loadVehicles();
             await loadMaintenance();
             await checkActiveSession();
+        }
+
+        // Carica tipi veicolo
+        async function loadVehicleTypes() {
+            try {
+                const { data: tipi, error } = await supabase
+                    .from('tipoveicoli')
+                    .select('tipoveicolo_id, descrizione')
+                    .is('dataoraelimina', null)
+                    .order('descrizione');
+
+                if (!error && tipi) {
+                    const select = document.getElementById('vehicleType');
+                    select.innerHTML = '<option value="">Seleziona tipo...</option>' +
+                        tipi.map(tipo => 
+                            `<option value="${tipo.tipoveicolo_id}">${tipo.descrizione}</option>`
+                        ).join('');
+                }
+            } catch (error) {
+                console.error('Errore caricamento tipi veicolo:', error);
+            }
         }
 
         // Caricamento veicoli
@@ -558,7 +791,7 @@
                 }
 
                 vehiclesList.innerHTML = veicoli.map(vehicle => `
-                    <div class="vehicle-card" onclick="selectVehicle('${vehicle.veicolo_id}')">
+                    <div class="vehicle-card">
                         <div class="vehicle-header">
                             <span class="vehicle-name">${vehicle.nomeveicolo || 'Veicolo'}</span>
                             <span class="vehicle-plate">${vehicle.targa || 'N/D'}</span>
@@ -567,7 +800,14 @@
                             <div><strong>KM:</strong> ${vehicle.kmattuali || 0}</div>
                             <div><strong>Tipo:</strong> ${vehicle.tipoveicoli?.descrizione || 'N/D'}</div>
                             <div><strong>Immatricolazione:</strong> ${vehicle.dataimmatricolazione ? new Date(vehicle.dataimmatricolazione).toLocaleDateString() : 'N/D'}</div>
-                            <div><strong>ID:</strong> ${vehicle.veicolo_id.substring(0, 8)}...</div>
+                        </div>
+                        <div class="vehicle-actions">
+                            <button class="btn btn-success btn-small" onclick="selectVehicle('${vehicle.veicolo_id}')">
+                                <i class="fas fa-play"></i> Usa
+                            </button>
+                            <button class="btn btn-warning btn-small" onclick="updateVehicleKm('${vehicle.veicolo_id}')">
+                                <i class="fas fa-sync"></i> Aggiorna KM
+                            </button>
                         </div>
                     </div>
                 `).join('');
@@ -577,6 +817,72 @@
                 vehiclesList.innerHTML = '<div class="status-message status-error">Errore nel caricamento dei veicoli</div>';
             }
         }
+
+        // Aggiungi veicolo
+        async function addVehicle() {
+            const nome = document.getElementById('vehicleName').value;
+            const targa = document.getElementById('vehiclePlate').value;
+            const tipoId = document.getElementById('vehicleType').value;
+            const km = parseInt(document.getElementById('vehicleKm').value) || 0;
+
+            if (!nome || !targa) {
+                alert('Inserisci almeno nome e targa del veicolo');
+                return;
+            }
+
+            try {
+                const { data, error } = await supabase
+                    .from('veicoli')
+                    .insert([{
+                        utente_id: currentUser.id,
+                        nomeveicolo: nome,
+                        targa: targa,
+                        tipoveicolo_id: tipoId || null,
+                        kmattuali: km,
+                        dataora: new Date().toISOString()
+                    }])
+                    .select();
+
+                if (error) throw error;
+
+                // Ricarica lista veicoli
+                await loadVehicles();
+                hideAddVehicleForm();
+                
+                alert('Veicolo aggiunto con successo!');
+
+            } catch (error) {
+                console.error('Errore aggiunta veicolo:', error);
+                alert('Errore nell\'aggiunta del veicolo: ' + error.message);
+            }
+        }
+
+        // Aggiorna KM veicolo
+        async function updateVehicleKm(vehicleId) {
+            const nuovoKm = prompt('Inserisci i nuovi KM del veicolo:');
+            if (!nuovoKm || isNaN(nuovoKm)) return;
+
+            try {
+                const { error } = await supabase
+                    .from('veicoli')
+                    .update({
+                        kmattuali: parseInt(nuovoKm),
+                        kmattualidataorainserimento: new Date().toISOString()
+                    })
+                    .eq('veicolo_id', vehicleId);
+
+                if (error) throw error;
+
+                await loadVehicles();
+                alert('KM aggiornati con successo!');
+
+            } catch (error) {
+                console.error('Errore aggiornamento KM:', error);
+                alert('Errore nell\'aggiornamento dei KM');
+            }
+        }
+
+        // ==================== MANUTENZIONE ====================
 
         // Caricamento interventi manutenzione
         async function loadMaintenance() {
@@ -637,6 +943,8 @@
             }
         }
 
+        // ==================== TRACKING GPS ====================
+
         // Controlla sessione attiva
         async function checkActiveSession() {
             try {
@@ -660,6 +968,7 @@
                     activeSession = sessioni;
                     currentVehicle = sessioni.veicolo_id;
                     updateActiveSessionUI(sessioni);
+                    startTrackingInterval();
                 }
 
             } catch (error) {
@@ -701,17 +1010,22 @@
 
             activeSession = sessione;
             updateActiveSessionUI(sessione);
+            startTrackingInterval();
 
-            // Avvia tracking continuo
+            document.getElementById('trackingStatus').textContent = 'Attivo';
+            document.getElementById('trackingStatus').style.color = '#48bb78';
+        }
+
+        // Avvia intervallo tracking
+        function startTrackingInterval() {
+            if (trackingInterval) clearInterval(trackingInterval);
+            
             trackingInterval = setInterval(() => {
                 updateGPSPosition();
             }, 30000); // Aggiorna ogni 30 secondi
 
             // Primo aggiornamento immediato
             updateGPSPosition();
-
-            document.getElementById('trackingStatus').textContent = 'Attivo';
-            document.getElementById('trackingStatus').style.color = '#48bb78';
         }
 
         // Ferma tracking
@@ -870,6 +1184,31 @@
             `;
         }
 
+        // ==================== PROFILO ====================
+
+        // Aggiorna informazioni profilo
+        async function updateProfileInfo() {
+            document.getElementById('profileEmail').textContent = currentUser.email;
+            document.getElementById('profileId').textContent = currentUser.id.substring(0, 8) + '...';
+            document.getElementById('profileCreated').textContent = new Date(currentUser.created_at).toLocaleDateString();
+
+            // Conta veicoli dell'utente
+            const { count } = await supabase
+                .from('veicoli')
+                .select('*', { count: 'exact', head: true })
+                .eq('utente_id', currentUser.id)
+                .is('dataoraelimina', null);
+
+            document.getElementById('profileVehicles').textContent = count || 0;
+        }
+
+        async function updateProfile() {
+            await updateProfileInfo();
+            alert('Profilo aggiornato!');
+        }
+
+        // ==================== UI HELPERS ====================
+
         // Gestione tab
         function showTab(tabName) {
             // Nascondi tutti i tab
@@ -885,17 +1224,33 @@
             event.target.classList.add('active');
         }
 
+        // Mostra/nascondi form aggiunta veicolo
+        function showAddVehicleForm() {
+            document.getElementById('addVehicleForm').classList.remove('hidden');
+        }
+
+        function hideAddVehicleForm() {
+            document.getElementById('addVehicleForm').classList.add('hidden');
+            // Pulisci i campi
+            document.getElementById('vehicleName').value = '';
+            document.getElementById('vehiclePlate').value = '';
+            document.getElementById('vehicleType').value = '';
+            document.getElementById('vehicleKm').value = '';
+        }
+
         // Setup event listeners
         function setupEventListeners() {
             // Enter per login
             document.getElementById('password').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') login();
+                if (e.key === 'Enter') loginWithEmail();
             });
         }
 
-        // Aggiungi veicolo (placeholder)
-        function showAddVehicleForm() {
-            alert('Funzionalità di aggiunta veicolo in sviluppo!\n\nPer ora, puoi aggiungere veicoli direttamente dal database Supabase.');
+        // Service Worker per PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js')
+                .then(() => console.log('✅ PWA Ready'))
+                .catch(() => console.log('⚠️ PWA non supportata'));
         }
     </script>
 </body>
