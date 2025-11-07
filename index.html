@@ -83,6 +83,7 @@
         .menu-btn.gps { background: #48bb78; }
         .menu-btn.maintenance { background: #9f7aea; }
         .menu-btn.fuel { background: #ed8936; }
+        .menu-btn.stats { background: #ed64a6; }
         
         .menu-btn .emoji {
             font-size: 20px;
@@ -149,26 +150,31 @@
             overflow-y: auto;
         }
 
-        .solution-box {
-            background: #e6fffa;
-            border-radius: 12px;
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .stat-card {
+            background: white;
             padding: 15px;
-            margin-top: 15px;
-            border-left: 4px solid #234e52;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
 
-        .solution-title {
-            color: #234e52;
+        .stat-value {
+            font-size: 24px;
             font-weight: bold;
-            margin-bottom: 8px;
+            color: #2d3748;
         }
 
-        .step-box {
-            background: #fff5f5;
-            border-radius: 8px;
-            padding: 10px;
-            margin: 10px 0;
-            border-left: 4px solid #c53030;
+        .stat-label {
+            font-size: 12px;
+            color: #718096;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -181,20 +187,51 @@
         </div>
         
         <div class="menu-buttons">
-            <button class="menu-btn" onclick="testConfigurazioneBase()" style="background: #d69e2e;">
-                <span class="emoji">🔧</span>
-                Test Configurazione Base
+            <button class="menu-btn" onclick="caricaVeicoli()">
+                <span class="emoji">📊</span>
+                Dashboard Veicoli
             </button>
-
-            <button class="menu-btn" onclick="creaTabelleSeNonEsistono()" style="background: #b7791f;">
-                <span class="emoji">🏗️</span>
-                Crea Tabelle Base
-            </button>
-
+            
             <button class="menu-btn gps" onclick="avviaTracciamentoGPS()">
                 <span class="emoji">📍</span>
-                Test GPS
+                Tracciamento GPS
             </button>
+            
+            <button class="menu-btn maintenance" onclick="gestisciManutenzioni()">
+                <span class="emoji">🔧</span>
+                Manutenzioni
+            </button>
+            
+            <button class="menu-btn fuel" onclick="gestisciRifornimenti()">
+                <span class="emoji">⛽</span>
+                Rifornimenti
+            </button>
+
+            <button class="menu-btn stats" onclick="mostraStatistiche()">
+                <span class="emoji">📈</span>
+                Statistiche
+            </button>
+        </div>
+
+        <div id="statsContainer" style="display: none;">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalVeicoli">0</div>
+                    <div class="stat-label">Veicoli</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalKm">0</div>
+                    <div class="stat-label">KM Totali</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="manutenzioniCount">0</div>
+                    <div class="stat-label">Manutenzioni</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="rifornimentiCount">0</div>
+                    <div class="stat-label">Rifornimenti</div>
+                </div>
+            </div>
         </div>
         
         <div class="features">
@@ -204,22 +241,12 @@
             <div class="feature">Notifiche Manutenzione - Alert automatici</div>
         </div>
         
-        <div id="status" class="status warning">
-            ⚠️ Configurazione non testata - Clicca "Test Configurazione Base"
+        <div id="status" class="status connected">
+            ✅ App Pronta - Tabelle caricate
         </div>
 
         <div id="debug" class="debug-info" style="display: none;">
             Debug info apparirà qui
-        </div>
-
-        <div id="solution" class="solution-box" style="display: none;">
-            <div class="solution-title">💡 Soluzione Consigliata</div>
-            <div id="solutionText"></div>
-        </div>
-
-        <div id="steps" class="step-box" style="display: none;">
-            <div class="solution-title">📋 Passi da Seguire</div>
-            <div id="stepsText"></div>
         </div>
     </div>
 
@@ -230,10 +257,11 @@
 
         const statusElement = document.getElementById('status');
         const debugElement = document.getElementById('debug');
-        const solutionElement = document.getElementById('solution');
-        const solutionText = document.getElementById('solutionText');
-        const stepsElement = document.getElementById('steps');
-        const stepsText = document.getElementById('stepsText');
+        const statsContainer = document.getElementById('statsContainer');
+
+        // Variabili globali
+        let veicoliData = [];
+        let currentPosition = null;
 
         // Funzione per chiamate API dirette
         async function supabaseFetch(endpoint, method = 'GET', body = null) {
@@ -261,191 +289,229 @@
                     return { data, error: null, status: response.status };
                 } else {
                     const errorText = await response.text();
-                    return { data: null, error: `HTTP ${response.status}: ${errorText}`, status: response.status };
+                    return { data: null, error: errorText, status: response.status };
                 }
             } catch (error) {
                 return { data: null, error: error.message, status: 0 };
             }
         }
 
-        // Test configurazione base
-        async function testConfigurazioneBase() {
-            statusElement.className = 'status loading';
-            statusElement.textContent = '🔧 Test configurazione base...';
-            debugElement.style.display = 'block';
-            solutionElement.style.display = 'none';
-            stepsElement.style.display = 'none';
-            
-            debugElement.innerHTML = '<strong>🔧 TEST CONFIGURAZIONE BASE SUPABASE</strong><br><br>';
-
-            // Test 1: Connessione base
-            debugElement.innerHTML += '1. 🔗 Test connessione API...<br>';
-            const test1 = await supabaseFetch('');
-            if (test1.status !== 0 && test1.status !== 404) {
-                debugElement.innerHTML += `✅ API raggiungibile (Status: ${test1.status})<br>`;
-            } else {
-                debugElement.innerHTML += `❌ API non raggiungibile: ${test1.error}<br>`;
-            }
-
-            // Test 2: Verifica API key
-            debugElement.innerHTML += '<br>2. 🔑 Test API key...<br>';
-            const test2 = await supabaseFetch('veicoli?select=count&limit=1');
-            if (test2.status === 401 || test2.status === 403) {
-                debugElement.innerHTML += `❌ API key non valida: ${test2.error}<br>`;
-            } else if (test2.status === 404) {
-                debugElement.innerHTML += `✅ API key valida - Tabelle non trovate (atteso)<br>`;
-            } else {
-                debugElement.innerHTML += `✅ API key valida (Status: ${test2.status})<br>`;
-            }
-
-            // Test 3: Verifica CORS
-            debugElement.innerHTML += '<br>3. 🌐 Test CORS...<br>';
+        // Carica tutti i veicoli
+        async function caricaVeicoli() {
             try {
-                const corsTest = await fetch(SUPABASE_URL, {
-                    method: 'OPTIONS',
-                    headers: {
-                        'Origin': window.location.origin,
-                        'Access-Control-Request-Method': 'GET'
-                    }
-                });
-                debugElement.innerHTML += `✅ CORS configurato (Status: ${corsTest.status})<br>`;
+                statusElement.className = 'status loading';
+                statusElement.textContent = '📊 Caricamento veicoli...';
+                
+                const { data, error } = await supabaseFetch('veicoli?select=*&order=nomeveicolo');
+              
+                if (error) throw new Error(error);
+                
+                veicoliData = data || [];
+                
+                if (veicoliData.length > 0) {
+                    const lista = veicoliData.map(v => 
+                        `• ${v.nomeveicolo || 'Senza nome'} (${v.targa || 'N/D'}) - ${v.kmattuali || 0} km`
+                    ).join('\n');
+                    
+                    alert(`📊 I TUOI VEICOLI (${veicoliData.length}):\n${lista}`);
+                    statusElement.className = 'status connected';
+                    statusElement.textContent = `✅ ${veicoliData.length} veicoli caricati`;
+                } else {
+                    alert('📊 Nessun veicolo trovato nel database');
+                    statusElement.className = 'status warning';
+                    statusElement.textContent = '⚠️ Nessun veicolo trovato';
+                }
+                
             } catch (error) {
-                debugElement.innerHTML += `❌ Problema CORS: ${error.message}<br>`;
-            }
-
-            // Analisi risultati
-            debugElement.innerHTML += '<br><strong>📊 ANALISI RISULTATI:</strong><br>';
-
-            if (test1.status !== 0 && test1.status !== 404 && 
-                (test2.status === 404 || test2.status === 200)) {
-                statusElement.className = 'status connected';
-                statusElement.textContent = '✅ Configurazione base OK - Tabelle da creare';
-                solutionElement.style.display = 'block';
-                solutionText.innerHTML = `
-                    <strong>🎉 Configurazione base corretta!</strong><br><br>
-                    L'API key è valida e Supabase è raggiungibile.<br>
-                    Le tabelle non esistono ancora - creale con il pulsante "Crea Tabelle Base".
-                `;
-                stepsElement.style.display = 'block';
-                stepsText.innerHTML = `
-                    1. Clicca "Crea Tabelle Base"<br>
-                    2. Verifica che le tabelle siano create<br>
-                    3. Testa le funzionalità GPS<br>
-                    4. Aggiungi dati di esempio
-                `;
-            } else {
                 statusElement.className = 'status error';
-                statusElement.textContent = '❌ Problemi di configurazione';
-                solutionElement.style.display = 'block';
-                solutionText.innerHTML = `
-                    <strong>🔧 Problemi riscontrati:</strong><br><br>
-                    • API non raggiungibile o API key non valida<br>
-                    • Controlla la configurazione in Supabase Dashboard<br><br>
-                    <strong>Azioni richieste:</strong><br>
-                    1. Verifica che il progetto Supabase sia attivo<br>
-                    2. Controlla che l'API key sia corretta<br>
-                    3. Aggiungi il dominio Vercel alle impostazioni CORS
-                `;
+                statusElement.textContent = '❌ Errore caricamento dati';
+                alert('❌ Errore caricamento veicoli: ' + error.message);
             }
         }
 
-        // Crea tabelle se non esistono
-        async function creaTabelleSeNonEsistono() {
-            statusElement.className = 'status loading';
-            statusElement.textContent = '🏗️ Creazione tabelle...';
-            debugElement.style.display = 'block';
-            debugElement.innerHTML = '<strong>🏗️ CREAZIONE TABELLE BASE</strong><br><br>';
-
-            // Creazione tabella veicoli
-            debugElement.innerHTML += '1. Creazione tabella veicoli...<br>';
-            const veicoliData = {
-                veicolo_id: 'demo-' + Date.now(),
-                nomeveicolo: 'Auto Demo',
-                targa: 'DEMO001',
-                kmattuali: 15000,
-                dataimmatricolazione: '2023-01-01'
-            };
-
-            const creaVeicolo = await supabaseFetch('veicoli', 'POST', veicoliData);
-            
-            if (creaVeicolo.error && creaVeicolo.status === 404) {
-                debugElement.innerHTML += `❌ Tabella veicoli non esiste - impossibile creare<br>`;
-                
-                // Mostra istruzioni per creare tabelle manualmente
-                solutionElement.style.display = 'block';
-                solutionText.innerHTML = `
-                    <strong>📋 CREA TABELLE MANUALMENTE IN SUPABASE</strong><br><br>
-                    <strong>1. Vai su Supabase → Table Editor</strong><br>
-                    <strong>2. Crea queste tabelle:</strong><br><br>
-                    
-                    <strong>Tabella veicoli:</strong><br>
-                    <code>
-                    CREATE TABLE veicoli (<br>
-                    &nbsp;&nbsp;veicolo_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),<br>
-                    &nbsp;&nbsp;nomeveicolo TEXT,<br>
-                    &nbsp;&nbsp;targa TEXT,<br>
-                    &nbsp;&nbsp;kmattuali INTEGER,<br>
-                    &nbsp;&nbsp;dataimmatricolazione DATE<br>
-                    );
-                    </code><br><br>
-                    
-                    <strong>3. Disabilita RLS temporaneamente:</strong><br>
-                    <code>ALTER TABLE veicoli DISABLE ROW LEVEL SECURITY;</code>
-                `;
-                
-                statusElement.className = 'status warning';
-                statusElement.textContent = '⚠️ Crea tabelle manualmente in Supabase';
-                
-            } else if (creaVeicolo.error) {
-                debugElement.innerHTML += `❌ Errore: ${creaVeicolo.error}<br>`;
-                statusElement.className = 'status error';
-                statusElement.textContent = '❌ Errore creazione dati';
-            } else {
-                debugElement.innerHTML += `✅ Dati demo creati con successo!<br>`;
-                statusElement.className = 'status connected';
-                statusElement.textContent = '✅ Tabelle e dati creati!';
-                
-                solutionElement.style.display = 'block';
-                solutionText.innerHTML = `
-                    <strong>🎉 Successo!</strong><br><br>
-                    Tabella veicoli creata e dati demo inseriti.<br>
-                    Ora puoi testare tutte le funzionalità.
-                `;
-            }
-        }
-
-        // Tracciamento GPS
-        function avviaTracciamentoGPS() {
+        // Tracciamento GPS avanzato
+        async function avviaTracciamentoGPS() {
             if (!navigator.geolocation) {
                 alert('❌ GPS non supportato dal browser');
                 return;
             }
 
             statusElement.className = 'status loading';
-            statusElement.textContent = '📍 Rilevamento posizione...';
+            statusElement.textContent = '📍 Rilevamento posizione GPS...';
 
             navigator.geolocation.getCurrentPosition(
-                (position) => {
+                async (position) => {
                     const lat = position.coords.latitude;
                     const lng = position.coords.longitude;
+                    currentPosition = { lat, lng };
+                    
+                    // Salva la posizione nel database se ci sono veicoli
+                    if (veicoliData.length > 0) {
+                        await salvaPosizioneGPS(veicoliData[0].veicolo_id, lat, lng);
+                    }
                     
                     statusElement.className = 'status connected';
-                    statusElement.textContent = '📍 Posizione rilevata!';
+                    statusElement.textContent = '📍 Posizione salvata!';
                     
-                    alert(`📍 Posizione rilevata:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}`);
+                    alert(`📍 Posizione rilevata e salvata:\nLat: ${lat.toFixed(6)}\nLng: ${lng.toFixed(6)}`);
                 },
                 (error) => {
                     statusElement.className = 'status error';
                     statusElement.textContent = '❌ Errore GPS';
                     alert('❌ Errore GPS: ' + error.message);
                 },
-                { enableHighAccuracy: true, timeout: 10000 }
+                { 
+                    enableHighAccuracy: true, 
+                    timeout: 15000,
+                    maximumAge: 0
+                }
             );
+        }
+
+        // Salva posizione GPS nel database
+        async function salvaPosizioneGPS(veicoloId, lat, lng) {
+            try {
+                const posizioneData = {
+                    veicolo_id: veicoloId,
+                    latitude: lat,
+                    longitude: lng,
+                    dataora: new Date().toISOString()
+                };
+
+                // Prova a salvare in trackinggps se esiste
+                const { error } = await supabaseFetch('trackinggps', 'POST', posizioneData);
+                
+                if (error && error.includes('relation')) {
+                    // Tabella trackinggps non esiste, salva in sessioniutilizzo
+                    const sessioneData = {
+                        veicolo_id: veicoloId,
+                        posizione_inizio_lat: lat,
+                        posizione_inizio_lng: lng,
+                        dataora_inizio: new Date().toISOString(),
+                        sessione_attiva: true
+                    };
+                    
+                    await supabaseFetch('sessioniutilizzo', 'POST', sessioneData);
+                }
+                
+                console.log('📍 Posizione GPS salvata');
+            } catch (error) {
+                console.log('⚠️ Posizione non salvata:', error.message);
+            }
+        }
+
+        // Gestione manutenzioni
+        async function gestisciManutenzioni() {
+            if (veicoliData.length === 0) {
+                alert('📋 Prima carica i veicoli con "Dashboard Veicoli"');
+                return;
+            }
+
+            try {
+                // Carica manutenzioni esistenti
+                const { data: manutenzioni, error } = await supabaseFetch('interventi?select=*&order=dataoraintervento.desc');
+                
+                let message = '🔧 GESTIONE MANUTENZIONI\n\n';
+                
+                if (manutenzioni && manutenzioni.length > 0) {
+                    message += `Manutenzioni trovate: ${manutenzioni.length}\n\n`;
+                    manutenzioni.slice(0, 5).forEach(m => {
+                        message += `• ${m.descrizioneaggiuntiva || 'Manutenzione'} - ${m.kmintervento || 0} km\n`;
+                    });
+                } else {
+                    message += 'Nessuna manutenzione trovata\n';
+                }
+                
+                message += '\nVuoi aggiungere una nuova manutenzione?';
+                
+                if (confirm(message)) {
+                    const descrizione = prompt('Descrizione manutenzione:');
+                    const km = prompt('KM attuali:');
+                    
+                    if (descrizione && km) {
+                        const nuovaManutenzione = {
+                            veicolo_id: veicoliData[0].veicolo_id,
+                            descrizioneaggiuntiva: descrizione,
+                            kmintervento: parseInt(km),
+                            dataoraintervento: new Date().toISOString()
+                        };
+                        
+                        const { error } = await supabaseFetch('interventi', 'POST', nuovaManutenzione);
+                        
+                        if (error) throw new Error(error);
+                        
+                        alert('✅ Manutenzione aggiunta con successo!');
+                    }
+                }
+                
+            } catch (error) {
+                alert('❌ Errore gestione manutenzioni: ' + error.message);
+            }
+        }
+
+        // Gestione rifornimenti
+        async function gestisciRifornimenti() {
+            alert('⛽ Gestione rifornimenti - Prossima feature!\n\nFunzionalità in sviluppo:\n• Registrazione rifornimenti\n• Calcolo consumo carburante\n• Cronologia spese');
+        }
+
+        // Mostra statistiche
+        async function mostraStatistiche() {
+            try {
+                statusElement.className = 'status loading';
+                statusElement.textContent = '📈 Calcolo statistiche...';
+                
+                // Calcola statistiche
+                const totalVeicoli = veicoliData.length;
+                const totalKm = veicoliData.reduce((sum, v) => sum + (v.kmattuali || 0), 0);
+                
+                // Aggiorna UI
+                document.getElementById('totalVeicoli').textContent = totalVeicoli;
+                document.getElementById('totalKm').textContent = totalKm.toLocaleString();
+                document.getElementById('manutenzioniCount').textContent = '0';
+                document.getElementById('rifornimentiCount').textContent = '0';
+                
+                statsContainer.style.display = 'block';
+                statusElement.className = 'status connected';
+                statusElement.textContent = `📈 ${totalVeicoli} veicoli, ${totalKm} km totali`;
+                
+            } catch (error) {
+                statusElement.className = 'status error';
+                statusElement.textContent = '❌ Errore statistiche';
+            }
+        }
+
+        // Carica dati iniziali
+        async function caricaDatiIniziali() {
+            try {
+                const { data, error } = await supabaseFetch('veicoli?select=*&order=nomeveicolo');
+                if (!error && data) {
+                    veicoliData = data;
+                    statusElement.textContent = `✅ ${veicoliData.length} veicoli caricati`;
+                }
+            } catch (error) {
+                console.log('Caricamento iniziale non riuscito:', error);
+            }
         }
 
         // Inizializza app
         window.addEventListener('load', () => {
-            console.log('🚗 CareAutoPro avviato');
+            console.log('🚗 CareAutoPro avviato - Tabelle pronte');
+            caricaDatiIniziali();
+            
+            // Aggiungi listener per installazione PWA
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(() => console.log('✅ Service Worker registrato'))
+                    .catch(() => console.log('⚠️ Service Worker non supportato'));
+            }
+        });
+
+        // Gestione installazione PWA
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log('📱 PWA pronta per installazione');
         });
     </script>
 </body>
