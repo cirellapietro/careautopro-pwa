@@ -67,6 +67,20 @@
             color: #2b6cb0;
         }
         
+        .user-role {
+            background: #48bb78;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: bold;
+            margin-left: 8px;
+        }
+        
+        .user-role.admin {
+            background: #e53e3e;
+        }
+        
         .logout-btn {
             background: #e53e3e;
             color: white;
@@ -230,6 +244,7 @@
         .btn-danger { background: #e53e3e; }
         .btn-google { background: #db4437; }
         .btn-facebook { background: #4267B2; }
+        .btn-admin { background: #9f7aea; }
         
         .tracking-info {
             background: #f7fafc;
@@ -386,6 +401,23 @@
             border-radius: 8px;
             border: 1px solid #e2e8f0;
         }
+
+        .admin-badge {
+            background: #e53e3e;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 10px;
+            margin-left: 5px;
+        }
+
+        .admin-controls {
+            background: #fef5e7;
+            border: 1px solid #ed8936;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -393,8 +425,6 @@
         <select id="languageSelect" onchange="changeLanguage(this.value)">
             <option value="it">🇮🇹 Italiano</option>
             <option value="en">🇬🇧 English</option>
-            <option value="es">🇪🇸 Español</option>
-            <option value="fr">🇫🇷 Français</option>
         </select>
     </div>
 
@@ -408,7 +438,10 @@
 
         <!-- User Info (visibile dopo login) -->
         <div id="userInfo" class="user-info hidden">
-            <span class="user-email" id="userEmail"></span>
+            <div>
+                <span class="user-email" id="userEmail"></span>
+                <span id="userRoleBadge" class="user-role"></span>
+            </div>
             <button class="logout-btn" onclick="logout()">
                 <i class="fas fa-sign-out-alt"></i> <span id="logoutText">Logout</span>
             </button>
@@ -466,10 +499,20 @@
                 <button class="nav-tab" onclick="showTab('profile')">
                     <i class="fas fa-user"></i> <span id="profileTabText">Profilo</span>
                 </button>
+                <button id="adminTab" class="nav-tab hidden" onclick="showTab('admin')">
+                    <i class="fas fa-cog"></i> <span id="adminTabText">Admin</span>
+                </button>
             </div>
 
             <!-- Tab Contents -->
             <div class="tab-content active" id="vehiclesTab">
+                <div id="adminControls" class="admin-controls hidden">
+                    <h4><i class="fas fa-shield-alt"></i> Modalità Amministratore</h4>
+                    <p id="adminModeText">Stai visualizzando tutti i veicoli del sistema</p>
+                    <button class="btn btn-admin btn-small" onclick="toggleAdminMode()">
+                        <i class="fas fa-eye"></i> <span id="toggleAdminModeText">Mostra solo i miei veicoli</span>
+                    </button>
+                </div>
                 <div class="vehicles-grid" id="vehiclesList">
                     <!-- Veicoli verranno caricati qui -->
                 </div>
@@ -578,11 +621,43 @@
                             <span class="info-label" id="vehiclesCountLabel">Veicoli Registrati:</span>
                             <span class="info-value" id="profileVehicles">-</span>
                         </div>
+                        <div class="info-item">
+                            <span class="info-label" id="userRoleLabel">Ruolo:</span>
+                            <span class="info-value" id="profileRole">-</span>
+                        </div>
                     </div>
                 </div>
                 
                 <button class="btn btn-warning" onclick="updateProfile()" style="margin-top: 15px;">
                     <i class="fas fa-sync"></i> <span id="updateProfileText">Aggiorna Profilo</span>
+                </button>
+            </div>
+
+            <div class="tab-content" id="adminTab">
+                <div class="tracking-info">
+                    <h3 style="margin-bottom: 15px;"><i class="fas fa-shield-alt"></i> Pannello Amministratore</h3>
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <span class="info-label">Utenti Totali:</span>
+                            <span class="info-value" id="totalUsers">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Veicoli Totali:</span>
+                            <span class="info-value" id="totalVehicles">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Interventi Totali:</span>
+                            <span class="info-value" id="totalMaintenance">-</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="info-label">Sessioni Attive:</span>
+                            <span class="info-value" id="activeSessions">-</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-admin" onclick="loadAdminStats()" style="margin-top: 15px;">
+                    <i class="fas fa-sync"></i> Aggiorna Statistiche
                 </button>
             </div>
         </div>
@@ -601,6 +676,9 @@
         let trackingInterval = null;
         let currentVehicle = null;
         let currentLanguage = 'it';
+        let userProfile = null;
+        let isAdmin = false;
+        let adminMode = false;
 
         // Testi multilingua
         const translations = {
@@ -621,6 +699,7 @@
                 maintenanceTabText: "Manutenzione",
                 trackingTabText: "Tracking",
                 profileTabText: "Profilo",
+                adminTabText: "Admin",
                 addVehicleButtonText: "Aggiungi Veicolo",
                 addVehicleTitle: "Aggiungi Nuovo Veicolo",
                 vehicleNameLabel: "Nome Veicolo",
@@ -647,7 +726,10 @@
                 userIdLabel: "ID Utente:",
                 registrationDateLabel: "Data Registrazione:",
                 vehiclesCountLabel: "Veicoli Registrati:",
+                userRoleLabel: "Ruolo:",
                 updateProfileText: "Aggiorna Profilo",
+                adminModeText: "Stai visualizzando tutti i veicoli del sistema",
+                toggleAdminModeText: "Mostra solo i miei veicoli",
                 // Messaggi di errore
                 errorPasswordLength: "La password deve essere tra 6 e 72 caratteri",
                 errorEmailRequired: "Inserisci l'email",
@@ -658,6 +740,7 @@
                 errorInvalidCredentials: "Email o password non validi",
                 errorNetwork: "Errore di connessione. Riprova.",
                 errorUnknown: "Errore sconosciuto. Riprova.",
+                errorPermissionDenied: "Permesso negato. Contatta l'amministratore.",
                 // Messaggi di successo
                 successRegistration: "Registrazione completata! Controlla la tua email per confermare l'account.",
                 successLogin: "Accesso effettuato con successo!",
@@ -675,7 +758,9 @@
                 noVehiclesText: "Nessun veicolo trovato.",
                 noMaintenanceText: "Nessun intervento di manutenzione in programma.",
                 selectVehicleText: "Seleziona prima un veicolo",
-                gpsNotSupported: "GPS non supportato dal browser"
+                gpsNotSupported: "GPS non supportato dal browser",
+                roleUser: "Utente",
+                roleAdmin: "Amministratore"
             },
             en: {
                 appTitle: "CareAutoPro",
@@ -694,6 +779,7 @@
                 maintenanceTabText: "Maintenance",
                 trackingTabText: "Tracking",
                 profileTabText: "Profile",
+                adminTabText: "Admin",
                 addVehicleButtonText: "Add Vehicle",
                 addVehicleTitle: "Add New Vehicle",
                 vehicleNameLabel: "Vehicle Name",
@@ -720,7 +806,10 @@
                 userIdLabel: "User ID:",
                 registrationDateLabel: "Registration Date:",
                 vehiclesCountLabel: "Registered Vehicles:",
+                userRoleLabel: "Role:",
                 updateProfileText: "Update Profile",
+                adminModeText: "You are viewing all vehicles in the system",
+                toggleAdminModeText: "Show only my vehicles",
                 // Error messages
                 errorPasswordLength: "Password must be between 6 and 72 characters",
                 errorEmailRequired: "Enter email",
@@ -731,6 +820,7 @@
                 errorInvalidCredentials: "Invalid email or password",
                 errorNetwork: "Connection error. Please try again.",
                 errorUnknown: "Unknown error. Please try again.",
+                errorPermissionDenied: "Permission denied. Contact administrator.",
                 // Success messages
                 successRegistration: "Registration completed! Check your email to confirm your account.",
                 successLogin: "Login successful!",
@@ -748,153 +838,9 @@
                 noVehiclesText: "No vehicles found.",
                 noMaintenanceText: "No maintenance scheduled.",
                 selectVehicleText: "Select a vehicle first",
-                gpsNotSupported: "GPS not supported by browser"
-            },
-            es: {
-                appTitle: "CareAutoPro",
-                appSubtitle: "Gestión de Mantenimiento de Vehículos",
-                loginTitle: "Iniciar sesión en CareAutoPro",
-                googleLoginText: "Continuar con Google",
-                facebookLoginText: "Continuar con Facebook",
-                orText: "O",
-                emailPlaceholder: "Tu email",
-                passwordPlaceholder: "Contraseña",
-                passwordInfo: "🔒 La contraseña debe tener entre 6 y 72 caracteres",
-                loginButtonText: "Iniciar sesión",
-                signupButtonText: "Registrarse con Email",
-                logoutText: "Cerrar sesión",
-                vehiclesTabText: "Vehículos",
-                maintenanceTabText: "Mantenimiento",
-                trackingTabText: "Seguimiento",
-                profileTabText: "Perfil",
-                addVehicleButtonText: "Añadir Vehículo",
-                addVehicleTitle: "Añadir Nuevo Vehículo",
-                vehicleNameLabel: "Nombre del Vehículo",
-                vehicleNamePlaceholder: "Ej: Coche Familiar",
-                vehiclePlateLabel: "Matrícula",
-                vehiclePlatePlaceholder: "Ej: AB123CD",
-                vehicleTypeLabel: "Tipo de Vehículo",
-                selectTypeText: "Seleccionar tipo...",
-                vehicleKmLabel: "KM Actuales",
-                vehicleKmPlaceholder: "Ej: 50000",
-                saveButtonText: "Guardar",
-                cancelButtonText: "Cancelar",
-                startTrackingText: "Iniciar Seguimiento",
-                stopTrackingText: "Detener Seguimiento",
-                currentLocationText: "Ubicación Actual",
-                trackingInfoTitle: "Información de Seguimiento",
-                statusLabel: "Estado:",
-                lastUpdateLabel: "Última Actualización:",
-                latitudeLabel: "Latitud:",
-                longitudeLabel: "Longitud:",
-                activeSessionTitle: "Sesión Activa",
-                profileTitle: "Tu Perfil",
-                emailLabel: "Email:",
-                userIdLabel: "ID de Usuario:",
-                registrationDateLabel: "Fecha de Registro:",
-                vehiclesCountLabel: "Vehículos Registrados:",
-                updateProfileText: "Actualizar Perfil",
-                // Mensajes de error
-                errorPasswordLength: "La contraseña debe tener entre 6 y 72 caracteres",
-                errorEmailRequired: "Ingresa el email",
-                errorPasswordRequired: "Ingresa la contraseña",
-                errorInvalidEmail: "Email no válido",
-                errorWeakPassword: "La contraseña es demasiado débil",
-                errorEmailExists: "Este email ya está registrado",
-                errorInvalidCredentials: "Email o contraseña no válidos",
-                errorNetwork: "Error de conexión. Intenta nuevamente.",
-                errorUnknown: "Error desconocido. Intenta nuevamente.",
-                // Mensajes de éxito
-                successRegistration: "¡Registro completado! Revisa tu email para confirmar tu cuenta.",
-                successLogin: "¡Inicio de sesión exitoso!",
-                successVehicleAdded: "¡Vehículo añadido exitosamente!",
-                successKmUpdated: "¡KM actualizados exitosamente!",
-                successProfileUpdated: "¡Perfil actualizado!",
-                // Mensajes de carga
-                loadingRegistration: "Registrando...",
-                loadingLogin: "Iniciando sesión...",
-                loadingGoogle: "Iniciando sesión con Google...",
-                loadingFacebook: "Iniciando sesión con Facebook...",
-                loadingVehicles: "Cargando vehículos...",
-                loadingMaintenance: "Cargando mantenimiento...",
-                // Otros textos
-                noVehiclesText: "No se encontraron vehículos.",
-                noMaintenanceText: "No hay mantenimiento programado.",
-                selectVehicleText: "Selecciona un vehículo primero",
-                gpsNotSupported: "GPS no compatible con el navegador"
-            },
-            fr: {
-                appTitle: "CareAutoPro",
-                appSubtitle: "Gestion de Maintenance Véhicule",
-                loginTitle: "Connectez-vous à CareAutoPro",
-                googleLoginText: "Continuer avec Google",
-                facebookLoginText: "Continuer avec Facebook",
-                orText: "Ou",
-                emailPlaceholder: "Votre email",
-                passwordPlaceholder: "Mot de passe",
-                passwordInfo: "🔒 Le mot de passe doit contenir entre 6 et 72 caractères",
-                loginButtonText: "Se connecter",
-                signupButtonText: "S'inscrire avec Email",
-                logoutText: "Déconnexion",
-                vehiclesTabText: "Véhicules",
-                maintenanceTabText: "Maintenance",
-                trackingTabText: "Suivi",
-                profileTabText: "Profil",
-                addVehicleButtonText: "Ajouter Véhicule",
-                addVehicleTitle: "Ajouter un Nouveau Véhicule",
-                vehicleNameLabel: "Nom du Véhicule",
-                vehicleNamePlaceholder: "Ex: Voiture Familiale",
-                vehiclePlateLabel: "Plaque d'immatriculation",
-                vehiclePlatePlaceholder: "Ex: AB123CD",
-                vehicleTypeLabel: "Type de Véhicule",
-                selectTypeText: "Sélectionner le type...",
-                vehicleKmLabel: "KM Actuels",
-                vehicleKmPlaceholder: "Ex: 50000",
-                saveButtonText: "Sauvegarder",
-                cancelButtonText: "Annuler",
-                startTrackingText: "Démarrer le Suivi",
-                stopTrackingText: "Arrêter le Suivi",
-                currentLocationText: "Position Actuelle",
-                trackingInfoTitle: "Informations de Suivi",
-                statusLabel: "Statut:",
-                lastUpdateLabel: "Dernière Mise à Jour:",
-                latitudeLabel: "Latitude:",
-                longitudeLabel: "Longitude:",
-                activeSessionTitle: "Session Active",
-                profileTitle: "Votre Profil",
-                emailLabel: "Email:",
-                userIdLabel: "ID Utilisateur:",
-                registrationDateLabel: "Date d'Inscription:",
-                vehiclesCountLabel: "Véhicules Enregistrés:",
-                updateProfileText: "Mettre à jour le Profil",
-                // Messages d'erreur
-                errorPasswordLength: "Le mot de passe doit contenir entre 6 et 72 caractères",
-                errorEmailRequired: "Entrez l'email",
-                errorPasswordRequired: "Entrez le mot de passe",
-                errorInvalidEmail: "Email invalide",
-                errorWeakPassword: "Le mot de passe est trop faible",
-                errorEmailExists: "Cet email est déjà enregistré",
-                errorInvalidCredentials: "Email ou mot de passe invalide",
-                errorNetwork: "Erreur de connexion. Veuillez réessayer.",
-                errorUnknown: "Erreur inconnue. Veuillez réessayer.",
-                // Messages de succès
-                successRegistration: "Inscription terminée ! Vérifiez votre email pour confirmer votre compte.",
-                successLogin: "Connexion réussie !",
-                successVehicleAdded: "Véhicule ajouté avec succès !",
-                successKmUpdated: "KM mis à jour avec succès !",
-                successProfileUpdated: "Profil mis à jour !",
-                // Messages de chargement
-                loadingRegistration: "Inscription en cours...",
-                loadingLogin: "Connexion en cours...",
-                loadingGoogle: "Connexion avec Google...",
-                loadingFacebook: "Connexion avec Facebook...",
-                loadingVehicles: "Chargement des véhicules...",
-                loadingMaintenance: "Chargement de la maintenance...",
-                // Autres textes
-                noVehiclesText: "Aucun véhicule trouvé.",
-                noMaintenanceText: "Aucune maintenance programmée.",
-                selectVehicleText: "Sélectionnez d'abord un véhicule",
-                gpsNotSupported: "GPS non supporté par le navigateur"
+                gpsNotSupported: "GPS not supported by browser",
+                roleUser: "User",
+                roleAdmin: "Administrator"
             }
         };
 
@@ -940,6 +886,8 @@
                 return t.errorWeakPassword;
             } else if (error.message.includes('Failed to fetch')) {
                 return t.errorNetwork;
+            } else if (error.message.includes('permission denied')) {
+                return t.errorPermissionDenied;
             } else {
                 return t.errorUnknown + " (" + error.message + ")";
             }
@@ -958,10 +906,78 @@
             
             if (user && !error) {
                 currentUser = user;
+                await loadUserProfile();
                 showApp();
                 await loadUserData();
             } else {
                 showLogin();
+            }
+        }
+
+        // Carica profilo utente
+        async function loadUserProfile() {
+            try {
+                // Prima controlla se esiste nella tabella utenti
+                const { data: utente, error } = await supabase
+                    .from('utenti')
+                    .select(`
+                        utente_id,
+                        nominativo,
+                        email,
+                        profiloutente_id,
+                        utentiprofilo (profiloutente)
+                    `)
+                    .eq('email', currentUser.email)
+                    .is('dataoraelimina', null)
+                    .single();
+
+                if (error && error.code !== 'PGRST116') {
+                    console.error('Errore caricamento profilo utente:', error);
+                }
+
+                if (utente) {
+                    userProfile = utente;
+                    // Controlla se è amministratore
+                    isAdmin = utente.utentiprofilo?.profiloutente?.toLowerCase().includes('amministratore') || 
+                             utente.utentiprofilo?.profiloutente?.toLowerCase().includes('admin');
+                } else {
+                    // Se non esiste nella tabella utenti, crea un profilo di default
+                    userProfile = {
+                        nominativo: currentUser.email,
+                        email: currentUser.email,
+                        profiloutente_id: null
+                    };
+                    isAdmin = false;
+                }
+
+                updateUserRoleUI();
+
+            } catch (error) {
+                console.error('Errore caricamento profilo:', error);
+                userProfile = {
+                    nominativo: currentUser.email,
+                    email: currentUser.email,
+                    profiloutente_id: null
+                };
+                isAdmin = false;
+                updateUserRoleUI();
+            }
+        }
+
+        // Aggiorna UI del ruolo utente
+        function updateUserRoleUI() {
+            const roleBadge = document.getElementById('userRoleBadge');
+            const adminTab = document.getElementById('adminTab');
+            const t = translations[currentLanguage];
+            
+            if (isAdmin) {
+                roleBadge.textContent = t.roleAdmin;
+                roleBadge.className = 'user-role admin';
+                adminTab.classList.remove('hidden');
+            } else {
+                roleBadge.textContent = t.roleUser;
+                roleBadge.className = 'user-role';
+                adminTab.classList.add('hidden');
             }
         }
 
@@ -1064,6 +1080,7 @@
                 status.textContent = getErrorMessage(error);
             } else {
                 currentUser = data.user;
+                await loadUserProfile();
                 showApp();
                 await loadUserData();
             }
@@ -1124,6 +1141,9 @@
             await supabase.auth.signOut();
             currentUser = null;
             activeSession = null;
+            userProfile = null;
+            isAdmin = false;
+            adminMode = false;
             showLogin();
         }
 
@@ -1166,7 +1186,7 @@
             vehiclesList.innerHTML = `<div class="status-message status-loading">${t.loadingVehicles}</div>`;
 
             try {
-                const { data: veicoli, error } = await supabase
+                let query = supabase
                     .from('veicoli')
                     .select(`
                         veicolo_id,
@@ -1175,11 +1195,18 @@
                         kmattuali,
                         dataimmatricolazione,
                         tipoveicolo_id,
-                        tipoveicoli (descrizione)
+                        tipoveicoli (descrizione),
+                        utente_id,
+                        utenti (nominativo, email)
                     `)
-                    .eq('utente_id', currentUser.id)
-                    .is('dataoraelimina', null)
-                    .order('nomeveicolo');
+                    .is('dataoraelimina', null);
+
+                // Se non è admin o non è in modalità admin, mostra solo i propri veicoli
+                if (!isAdmin || !adminMode) {
+                    query = query.eq('utente_id', currentUser.id);
+                }
+
+                const { data: veicoli, error } = await query.order('nomeveicolo');
 
                 if (error) throw error;
 
@@ -1203,6 +1230,7 @@
                             <div><strong>KM:</strong> ${vehicle.kmattuali || 0}</div>
                             <div><strong>Tipo:</strong> ${vehicle.tipoveicoli?.descrizione || 'N/D'}</div>
                             <div><strong>Immatricolazione:</strong> ${vehicle.dataimmatricolazione ? new Date(vehicle.dataimmatricolazione).toLocaleDateString() : 'N/D'}</div>
+                            ${(isAdmin && adminMode) ? `<div><strong>Proprietario:</strong> ${vehicle.utenti?.nominativo || vehicle.utenti?.email || 'N/D'}</div>` : ''}
                         </div>
                         <div class="vehicle-actions">
                             <button class="btn btn-success btn-small" onclick="selectVehicle('${vehicle.veicolo_id}')">
@@ -1287,6 +1315,21 @@
             }
         }
 
+        // Toggle modalità amministratore
+        function toggleAdminMode() {
+            adminMode = !adminMode;
+            const toggleButton = document.querySelector('#adminControls .btn');
+            const t = translations[currentLanguage];
+            
+            if (adminMode) {
+                toggleButton.innerHTML = `<i class="fas fa-eye"></i> ${t.toggleAdminModeText}`;
+            } else {
+                toggleButton.innerHTML = `<i class="fas fa-users"></i> ${currentLanguage === 'it' ? 'Mostra tutti i veicoli' : 'Show all vehicles'}`;
+            }
+            
+            loadVehicles();
+        }
+
         // ==================== MANUTENZIONE ====================
 
         // Caricamento interventi manutenzione
@@ -1296,7 +1339,7 @@
             maintenanceList.innerHTML = `<div class="status-message status-loading">${t.loadingMaintenance}</div>`;
 
             try {
-                const { data: interventi, error } = await supabase
+                let query = supabase
                     .from('interventi')
                     .select(`
                         intervento_id,
@@ -1304,12 +1347,17 @@
                         kmintervento,
                         dataoraintervento,
                         veicolo_id,
-                        veicoli (nomeveicolo, targa),
+                        veicoli (nomeveicolo, targa, utente_id),
                         interventistato (descrizione)
                     `)
-                    .eq('veicoli.utente_id', currentUser.id)
-                    .is('interventi.dataoraelimina', null)
-                    .order('dataoraintervento', { ascending: true });
+                    .is('interventi.dataoraelimina', null);
+
+                // Se non è admin, mostra solo i propri interventi
+                if (!isAdmin) {
+                    query = query.eq('veicoli.utente_id', currentUser.id);
+                }
+
+                const { data: interventi, error } = await query.order('dataoraintervento', { ascending: true });
 
                 if (error) throw error;
 
@@ -1330,6 +1378,7 @@
                         <div class="maintenance-item ${urgentClass}">
                             <div class="maintenance-vehicle">
                                 ${intervento.veicoli.nomeveicolo} (${intervento.veicoli.targa})
+                                ${isAdmin ? `<span class="admin-badge">${intervento.veicoli.utente_id === currentUser.id ? 'Mio' : 'Altro'}</span>` : ''}
                             </div>
                             <div class="maintenance-type">
                                 ${intervento.descrizioneaggiuntiva || 'Manutenzione programmata'}
@@ -1417,7 +1466,7 @@
             }
 
             activeSession = sessione;
-            updateActiveSessionUI(sessione);
+            updateActiveSessionUI(sessioni);
             startTrackingInterval();
 
             document.getElementById('trackingStatus').textContent = currentLanguage === 'it' ? 'Attivo' : 'Active';
@@ -1614,6 +1663,9 @@
             document.getElementById('profileEmail').textContent = currentUser.email;
             document.getElementById('profileId').textContent = currentUser.id.substring(0, 8) + '...';
             document.getElementById('profileCreated').textContent = new Date(currentUser.created_at).toLocaleDateString();
+            document.getElementById('profileRole').textContent = isAdmin ? 
+                (currentLanguage === 'it' ? 'Amministratore' : 'Administrator') : 
+                (currentLanguage === 'it' ? 'Utente' : 'User');
 
             // Conta veicoli dell'utente
             const { count } = await supabase
@@ -1631,6 +1683,48 @@
             alert(t.successProfileUpdated);
         }
 
+        // ==================== AMMINISTRAZIONE ====================
+
+        // Carica statistiche admin
+        async function loadAdminStats() {
+            if (!isAdmin) return;
+
+            try {
+                // Conta utenti totali
+                const { count: totalUsers } = await supabase
+                    .from('utenti')
+                    .select('*', { count: 'exact', head: true })
+                    .is('dataoraelimina', null);
+
+                // Conta veicoli totali
+                const { count: totalVehicles } = await supabase
+                    .from('veicoli')
+                    .select('*', { count: 'exact', head: true })
+                    .is('dataoraelimina', null);
+
+                // Conta interventi totali
+                const { count: totalMaintenance } = await supabase
+                    .from('interventi')
+                    .select('*', { count: 'exact', head: true })
+                    .is('dataoraelimina', null);
+
+                // Conta sessioni attive
+                const { count: activeSessions } = await supabase
+                    .from('sessioniutilizzo')
+                    .select('*', { count: 'exact', head: true })
+                    .eq('sessione_attiva', true)
+                    .is('dataoraelimina', null);
+
+                document.getElementById('totalUsers').textContent = totalUsers || 0;
+                document.getElementById('totalVehicles').textContent = totalVehicles || 0;
+                document.getElementById('totalMaintenance').textContent = totalMaintenance || 0;
+                document.getElementById('activeSessions').textContent = activeSessions || 0;
+
+            } catch (error) {
+                console.error('Errore caricamento statistiche admin:', error);
+            }
+        }
+
         // ==================== UI HELPERS ====================
 
         // Gestione tab
@@ -1646,6 +1740,19 @@
             // Mostra tab selezionato
             document.getElementById(tabName + 'Tab').classList.add('active');
             event.target.classList.add('active');
+
+            // Mostra/nascondi controlli admin
+            const adminControls = document.getElementById('adminControls');
+            if (tabName === 'vehicles' && isAdmin) {
+                adminControls.classList.remove('hidden');
+            } else {
+                adminControls.classList.add('hidden');
+            }
+
+            // Carica statistiche admin se necessario
+            if (tabName === 'admin' && isAdmin) {
+                loadAdminStats();
+            }
         }
 
         // Mostra/nascondi form aggiunta veicolo
