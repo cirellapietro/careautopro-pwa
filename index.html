@@ -126,6 +126,26 @@
             display: block;
         }
         
+        .setup-guide {
+            background: #fffaf0;
+            border: 2px solid #ed8936;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .setup-step {
+            margin: 10px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .setup-step:before {
+            content: "🔧";
+            position: absolute;
+            left: 0;
+        }
+        
         .vehicles-grid {
             display: grid;
             gap: 15px;
@@ -175,48 +195,6 @@
             color: #718096;
         }
         
-        .maintenance-list {
-            display: grid;
-            gap: 12px;
-        }
-        
-        .maintenance-item {
-            background: white;
-            border-left: 4px solid #ed8936;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-        
-        .maintenance-item.urgent {
-            border-left-color: #e53e3e;
-            background: #fed7d7;
-        }
-        
-        .maintenance-vehicle {
-            font-weight: bold;
-            color: #2d3748;
-            margin-bottom: 5px;
-        }
-        
-        .maintenance-type {
-            color: #4a5568;
-            margin-bottom: 5px;
-        }
-        
-        .maintenance-details {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #718096;
-        }
-        
-        .gps-controls {
-            display: grid;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        
         .btn {
             background: #4299e1;
             color: white;
@@ -242,99 +220,6 @@
         .btn-success { background: #48bb78; }
         .btn-warning { background: #ed8936; }
         .btn-danger { background: #e53e3e; }
-        .btn-google { background: #db4437; }
-        .btn-facebook { background: #4267B2; }
-        .btn-admin { background: #9f7aea; }
-        
-        .tracking-info {
-            background: #f7fafc;
-            border-radius: 10px;
-            padding: 15px;
-            margin-top: 15px;
-        }
-        
-        .info-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            font-size: 12px;
-        }
-        
-        .info-item {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .info-label {
-            color: #718096;
-            font-weight: 600;
-        }
-        
-        .info-value {
-            color: #2d3748;
-            font-weight: bold;
-        }
-        
-        .login-container {
-            padding: 30px 20px;
-            text-align: center;
-        }
-        
-        .login-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin: 20px 0;
-        }
-        
-        .form-input {
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 16px;
-        }
-        
-        .form-input:focus {
-            border-color: #4299e1;
-            outline: none;
-        }
-        
-        .password-info {
-            font-size: 12px;
-            color: #718096;
-            text-align: left;
-            margin-top: -10px;
-            margin-bottom: 10px;
-        }
-        
-        .social-login {
-            display: grid;
-            gap: 10px;
-            margin: 20px 0;
-        }
-        
-        .divider {
-            text-align: center;
-            margin: 20px 0;
-            color: #718096;
-            position: relative;
-        }
-        
-        .divider::before {
-            content: "";
-            position: absolute;
-            top: 50%;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: #e2e8f0;
-        }
-        
-        .divider span {
-            background: white;
-            padding: 0 15px;
-            position: relative;
-        }
         
         .status-message {
             padding: 12px;
@@ -363,301 +248,126 @@
             display: none;
         }
 
-        .add-vehicle-form {
-            background: #f7fafc;
-            border-radius: 10px;
-            padding: 20px;
-            margin-top: 15px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        .form-label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: 600;
-            color: #4a5568;
-        }
-
-        .vehicle-actions {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .btn-small {
-            padding: 8px 12px;
+        .setup-code {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 10px;
+            border-radius: 6px;
+            font-family: monospace;
             font-size: 12px;
-        }
-
-        .language-selector {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255,255,255,0.9);
-            padding: 8px 12px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-        }
-
-        .admin-badge {
-            background: #e53e3e;
-            color: white;
-            padding: 2px 6px;
-            border-radius: 8px;
-            font-size: 10px;
-            margin-left: 5px;
-        }
-
-        .admin-controls {
-            background: #fef5e7;
-            border: 1px solid #ed8936;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
+            margin: 10px 0;
+            overflow-x: auto;
         }
     </style>
 </head>
 <body>
-    <div class="language-selector">
-        <select id="languageSelect" onchange="changeLanguage(this.value)">
-            <option value="it">🇮🇹 Italiano</option>
-            <option value="en">🇬🇧 English</option>
-        </select>
-    </div>
-
     <div class="app-container">
         <!-- Header -->
         <div class="header">
             <div class="icon">🚗</div>
-            <h1 class="title" id="appTitle">CareAutoPro</h1>
-            <p class="subtitle" id="appSubtitle">Gestione Manutenzione Veicoli</p>
+            <h1 class="title">CareAutoPro</h1>
+            <p class="subtitle">Gestione Manutenzione Veicoli</p>
         </div>
 
-        <!-- User Info (visibile dopo login) -->
+        <!-- User Info -->
         <div id="userInfo" class="user-info hidden">
             <div>
                 <span class="user-email" id="userEmail"></span>
                 <span id="userRoleBadge" class="user-role"></span>
             </div>
             <button class="logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> <span id="logoutText">Logout</span>
+                <i class="fas fa-sign-out-alt"></i> Logout
             </button>
         </div>
 
         <!-- Login Form -->
         <div id="loginContainer" class="login-container">
-            <h2 id="loginTitle">Accedi a CareAutoPro</h2>
-            
-            <!-- Social Login -->
-            <div class="social-login">
-                <button class="btn btn-google" onclick="loginWithGoogle()">
-                    <i class="fab fa-google"></i> <span id="googleLoginText">Continua con Google</span>
-                </button>
-                <button class="btn btn-facebook" onclick="loginWithFacebook()">
-                    <i class="fab fa-facebook"></i> <span id="facebookLoginText">Continua con Facebook</span>
-                </button>
-            </div>
-
-            <div class="divider">
-                <span id="orText">Oppure</span>
-            </div>
-            
-            <!-- Email/Password Login -->
-            <div class="login-form">
-                <input type="email" id="email" class="form-input" placeholder="La tua email" required>
-                <input type="password" id="password" class="form-input" placeholder="Password" required maxlength="72">
-                <div class="password-info" id="passwordInfo">
-                    🔒 La password deve essere tra 6 e 72 caratteri
+            <div style="padding: 30px 20px; text-align: center;">
+                <h2>Accedi a CareAutoPro</h2>
+                
+                <div class="login-form">
+                    <input type="email" id="email" class="form-input" placeholder="La tua email" required>
+                    <input type="password" id="password" class="form-input" placeholder="Password" required maxlength="72">
+                    <div class="password-info">
+                        🔒 La password deve essere tra 6 e 72 caratteri
+                    </div>
+                    <button class="btn" onclick="loginWithEmail()">
+                        <i class="fas fa-sign-in-alt"></i> Accedi
+                    </button>
+                    <button class="btn btn-success" onclick="signupWithEmail()">
+                        <i class="fas fa-user-plus"></i> Registrati con Email
+                    </button>
                 </div>
-                <button class="btn" onclick="loginWithEmail()">
-                    <i class="fas fa-sign-in-alt"></i> <span id="loginButtonText">Accedi</span>
-                </button>
-                <button class="btn btn-success" onclick="signupWithEmail()">
-                    <i class="fas fa-user-plus"></i> <span id="signupButtonText">Registrati con Email</span>
-                </button>
+                
+                <div id="loginStatus" class="status-message"></div>
             </div>
-            
-            <div id="loginStatus" class="status-message"></div>
         </div>
 
-        <!-- Main App (visibile dopo login) -->
+        <!-- Main App -->
         <div id="mainApp" class="hidden">
             <!-- Navigation Tabs -->
             <div class="nav-tabs">
-                <button class="nav-tab active" onclick="showTab('vehicles')">
-                    <i class="fas fa-car"></i> <span id="vehiclesTabText">Veicoli</span>
+                <button class="nav-tab active" onclick="showTab('setup')">
+                    <i class="fas fa-tools"></i> Configura
                 </button>
-                <button class="nav-tab" onclick="showTab('maintenance')">
-                    <i class="fas fa-tools"></i> <span id="maintenanceTabText">Manutenzione</span>
-                </button>
-                <button class="nav-tab" onclick="showTab('tracking')">
-                    <i class="fas fa-map-marker-alt"></i> <span id="trackingTabText">Tracking</span>
-                </button>
-                <button class="nav-tab" onclick="showTab('profile')">
-                    <i class="fas fa-user"></i> <span id="profileTabText">Profilo</span>
-                </button>
-                <button id="adminTab" class="nav-tab hidden" onclick="showTab('admin')">
-                    <i class="fas fa-cog"></i> <span id="adminTabText">Admin</span>
+                <button class="nav-tab" onclick="showTab('vehicles')">
+                    <i class="fas fa-car"></i> Veicoli
                 </button>
             </div>
 
             <!-- Tab Contents -->
-            <div class="tab-content active" id="vehiclesTab">
-                <div id="adminControls" class="admin-controls hidden">
-                    <h4><i class="fas fa-shield-alt"></i> Modalità Amministratore</h4>
-                    <p id="adminModeText">Stai visualizzando tutti i veicoli del sistema</p>
-                    <button class="btn btn-admin btn-small" onclick="toggleAdminMode()">
-                        <i class="fas fa-eye"></i> <span id="toggleAdminModeText">Mostra solo i miei veicoli</span>
+            <div class="tab-content active" id="setupTab">
+                <div class="setup-guide">
+                    <h3 style="margin-bottom: 15px; color: #ed8936;">
+                        <i class="fas fa-exclamation-triangle"></i> Configurazione Necessaria
+                    </h3>
+                    <p>Per utilizzare l'app, è necessario configurare le policy di sicurezza in Supabase.</p>
+                    
+                    <div class="setup-step">
+                        <strong>1. Vai su Supabase Dashboard</strong>
+                        <div class="setup-code">
+                            https://supabase.com/dashboard/project/jamttxwhexlvbkjccrqm
+                        </div>
+                    </div>
+                    
+                    <div class="setup-step">
+                        <strong>2. Disabilita temporaneamente RLS (per testing)</strong>
+                        <div class="setup-code">
+                            Authentication → Policies → Disable RLS on all tables
+                        </div>
+                    </div>
+                    
+                    <div class="setup-step">
+                        <strong>3. Oppure crea queste policy SQL:</strong>
+                        <div class="setup-code">
+-- Per la tabella veicoli:
+CREATE POLICY "Enable all for users" ON veicoli
+FOR ALL USING (true);
+
+-- Per la tabella utenti:  
+CREATE POLICY "Enable all for users" ON utenti
+FOR ALL USING (true);
+
+-- Per la tabella interventi:
+CREATE POLICY "Enable all for users" ON interventi  
+FOR ALL USING (true);
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-warning" onclick="testDatabaseConnection()" style="margin-top: 15px;">
+                        <i class="fas fa-bolt"></i> Test Connessione Database
                     </button>
                 </div>
+            </div>
+
+            <div class="tab-content" id="vehiclesTab">
                 <div class="vehicles-grid" id="vehiclesList">
-                    <!-- Veicoli verranno caricati qui -->
+                    <div class="status-message">
+                        <i class="fas fa-info-circle"></i> Configura prima le policy RLS nella tab Configura
+                    </div>
                 </div>
                 <button class="btn btn-success" onclick="showAddVehicleForm()" style="margin-top: 15px;">
-                    <i class="fas fa-plus"></i> <span id="addVehicleButtonText">Aggiungi Veicolo</span>
-                </button>
-
-                <!-- Form Aggiunta Veicolo -->
-                <div id="addVehicleForm" class="add-vehicle-form hidden">
-                    <h3 style="margin-bottom: 15px;" id="addVehicleTitle">Aggiungi Nuovo Veicolo</h3>
-                    <div class="form-group">
-                        <label class="form-label" id="vehicleNameLabel">Nome Veicolo</label>
-                        <input type="text" id="vehicleName" class="form-input" placeholder="Es: Auto Familiare">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" id="vehiclePlateLabel">Targa</label>
-                        <input type="text" id="vehiclePlate" class="form-input" placeholder="Es: AB123CD">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" id="vehicleTypeLabel">Tipo Veicolo</label>
-                        <select id="vehicleType" class="form-input">
-                            <option value="" id="selectTypeText">Seleziona tipo...</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label" id="vehicleKmLabel">KM Attuali</label>
-                        <input type="number" id="vehicleKm" class="form-input" placeholder="Es: 50000">
-                    </div>
-                    <div class="vehicle-actions">
-                        <button class="btn btn-success btn-small" onclick="addVehicle()">
-                            <i class="fas fa-save"></i> <span id="saveButtonText">Salva</span>
-                        </button>
-                        <button class="btn btn-danger btn-small" onclick="hideAddVehicleForm()">
-                            <i class="fas fa-times"></i> <span id="cancelButtonText">Annulla</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-content" id="maintenanceTab">
-                <div class="maintenance-list" id="maintenanceList">
-                    <!-- Interventi di manutenzione verranno caricati qui -->
-                </div>
-            </div>
-
-            <div class="tab-content" id="trackingTab">
-                <div class="gps-controls">
-                    <button class="btn btn-success" onclick="startTracking()">
-                        <i class="fas fa-play"></i> <span id="startTrackingText">Inizia Tracking</span>
-                    </button>
-                    <button class="btn btn-danger" onclick="stopTracking()">
-                        <i class="fas fa-stop"></i> <span id="stopTrackingText">Ferma Tracking</span>
-                    </button>
-                    <button class="btn" onclick="getCurrentLocation()">
-                        <i class="fas fa-map-marker-alt"></i> <span id="currentLocationText">Posizione Attuale</span>
-                    </button>
-                </div>
-                
-                <div class="tracking-info">
-                    <h3 style="margin-bottom: 15px;" id="trackingInfoTitle">Informazioni Tracking</h3>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <span class="info-label" id="statusLabel">Stato:</span>
-                            <span class="info-value" id="trackingStatus">Fermo</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label" id="lastUpdateLabel">Ultimo Aggiornamento:</span>
-                            <span class="info-value" id="lastUpdate">-</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label" id="latitudeLabel">Latitudine:</span>
-                            <span class="info-value" id="currentLat">-</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label" id="longitudeLabel">Longitudine:</span>
-                            <span class="info-value" id="currentLng">-</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="activeSessionInfo" class="tracking-info hidden">
-                    <h3 style="margin-bottom: 15px;" id="activeSessionTitle">Sessione Attiva</h3>
-                    <div class="info-grid" id="sessionDetails">
-                        <!-- Dettagli sessione attiva -->
-                    </div>
-                </div>
-            </div>
-
-            <div class="tab-content" id="profileTab">
-                <div class="tracking-info">
-                    <h3 style="margin-bottom: 15px;" id="profileTitle">Il Tuo Profilo</h3>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <span class="info-label" id="emailLabel">Email:</span>
-                            <span class="info-value" id="profileEmail">-</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label" id="userIdLabel">ID Utente:</span>
-                            <span class="info-value" id="profileId">-</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label" id="registrationDateLabel">Data Registrazione:</span>
-                            <span class="info-value" id="profileCreated">-</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label" id="vehiclesCountLabel">Veicoli Registrati:</span>
-                            <span class="info-value" id="profileVehicles">-</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label" id="userRoleLabel">Ruolo:</span>
-                            <span class="info-value" id="profileRole">-</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <button class="btn btn-warning" onclick="updateProfile()" style="margin-top: 15px;">
-                    <i class="fas fa-sync"></i> <span id="updateProfileText">Aggiorna Profilo</span>
-                </button>
-            </div>
-
-            <div class="tab-content" id="adminTab">
-                <div class="tracking-info">
-                    <h3 style="margin-bottom: 15px;"><i class="fas fa-shield-alt"></i> Pannello Amministratore</h3>
-                    <div class="info-grid">
-                        <div class="info-item">
-                            <span class="info-label">Utenti Totali:</span>
-                            <span class="info-value" id="totalUsers">-</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Veicoli Totali:</span>
-                            <span class="info-value" id="totalVehicles">-</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Interventi Totali:</span>
-                            <span class="info-value" id="totalMaintenance">-</span>
-                        </div>
-                        <div class="info-item">
-                            <span class="info-label">Sessioni Attive:</span>
-                            <span class="info-value" id="activeSessions">-</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <button class="btn btn-admin" onclick="loadAdminStats()" style="margin-top: 15px;">
-                    <i class="fas fa-sync"></i> Aggiorna Statistiche
+                    <i class="fas fa-plus"></i> Aggiungi Veicolo
                 </button>
             </div>
         </div>
@@ -672,232 +382,10 @@
 
         // Variabili globali
         let currentUser = null;
-        let activeSession = null;
-        let trackingInterval = null;
-        let currentVehicle = null;
-        let currentLanguage = 'it';
-        let userProfile = null;
-        let isAdmin = false;
-        let adminMode = false;
-
-        // Testi multilingua
-        const translations = {
-            it: {
-                appTitle: "CareAutoPro",
-                appSubtitle: "Gestione Manutenzione Veicoli",
-                loginTitle: "Accedi a CareAutoPro",
-                googleLoginText: "Continua con Google",
-                facebookLoginText: "Continua con Facebook",
-                orText: "Oppure",
-                emailPlaceholder: "La tua email",
-                passwordPlaceholder: "Password",
-                passwordInfo: "🔒 La password deve essere tra 6 e 72 caratteri",
-                loginButtonText: "Accedi",
-                signupButtonText: "Registrati con Email",
-                logoutText: "Logout",
-                vehiclesTabText: "Veicoli",
-                maintenanceTabText: "Manutenzione",
-                trackingTabText: "Tracking",
-                profileTabText: "Profilo",
-                adminTabText: "Admin",
-                addVehicleButtonText: "Aggiungi Veicolo",
-                addVehicleTitle: "Aggiungi Nuovo Veicolo",
-                vehicleNameLabel: "Nome Veicolo",
-                vehicleNamePlaceholder: "Es: Auto Familiare",
-                vehiclePlateLabel: "Targa",
-                vehiclePlatePlaceholder: "Es: AB123CD",
-                vehicleTypeLabel: "Tipo Veicolo",
-                selectTypeText: "Seleziona tipo...",
-                vehicleKmLabel: "KM Attuali",
-                vehicleKmPlaceholder: "Es: 50000",
-                saveButtonText: "Salva",
-                cancelButtonText: "Annulla",
-                startTrackingText: "Inizia Tracking",
-                stopTrackingText: "Ferma Tracking",
-                currentLocationText: "Posizione Attuale",
-                trackingInfoTitle: "Informazioni Tracking",
-                statusLabel: "Stato:",
-                lastUpdateLabel: "Ultimo Aggiornamento:",
-                latitudeLabel: "Latitudine:",
-                longitudeLabel: "Longitudine:",
-                activeSessionTitle: "Sessione Attiva",
-                profileTitle: "Il Tuo Profilo",
-                emailLabel: "Email:",
-                userIdLabel: "ID Utente:",
-                registrationDateLabel: "Data Registrazione:",
-                vehiclesCountLabel: "Veicoli Registrati:",
-                userRoleLabel: "Ruolo:",
-                updateProfileText: "Aggiorna Profilo",
-                adminModeText: "Stai visualizzando tutti i veicoli del sistema",
-                toggleAdminModeText: "Mostra solo i miei veicoli",
-                // Messaggi di errore
-                errorPasswordLength: "La password deve essere tra 6 e 72 caratteri",
-                errorEmailRequired: "Inserisci l'email",
-                errorPasswordRequired: "Inserisci la password",
-                errorInvalidEmail: "Email non valida",
-                errorWeakPassword: "La password è troppo debole",
-                errorEmailExists: "Questa email è già registrata",
-                errorInvalidCredentials: "Email o password non validi",
-                errorNetwork: "Errore di connessione. Riprova.",
-                errorUnknown: "Errore sconosciuto. Riprova.",
-                errorPermissionDenied: "Permesso negato. Contatta l'amministratore.",
-                // Messaggi di successo
-                successRegistration: "Registrazione completata! Controlla la tua email per confermare l'account.",
-                successLogin: "Accesso effettuato con successo!",
-                successVehicleAdded: "Veicolo aggiunto con successo!",
-                successKmUpdated: "KM aggiornati con successo!",
-                successProfileUpdated: "Profilo aggiornato!",
-                // Messaggi di caricamento
-                loadingRegistration: "Registrazione in corso...",
-                loadingLogin: "Accesso in corso...",
-                loadingGoogle: "Accesso con Google...",
-                loadingFacebook: "Accesso con Facebook...",
-                loadingVehicles: "Caricamento veicoli...",
-                loadingMaintenance: "Caricamento interventi...",
-                // Altri testi
-                noVehiclesText: "Nessun veicolo trovato.",
-                noMaintenanceText: "Nessun intervento di manutenzione in programma.",
-                selectVehicleText: "Seleziona prima un veicolo",
-                gpsNotSupported: "GPS non supportato dal browser",
-                roleUser: "Utente",
-                roleAdmin: "Amministratore"
-            },
-            en: {
-                appTitle: "CareAutoPro",
-                appSubtitle: "Vehicle Maintenance Management",
-                loginTitle: "Login to CareAutoPro",
-                googleLoginText: "Continue with Google",
-                facebookLoginText: "Continue with Facebook",
-                orText: "Or",
-                emailPlaceholder: "Your email",
-                passwordPlaceholder: "Password",
-                passwordInfo: "🔒 Password must be between 6 and 72 characters",
-                loginButtonText: "Login",
-                signupButtonText: "Sign up with Email",
-                logoutText: "Logout",
-                vehiclesTabText: "Vehicles",
-                maintenanceTabText: "Maintenance",
-                trackingTabText: "Tracking",
-                profileTabText: "Profile",
-                adminTabText: "Admin",
-                addVehicleButtonText: "Add Vehicle",
-                addVehicleTitle: "Add New Vehicle",
-                vehicleNameLabel: "Vehicle Name",
-                vehicleNamePlaceholder: "Ex: Family Car",
-                vehiclePlateLabel: "License Plate",
-                vehiclePlatePlaceholder: "Ex: AB123CD",
-                vehicleTypeLabel: "Vehicle Type",
-                selectTypeText: "Select type...",
-                vehicleKmLabel: "Current KM",
-                vehicleKmPlaceholder: "Ex: 50000",
-                saveButtonText: "Save",
-                cancelButtonText: "Cancel",
-                startTrackingText: "Start Tracking",
-                stopTrackingText: "Stop Tracking",
-                currentLocationText: "Current Location",
-                trackingInfoTitle: "Tracking Information",
-                statusLabel: "Status:",
-                lastUpdateLabel: "Last Update:",
-                latitudeLabel: "Latitude:",
-                longitudeLabel: "Longitude:",
-                activeSessionTitle: "Active Session",
-                profileTitle: "Your Profile",
-                emailLabel: "Email:",
-                userIdLabel: "User ID:",
-                registrationDateLabel: "Registration Date:",
-                vehiclesCountLabel: "Registered Vehicles:",
-                userRoleLabel: "Role:",
-                updateProfileText: "Update Profile",
-                adminModeText: "You are viewing all vehicles in the system",
-                toggleAdminModeText: "Show only my vehicles",
-                // Error messages
-                errorPasswordLength: "Password must be between 6 and 72 characters",
-                errorEmailRequired: "Enter email",
-                errorPasswordRequired: "Enter password",
-                errorInvalidEmail: "Invalid email",
-                errorWeakPassword: "Password is too weak",
-                errorEmailExists: "This email is already registered",
-                errorInvalidCredentials: "Invalid email or password",
-                errorNetwork: "Connection error. Please try again.",
-                errorUnknown: "Unknown error. Please try again.",
-                errorPermissionDenied: "Permission denied. Contact administrator.",
-                // Success messages
-                successRegistration: "Registration completed! Check your email to confirm your account.",
-                successLogin: "Login successful!",
-                successVehicleAdded: "Vehicle added successfully!",
-                successKmUpdated: "KM updated successfully!",
-                successProfileUpdated: "Profile updated!",
-                // Loading messages
-                loadingRegistration: "Registering...",
-                loadingLogin: "Logging in...",
-                loadingGoogle: "Logging in with Google...",
-                loadingFacebook: "Logging in with Facebook...",
-                loadingVehicles: "Loading vehicles...",
-                loadingMaintenance: "Loading maintenance...",
-                // Other texts
-                noVehiclesText: "No vehicles found.",
-                noMaintenanceText: "No maintenance scheduled.",
-                selectVehicleText: "Select a vehicle first",
-                gpsNotSupported: "GPS not supported by browser",
-                roleUser: "User",
-                roleAdmin: "Administrator"
-            }
-        };
-
-        // Funzione per cambiare lingua
-        function changeLanguage(lang) {
-            currentLanguage = lang;
-            updateUITexts();
-        }
-
-        // Aggiorna tutti i testi dell'interfaccia
-        function updateUITexts() {
-            const t = translations[currentLanguage];
-            
-            // Aggiorna tutti gli elementi con ID
-            Object.keys(t).forEach(key => {
-                const element = document.getElementById(key);
-                if (element) {
-                    if (key.includes('Placeholder')) {
-                        element.placeholder = t[key];
-                    } else {
-                        element.textContent = t[key];
-                    }
-                }
-            });
-        }
-
-        // Gestione errori multilingua
-        function getErrorMessage(error, language = currentLanguage) {
-            const t = translations[language];
-            
-            if (error.message.includes('Password should be at least 6 characters') || 
-                error.message.includes('Password cannot be longer than 72 characters')) {
-                return t.errorPasswordLength;
-            } else if (error.message.includes('Invalid login credentials')) {
-                return t.errorInvalidCredentials;
-            } else if (error.message.includes('Email not confirmed')) {
-                return "Email non confermata. Controlla la tua casella di posta.";
-            } else if (error.message.includes('User already registered')) {
-                return t.errorEmailExists;
-            } else if (error.message.includes('Invalid email')) {
-                return t.errorInvalidEmail;
-            } else if (error.message.includes('Password is too weak')) {
-                return t.errorWeakPassword;
-            } else if (error.message.includes('Failed to fetch')) {
-                return t.errorNetwork;
-            } else if (error.message.includes('permission denied')) {
-                return t.errorPermissionDenied;
-            } else {
-                return t.errorUnknown + " (" + error.message + ")";
-            }
-        }
 
         // Inizializzazione app
         document.addEventListener('DOMContentLoaded', async () => {
             await checkAuthState();
-            setupEventListeners();
-            updateUITexts();
         });
 
         // Controllo stato autenticazione
@@ -906,78 +394,9 @@
             
             if (user && !error) {
                 currentUser = user;
-                await loadUserProfile();
                 showApp();
-                await loadUserData();
             } else {
                 showLogin();
-            }
-        }
-
-        // Carica profilo utente
-        async function loadUserProfile() {
-            try {
-                // Prima controlla se esiste nella tabella utenti
-                const { data: utente, error } = await supabase
-                    .from('utenti')
-                    .select(`
-                        utente_id,
-                        nominativo,
-                        email,
-                        profiloutente_id,
-                        utentiprofilo (profiloutente)
-                    `)
-                    .eq('email', currentUser.email)
-                    .is('dataoraelimina', null)
-                    .single();
-
-                if (error && error.code !== 'PGRST116') {
-                    console.error('Errore caricamento profilo utente:', error);
-                }
-
-                if (utente) {
-                    userProfile = utente;
-                    // Controlla se è amministratore
-                    isAdmin = utente.utentiprofilo?.profiloutente?.toLowerCase().includes('amministratore') || 
-                             utente.utentiprofilo?.profiloutente?.toLowerCase().includes('admin');
-                } else {
-                    // Se non esiste nella tabella utenti, crea un profilo di default
-                    userProfile = {
-                        nominativo: currentUser.email,
-                        email: currentUser.email,
-                        profiloutente_id: null
-                    };
-                    isAdmin = false;
-                }
-
-                updateUserRoleUI();
-
-            } catch (error) {
-                console.error('Errore caricamento profilo:', error);
-                userProfile = {
-                    nominativo: currentUser.email,
-                    email: currentUser.email,
-                    profiloutente_id: null
-                };
-                isAdmin = false;
-                updateUserRoleUI();
-            }
-        }
-
-        // Aggiorna UI del ruolo utente
-        function updateUserRoleUI() {
-            const roleBadge = document.getElementById('userRoleBadge');
-            const adminTab = document.getElementById('adminTab');
-            const t = translations[currentLanguage];
-            
-            if (isAdmin) {
-                roleBadge.textContent = t.roleAdmin;
-                roleBadge.className = 'user-role admin';
-                adminTab.classList.remove('hidden');
-            } else {
-                roleBadge.textContent = t.roleUser;
-                roleBadge.className = 'user-role';
-                adminTab.classList.add('hidden');
             }
         }
 
@@ -994,51 +413,6 @@
             document.getElementById('mainApp').classList.remove('hidden');
             document.getElementById('userInfo').classList.remove('hidden');
             document.getElementById('userEmail').textContent = currentUser.email;
-            updateProfileInfo();
-        }
-
-        // ==================== AUTENTICAZIONE ====================
-
-        // Login con Google
-        async function loginWithGoogle() {
-            const status = document.getElementById('loginStatus');
-            const t = translations[currentLanguage];
-            
-            status.className = 'status-message status-loading';
-            status.textContent = t.loadingGoogle;
-
-            const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: window.location.origin
-                }
-            });
-
-            if (error) {
-                status.className = 'status-message status-error';
-                status.textContent = getErrorMessage(error);
-            }
-        }
-
-        // Login con Facebook
-        async function loginWithFacebook() {
-            const status = document.getElementById('loginStatus');
-            const t = translations[currentLanguage];
-            
-            status.className = 'status-message status-loading';
-            status.textContent = t.loadingFacebook;
-
-            const { data, error } = await supabase.auth.signInWithOAuth({
-                provider: 'facebook',
-                options: {
-                    redirectTo: window.location.origin
-                }
-            });
-
-            if (error) {
-                status.className = 'status-message status-error';
-                status.textContent = getErrorMessage(error);
-            }
         }
 
         // Login con email/password
@@ -1046,29 +420,15 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const status = document.getElementById('loginStatus');
-            const t = translations[currentLanguage];
 
-            // Validazione
-            if (!email) {
+            if (!email || !password) {
                 status.className = 'status-message status-error';
-                status.textContent = t.errorEmailRequired;
-                return;
-            }
-
-            if (!password) {
-                status.className = 'status-message status-error';
-                status.textContent = t.errorPasswordRequired;
-                return;
-            }
-
-            if (password.length < 6 || password.length > 72) {
-                status.className = 'status-message status-error';
-                status.textContent = t.errorPasswordLength;
+                status.textContent = 'Inserisci email e password';
                 return;
             }
 
             status.className = 'status-message status-loading';
-            status.textContent = t.loadingLogin;
+            status.textContent = 'Accesso in corso...';
 
             const { data, error } = await supabase.auth.signInWithPassword({
                 email: email,
@@ -1077,12 +437,10 @@
 
             if (error) {
                 status.className = 'status-message status-error';
-                status.textContent = getErrorMessage(error);
+                status.textContent = 'Errore: ' + error.message;
             } else {
                 currentUser = data.user;
-                await loadUserProfile();
                 showApp();
-                await loadUserData();
             }
         }
 
@@ -1091,29 +449,21 @@
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const status = document.getElementById('loginStatus');
-            const t = translations[currentLanguage];
 
-            // Validazione
-            if (!email) {
+            if (!email || !password) {
                 status.className = 'status-message status-error';
-                status.textContent = t.errorEmailRequired;
+                status.textContent = 'Inserisci email e password';
                 return;
             }
 
-            if (!password) {
+            if (password.length < 6) {
                 status.className = 'status-message status-error';
-                status.textContent = t.errorPasswordRequired;
-                return;
-            }
-
-            if (password.length < 6 || password.length > 72) {
-                status.className = 'status-message status-error';
-                status.textContent = t.errorPasswordLength;
+                status.textContent = 'La password deve essere di almeno 6 caratteri';
                 return;
             }
 
             status.className = 'status-message status-loading';
-            status.textContent = t.loadingRegistration;
+            status.textContent = 'Registrazione in corso...';
 
             const { data, error } = await supabase.auth.signUp({
                 email: email,
@@ -1125,12 +475,11 @@
 
             if (error) {
                 status.className = 'status-message status-error';
-                status.textContent = getErrorMessage(error);
+                status.textContent = 'Errore: ' + error.message;
             } else {
                 status.className = 'status-message status-success';
-                status.textContent = t.successRegistration;
+                status.textContent = 'Registrazione completata! Controlla la tua email per confermare l\'account.';
                 
-                // Pulisci i campi
                 document.getElementById('email').value = '';
                 document.getElementById('password').value = '';
             }
@@ -1140,81 +489,64 @@
         async function logout() {
             await supabase.auth.signOut();
             currentUser = null;
-            activeSession = null;
-            userProfile = null;
-            isAdmin = false;
-            adminMode = false;
             showLogin();
         }
 
-        // ==================== GESTIONE VEICOLI ====================
+        // Test connessione database
+        async function testDatabaseConnection() {
+            const status = document.getElementById('loginStatus');
+            status.className = 'status-message status-loading';
+            status.textContent = 'Test connessione database...';
 
-        // Caricamento dati utente
-        async function loadUserData() {
-            await loadVehicleTypes();
-            await loadVehicles();
-            await loadMaintenance();
-            await checkActiveSession();
-        }
-
-        // Carica tipi veicolo
-        async function loadVehicleTypes() {
             try {
-                const { data: tipi, error } = await supabase
-                    .from('tipoveicoli')
-                    .select('tipoveicolo_id, descrizione')
-                    .is('dataoraelimina', null)
-                    .order('descrizione');
+                // Test tabella veicoli
+                const { data: veicoli, error: errorVeicoli } = await supabase
+                    .from('veicoli')
+                    .select('count')
+                    .limit(1);
 
-                if (!error && tipi) {
-                    const select = document.getElementById('vehicleType');
-                    const t = translations[currentLanguage];
-                    select.innerHTML = `<option value="">${t.selectTypeText}</option>` +
-                        tipi.map(tipo => 
-                            `<option value="${tipo.tipoveicolo_id}">${tipo.descrizione}</option>`
-                        ).join('');
+                // Test tabella utenti
+                const { data: utenti, error: errorUtenti } = await supabase
+                    .from('utenti')
+                    .select('count')
+                    .limit(1);
+
+                if (errorVeicoli && errorUtenti) {
+                    status.className = 'status-message status-error';
+                    status.textContent = '❌ Errore: Policy RLS non configurate. Segui la guida di configurazione.';
+                } else {
+                    status.className = 'status-message status-success';
+                    status.textContent = '✅ Connessione database OK! Le policy sono configurate correttamente.';
+                    
+                    // Ricarica i veicoli
+                    loadVehicles();
                 }
+
             } catch (error) {
-                console.error('Errore caricamento tipi veicolo:', error);
+                status.className = 'status-message status-error';
+                status.textContent = '❌ Errore di connessione: ' + error.message;
             }
         }
 
         // Caricamento veicoli
         async function loadVehicles() {
             const vehiclesList = document.getElementById('vehiclesList');
-            const t = translations[currentLanguage];
-            vehiclesList.innerHTML = `<div class="status-message status-loading">${t.loadingVehicles}</div>`;
+            vehiclesList.innerHTML = '<div class="status-message status-loading">Caricamento veicoli...</div>';
 
             try {
-                let query = supabase
+                const { data: veicoli, error } = await supabase
                     .from('veicoli')
-                    .select(`
-                        veicolo_id,
-                        nomeveicolo,
-                        targa,
-                        kmattuali,
-                        dataimmatricolazione,
-                        tipoveicolo_id,
-                        tipoveicoli (descrizione),
-                        utente_id,
-                        utenti (nominativo, email)
-                    `)
-                    .is('dataoraelimina', null);
+                    .select('*')
+                    .limit(10);
 
-                // Se non è admin o non è in modalità admin, mostra solo i propri veicoli
-                if (!isAdmin || !adminMode) {
-                    query = query.eq('utente_id', currentUser.id);
+                if (error) {
+                    throw error;
                 }
-
-                const { data: veicoli, error } = await query.order('nomeveicolo');
-
-                if (error) throw error;
 
                 if (veicoli.length === 0) {
                     vehiclesList.innerHTML = `
                         <div class="status-message">
-                            <i class="fas fa-info-circle"></i> ${t.noVehiclesText}
-                            <br><small>${t.addVehicleButtonText}!</small>
+                            <i class="fas fa-info-circle"></i> Nessun veicolo trovato.
                         </div>
                     `;
                     return;
@@ -1228,508 +560,24 @@
                         </div>
                         <div class="vehicle-details">
                             <div><strong>KM:</strong> ${vehicle.kmattuali || 0}</div>
-                            <div><strong>Tipo:</strong> ${vehicle.tipoveicoli?.descrizione || 'N/D'}</div>
-                            <div><strong>Immatricolazione:</strong> ${vehicle.dataimmatricolazione ? new Date(vehicle.dataimmatricolazione).toLocaleDateString() : 'N/D'}</div>
-                            ${(isAdmin && adminMode) ? `<div><strong>Proprietario:</strong> ${vehicle.utenti?.nominativo || vehicle.utenti?.email || 'N/D'}</div>` : ''}
-                        </div>
-                        <div class="vehicle-actions">
-                            <button class="btn btn-success btn-small" onclick="selectVehicle('${vehicle.veicolo_id}')">
-                                <i class="fas fa-play"></i> ${currentLanguage === 'it' ? 'Usa' : 'Use'}
-                            </button>
-                            <button class="btn btn-warning btn-small" onclick="updateVehicleKm('${vehicle.veicolo_id}')">
-                                <i class="fas fa-sync"></i> ${currentLanguage === 'it' ? 'Aggiorna KM' : 'Update KM'}
-                            </button>
+                            <div><strong>Proprietario:</strong> ${vehicle.utente_id || 'N/D'}</div>
                         </div>
                     </div>
                 `).join('');
 
             } catch (error) {
                 console.error('Errore caricamento veicoli:', error);
-                vehiclesList.innerHTML = `<div class="status-message status-error">${getErrorMessage(error)}</div>`;
+                vehiclesList.innerHTML = `
+                    <div class="status-message status-error">
+                        <i class="fas fa-exclamation-triangle"></i> Errore di permesso
+                        <br><small>Configura le policy RLS seguendo la guida</small>
+                    </div>
+                `;
             }
         }
-
-        // Aggiungi veicolo
-        async function addVehicle() {
-            const nome = document.getElementById('vehicleName').value;
-            const targa = document.getElementById('vehiclePlate').value;
-            const tipoId = document.getElementById('vehicleType').value;
-            const km = parseInt(document.getElementById('vehicleKm').value) || 0;
-            const t = translations[currentLanguage];
-
-            if (!nome || !targa) {
-                alert(currentLanguage === 'it' ? 'Inserisci almeno nome e targa del veicolo' : 'Enter at least vehicle name and license plate');
-                return;
-            }
-
-            try {
-                const { data, error } = await supabase
-                    .from('veicoli')
-                    .insert([{
-                        utente_id: currentUser.id,
-                        nomeveicolo: nome,
-                        targa: targa,
-                        tipoveicolo_id: tipoId || null,
-                        kmattuali: km,
-                        dataora: new Date().toISOString()
-                    }])
-                    .select();
-
-                if (error) throw error;
-
-                // Ricarica lista veicoli
-                await loadVehicles();
-                hideAddVehicleForm();
-                
-                alert(t.successVehicleAdded);
-
-            } catch (error) {
-                console.error('Errore aggiunta veicolo:', error);
-                alert(getErrorMessage(error));
-            }
-        }
-
-        // Aggiorna KM veicolo
-        async function updateVehicleKm(vehicleId) {
-            const t = translations[currentLanguage];
-            const nuovoKm = prompt(currentLanguage === 'it' ? 'Inserisci i nuovi KM del veicolo:' : 'Enter new vehicle KM:');
-            if (!nuovoKm || isNaN(nuovoKm)) return;
-
-            try {
-                const { error } = await supabase
-                    .from('veicoli')
-                    .update({
-                        kmattuali: parseInt(nuovoKm),
-                        kmattualidataorainserimento: new Date().toISOString()
-                    })
-                    .eq('veicolo_id', vehicleId);
-
-                if (error) throw error;
-
-                await loadVehicles();
-                alert(t.successKmUpdated);
-
-            } catch (error) {
-                console.error('Errore aggiornamento KM:', error);
-                alert(getErrorMessage(error));
-            }
-        }
-
-        // Toggle modalità amministratore
-        function toggleAdminMode() {
-            adminMode = !adminMode;
-            const toggleButton = document.querySelector('#adminControls .btn');
-            const t = translations[currentLanguage];
-            
-            if (adminMode) {
-                toggleButton.innerHTML = `<i class="fas fa-eye"></i> ${t.toggleAdminModeText}`;
-            } else {
-                toggleButton.innerHTML = `<i class="fas fa-users"></i> ${currentLanguage === 'it' ? 'Mostra tutti i veicoli' : 'Show all vehicles'}`;
-            }
-            
-            loadVehicles();
-        }
-
-        // ==================== MANUTENZIONE ====================
-
-        // Caricamento interventi manutenzione
-        async function loadMaintenance() {
-            const maintenanceList = document.getElementById('maintenanceList');
-            const t = translations[currentLanguage];
-            maintenanceList.innerHTML = `<div class="status-message status-loading">${t.loadingMaintenance}</div>`;
-
-            try {
-                let query = supabase
-                    .from('interventi')
-                    .select(`
-                        intervento_id,
-                        descrizioneaggiuntiva,
-                        kmintervento,
-                        dataoraintervento,
-                        veicolo_id,
-                        veicoli (nomeveicolo, targa, utente_id),
-                        interventistato (descrizione)
-                    `)
-                    .is('interventi.dataoraelimina', null);
-
-                // Se non è admin, mostra solo i propri interventi
-                if (!isAdmin) {
-                    query = query.eq('veicoli.utente_id', currentUser.id);
-                }
-
-                const { data: interventi, error } = await query.order('dataoraintervento', { ascending: true });
-
-                if (error) throw error;
-
-                if (interventi.length === 0) {
-                    maintenanceList.innerHTML = `
-                        <div class="status-message">
-                            <i class="fas fa-check-circle"></i> ${t.noMaintenanceText}
-                        </div>
-                    `;
-                    return;
-                }
-
-                maintenanceList.innerHTML = interventi.map(intervento => {
-                    const isUrgent = new Date(intervento.dataoraintervento) < new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-                    const urgentClass = isUrgent ? 'urgent' : '';
-                    
-                    return `
-                        <div class="maintenance-item ${urgentClass}">
-                            <div class="maintenance-vehicle">
-                                ${intervento.veicoli.nomeveicolo} (${intervento.veicoli.targa})
-                                ${isAdmin ? `<span class="admin-badge">${intervento.veicoli.utente_id === currentUser.id ? 'Mio' : 'Altro'}</span>` : ''}
-                            </div>
-                            <div class="maintenance-type">
-                                ${intervento.descrizioneaggiuntiva || 'Manutenzione programmata'}
-                            </div>
-                            <div class="maintenance-details">
-                                <span>KM: ${intervento.kmintervento || 'N/D'}</span>
-                                <span>Data: ${new Date(intervento.dataoraintervento).toLocaleDateString()}</span>
-                                <span>Stato: ${intervento.interventistato.descrizione}</span>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-            } catch (error) {
-                console.error('Errore caricamento interventi:', error);
-                maintenanceList.innerHTML = `<div class="status-message status-error">${getErrorMessage(error)}</div>`;
-            }
-        }
-
-        // ==================== TRACKING GPS ====================
-
-        // Controlla sessione attiva
-        async function checkActiveSession() {
-            try {
-                const { data: sessioni, error } = await supabase
-                    .from('sessioniutilizzo')
-                    .select(`
-                        sessione_id,
-                        veicolo_id,
-                        dataora_inizio,
-                        km_iniziali,
-                        veicoli (nomeveicolo, targa)
-                    `)
-                    .eq('utente_id', currentUser.id)
-                    .eq('sessione_attiva', true)
-                    .is('dataoraelimina', null)
-                    .single();
-
-                if (error && error.code !== 'PGRST116') throw error;
-
-                if (sessioni) {
-                    activeSession = sessioni;
-                    currentVehicle = sessioni.veicolo_id;
-                    updateActiveSessionUI(sessioni);
-                    startTrackingInterval();
-                }
-
-            } catch (error) {
-                console.error('Errore controllo sessione attiva:', error);
-            }
-        }
-
-        // Inizia tracking GPS
-        async function startTracking() {
-            const t = translations[currentLanguage];
-            
-            if (!navigator.geolocation) {
-                alert(t.gpsNotSupported);
-                return;
-            }
-
-            if (!currentVehicle) {
-                alert(t.selectVehicleText);
-                showTab('vehicles');
-                return;
-            }
-
-            // Crea nuova sessione
-            const { data: sessione, error } = await supabase
-                .from('sessioniutilizzo')
-                .insert([{
-                    veicolo_id: currentVehicle,
-                    utente_id: currentUser.id,
-                    dataora_inizio: new Date().toISOString(),
-                    sessione_attiva: true,
-                    km_iniziali: await getCurrentKm(currentVehicle)
-                }])
-                .select()
-                .single();
-
-            if (error) {
-                console.error('Errore creazione sessione:', error);
-                alert(getErrorMessage(error));
-                return;
-            }
-
-            activeSession = sessione;
-            updateActiveSessionUI(sessioni);
-            startTrackingInterval();
-
-            document.getElementById('trackingStatus').textContent = currentLanguage === 'it' ? 'Attivo' : 'Active';
-            document.getElementById('trackingStatus').style.color = '#48bb78';
-        }
-
-        // Avvia intervallo tracking
-        function startTrackingInterval() {
-            if (trackingInterval) clearInterval(trackingInterval);
-            
-            trackingInterval = setInterval(() => {
-                updateGPSPosition();
-            }, 30000); // Aggiorna ogni 30 secondi
-
-            // Primo aggiornamento immediato
-            updateGPSPosition();
-        }
-
-        // Ferma tracking
-        async function stopTracking() {
-            if (!activeSession || !trackingInterval) return;
-
-            clearInterval(trackingInterval);
-            trackingInterval = null;
-
-            const kmFinali = await getCurrentKm(currentVehicle);
-
-            // Aggiorna sessione
-            const { error } = await supabase
-                .from('sessioniutilizzo')
-                .update({
-                    dataora_fine: new Date().toISOString(),
-                    sessione_attiva: false,
-                    km_finali: kmFinali,
-                    km_percorsi: kmFinali - (activeSession.km_iniziali || 0),
-                    durata_minuti: Math.floor((new Date() - new Date(activeSession.dataora_inizio)) / 60000)
-                })
-                .eq('sessione_id', activeSession.sessione_id);
-
-            if (error) {
-                console.error('Errore aggiornamento sessione:', error);
-            }
-
-            document.getElementById('trackingStatus').textContent = currentLanguage === 'it' ? 'Fermo' : 'Stopped';
-            document.getElementById('trackingStatus').style.color = '#e53e3e';
-            document.getElementById('activeSessionInfo').classList.add('hidden');
-            
-            activeSession = null;
-            currentVehicle = null;
-        }
-
-        // Aggiorna posizione GPS
-        async function updateGPSPosition() {
-            if (!activeSession) return;
-
-            navigator.geolocation.getCurrentPosition(
-                async (position) => {
-                    const { latitude, longitude, accuracy } = position.coords;
-
-                    // Salva posizione nel database
-                    const { error } = await supabase
-                        .from('trackinggps')
-                        .insert([{
-                            sessione_id: activeSession.sessione_id,
-                            latitude: latitude,
-                            longitude: longitude,
-                            precisione: accuracy,
-                            dataora: new Date().toISOString()
-                        }]);
-
-                    if (error) {
-                        console.error('Errore salvataggio posizione:', error);
-                        return;
-                    }
-
-                    // Aggiorna UI
-                    document.getElementById('currentLat').textContent = latitude.toFixed(6);
-                    document.getElementById('currentLng').textContent = longitude.toFixed(6);
-                    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
-
-                    // Aggiorna ultima posizione veicolo
-                    await supabase
-                        .from('veicoli')
-                        .update({
-                            ultimo_aggiornamento_tracking: new Date().toISOString()
-                        })
-                        .eq('veicolo_id', currentVehicle);
-
-                },
-                (error) => {
-                    console.error('Errore GPS:', error);
-                },
-                { 
-                    enableHighAccuracy: true,
-                    timeout: 10000,
-                    maximumAge: 30000
-                }
-            );
-        }
-
-        // Posizione attuale (una tantum)
-        async function getCurrentLocation() {
-            const t = translations[currentLanguage];
-            
-            if (!navigator.geolocation) {
-                alert(t.gpsNotSupported);
-                return;
-            }
-
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const { latitude, longitude, accuracy } = position.coords;
-                    
-                    document.getElementById('currentLat').textContent = latitude.toFixed(6);
-                    document.getElementById('currentLng').textContent = longitude.toFixed(6);
-                    document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
-                    
-                    const message = currentLanguage === 'it' 
-                        ? `Posizione attuale:\nLat: ${latitude.toFixed(6)}\nLng: ${longitude.toFixed(6)}\nPrecisione: ${accuracy}m`
-                        : `Current location:\nLat: ${latitude.toFixed(6)}\nLng: ${longitude.toFixed(6)}\nAccuracy: ${accuracy}m`;
-                    
-                    alert(message);
-                },
-                (error) => {
-                    const errorMsg = currentLanguage === 'it' 
-                        ? 'Errore GPS: ' + error.message
-                        : 'GPS Error: ' + error.message;
-                    alert(errorMsg);
-                }
-            );
-        }
-
-        // Seleziona veicolo per tracking
-        async function selectVehicle(vehicleId) {
-            currentVehicle = vehicleId;
-            
-            // Carica dettagli veicolo
-            const { data: vehicle } = await supabase
-                .from('veicoli')
-                .select('nomeveicolo, targa')
-                .eq('veicolo_id', vehicleId)
-                .single();
-
-            if (vehicle) {
-                const message = currentLanguage === 'it'
-                    ? `Veicolo selezionato: ${vehicle.nomeveicolo} (${vehicle.targa})\n\nOra puoi avviare il tracking dalla tab Tracking.`
-                    : `Vehicle selected: ${vehicle.nomeveicolo} (${vehicle.targa})\n\nYou can now start tracking from the Tracking tab.`;
-                
-                alert(message);
-                showTab('tracking');
-            }
-        }
-
-        // Ottieni KM corrente del veicolo
-        async function getCurrentKm(vehicleId) {
-            const { data: vehicle } = await supabase
-                .from('veicoli')
-                .select('kmattuali')
-                .eq('veicolo_id', vehicleId)
-                .single();
-
-            return vehicle?.kmattuali || 0;
-        }
-
-        // Aggiorna UI sessione attiva
-        function updateActiveSessionUI(sessione) {
-            document.getElementById('activeSessionInfo').classList.remove('hidden');
-            const t = translations[currentLanguage];
-            
-            document.getElementById('sessionDetails').innerHTML = `
-                <div class="info-item">
-                    <span class="info-label">${t.vehicleNameLabel}:</span>
-                    <span class="info-value">${sessione.veicoli.nomeveicolo}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">${t.vehiclePlateLabel}:</span>
-                    <span class="info-value">${sessione.veicoli.targa}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">${currentLanguage === 'it' ? 'Iniziata' : 'Started'}:</span>
-                    <span class="info-value">${new Date(sessione.dataora_inizio).toLocaleString()}</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">${currentLanguage === 'it' ? 'KM Iniziali' : 'Initial KM'}:</span>
-                    <span class="info-value">${sessione.km_iniziali || 0}</span>
-                </div>
-            `;
-        }
-
-        // ==================== PROFILO ====================
-
-        // Aggiorna informazioni profilo
-        async function updateProfileInfo() {
-            document.getElementById('profileEmail').textContent = currentUser.email;
-            document.getElementById('profileId').textContent = currentUser.id.substring(0, 8) + '...';
-            document.getElementById('profileCreated').textContent = new Date(currentUser.created_at).toLocaleDateString();
-            document.getElementById('profileRole').textContent = isAdmin ? 
-                (currentLanguage === 'it' ? 'Amministratore' : 'Administrator') : 
-                (currentLanguage === 'it' ? 'Utente' : 'User');
-
-            // Conta veicoli dell'utente
-            const { count } = await supabase
-                .from('veicoli')
-                .select('*', { count: 'exact', head: true })
-                .eq('utente_id', currentUser.id)
-                .is('dataoraelimina', null);
-
-            document.getElementById('profileVehicles').textContent = count || 0;
-        }
-
-        async function updateProfile() {
-            await updateProfileInfo();
-            const t = translations[currentLanguage];
-            alert(t.successProfileUpdated);
-        }
-
-        // ==================== AMMINISTRAZIONE ====================
-
-        // Carica statistiche admin
-        async function loadAdminStats() {
-            if (!isAdmin) return;
-
-            try {
-                // Conta utenti totali
-                const { count: totalUsers } = await supabase
-                    .from('utenti')
-                    .select('*', { count: 'exact', head: true })
-                    .is('dataoraelimina', null);
-
-                // Conta veicoli totali
-                const { count: totalVehicles } = await supabase
-                    .from('veicoli')
-                    .select('*', { count: 'exact', head: true })
-                    .is('dataoraelimina', null);
-
-                // Conta interventi totali
-                const { count: totalMaintenance } = await supabase
-                    .from('interventi')
-                    .select('*', { count: 'exact', head: true })
-                    .is('dataoraelimina', null);
-
-                // Conta sessioni attive
-                const { count: activeSessions } = await supabase
-                    .from('sessioniutilizzo')
-                    .select('*', { count: 'exact', head: true })
-                    .eq('sessione_attiva', true)
-                    .is('dataoraelimina', null);
-
-                document.getElementById('totalUsers').textContent = totalUsers || 0;
-                document.getElementById('totalVehicles').textContent = totalVehicles || 0;
-                document.getElementById('totalMaintenance').textContent = totalMaintenance || 0;
-                document.getElementById('activeSessions').textContent = activeSessions || 0;
-
-            } catch (error) {
-                console.error('Errore caricamento statistiche admin:', error);
-            }
-        }
-
-        // ==================== UI HELPERS ====================
 
         // Gestione tab
         function showTab(tabName) {
-            // Nascondi tutti i tab
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -1737,59 +585,25 @@
                 tab.classList.remove('active');
             });
 
-            // Mostra tab selezionato
             document.getElementById(tabName + 'Tab').classList.add('active');
             event.target.classList.add('active');
 
-            // Mostra/nascondi controlli admin
-            const adminControls = document.getElementById('adminControls');
-            if (tabName === 'vehicles' && isAdmin) {
-                adminControls.classList.remove('hidden');
-            } else {
-                adminControls.classList.add('hidden');
-            }
-
-            // Carica statistiche admin se necessario
-            if (tabName === 'admin' && isAdmin) {
-                loadAdminStats();
+            if (tabName === 'vehicles') {
+                loadVehicles();
             }
         }
 
-        // Mostra/nascondi form aggiunta veicolo
+        // Funzioni placeholder
         function showAddVehicleForm() {
-            document.getElementById('addVehicleForm').classList.remove('hidden');
+            alert('Funzionalità disponibile dopo la configurazione delle policy RLS');
         }
 
-        function hideAddVehicleForm() {
-            document.getElementById('addVehicleForm').classList.add('hidden');
-            // Pulisci i campi
-            document.getElementById('vehicleName').value = '';
-            document.getElementById('vehiclePlate').value = '';
-            document.getElementById('vehicleType').value = '';
-            document.getElementById('vehicleKm').value = '';
-        }
-
-        // Setup event listeners
-        function setupEventListeners() {
-            // Enter per login
-            document.getElementById('password').addEventListener('keypress', (e) => {
-                if (e.key === 'Enter') loginWithEmail();
-            });
-
-            // Limita la lunghezza della password
-            document.getElementById('password').addEventListener('input', (e) => {
-                if (e.target.value.length > 72) {
-                    e.target.value = e.target.value.substring(0, 72);
-                }
-            });
-        }
-
-        // Service Worker per PWA
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
-                .then(() => console.log('✅ PWA Ready'))
-                .catch(() => console.log('⚠️ PWA non supportata'));
-        }
+        // Limita la lunghezza della password
+        document.getElementById('password')?.addEventListener('input', (e) => {
+            if (e.target.value.length > 72) {
+                e.target.value = e.target.value.substring(0, 72);
+            }
+        });
     </script>
 </body>
 </html>
