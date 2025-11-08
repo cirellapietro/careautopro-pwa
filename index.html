@@ -3,54 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Test RLS - CareAutoPro</title>
+    <title>Test Finale RLS</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        body { font-family: Arial; padding: 20px; background: #f5f5f5; }
-        .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
-        .btn { padding: 15px; margin: 10px 0; width: 100%; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
-        .btn-run { background: #28a745; color: white; }
-        .btn-test { background: #007bff; color: white; }
-        .result { padding: 15px; margin: 10px 0; border-radius: 8px; text-align: center; }
-        .success { background: #d4edda; color: #155724; }
-        .error { background: #f8d7da; color: #721c24; }
-        .loading { background: #d1ecf1; color: #0c5460; }
-        .code { background: #2d3748; color: white; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 14px; overflow-x: auto; }
-    </style>
 </head>
-<body>
-    <div class="container">
-        <h1>🔧 Test Configurazione RLS</h1>
-        
-        <div class="result loading">
-            <strong>Problema:</strong> RLS blocca l'accesso alle tabelle
-        </div>
-
-        <h3>🎯 Soluzione Definitiva</h3>
-        
-        <div class="code" id="sqlCode">
--- COPIA E INCOLLA IN SQL EDITOR DI SUPABASE
-ALTER TABLE veicoli DISABLE ROW LEVEL SECURITY;
-ALTER TABLE utenti DISABLE ROW LEVEL SECURITY;
-ALTER TABLE tipoveicoli DISABLE ROW LEVEL SECURITY;
-ALTER TABLE interventi DISABLE ROW LEVEL SECURITY;
-
--- Poi clicca RUN per eseguire
-        </div>
-        
-        <button class="btn btn-run" onclick="copySQL()">📋 Copia Script SQL</button>
-
-        <h3>🔍 Test Connessione</h3>
-        <button class="btn btn-test" onclick="testConnection()">Testa Database</button>
-        
-        <div id="testResult" class="result"></div>
-
-        <div id="successSection" style="display: none;">
-            <h3>🎉 App Pronta!</h3>
-            <button class="btn btn-run" onclick="showVehicles()">Mostra Veicoli</button>
-            <div id="dataResult"></div>
-        </div>
+<body style="font-family: Arial; padding: 20px; max-width: 600px; margin: 0 auto;">
+    <h1>🔧 Test Finale Configurazione</h1>
+    
+    <div style="background: #fff3cd; padding: 15px; border-radius: 8px; margin: 15px 0;">
+        <h3>🚨 Situazione Attuale</h3>
+        <p>RLS sta bloccando completamente l'accesso. Usa lo script nucleare qui sotto:</p>
     </div>
+
+    <textarea id="sqlScript" style="width: 100%; height: 300px; font-family: monospace; font-size: 12px; padding: 10px; background: #2d3748; color: white; border-radius: 5px;">
+-- SCRIPT NUCLEARE - COPIA TUTTO
+DO $$ 
+DECLARE 
+    r RECORD;
+BEGIN
+    -- Disabilita RLS
+    FOR r IN (SELECT tablename FROM pg_tables WHERE schemaname = 'public') 
+    LOOP
+        EXECUTE 'ALTER TABLE ' || quote_ident(r.tablename) || ' DISABLE ROW LEVEL SECURITY';
+    END LOOP;
+    
+    -- Elimina policy
+    FOR r IN (SELECT tablename, policyname FROM pg_policies WHERE schemaname = 'public') 
+    LOOP
+        EXECUTE 'DROP POLICY IF EXISTS ' || quote_ident(r.policyname) || ' ON ' || quote_ident(r.tablename);
+    END LOOP;
+END $$;
+
+-- Crea policy permissive
+CREATE POLICY "allow_all_veicoli" ON veicoli FOR ALL USING (true);
+CREATE POLICY "allow_all_utenti" ON utenti FOR ALL USING (true);  
+CREATE POLICY "allow_all_tipoveicoli" ON tipoveicoli FOR ALL USING (true);
+CREATE POLICY "allow_all_interventi" ON interventi FOR ALL USING (true);
+    </textarea>
+    
+    <button onclick="copyScript()" style="width: 100%; padding: 15px; background: #28a745; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin: 10px 0;">
+        📋 Copia Script Nucleare
+    </button>
+
+    <button onclick="testDatabase()" style="width: 100%; padding: 15px; background: #007bff; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
+        🔍 Testa Database
+    </button>
+
+    <div id="result" style="margin-top: 20px; padding: 15px; border-radius: 8px;"></div>
 
     <script>
         const supabase = window.supabase.createClient(
@@ -58,82 +56,79 @@ ALTER TABLE interventi DISABLE ROW LEVEL SECURITY;
             'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbXR0eHdoZXhsdmJramNjcnFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2NTE5MDIsImV4cCI6MjA2OTIyNzkwMn0.MkQarY2dOUuwhFnOdaLHqb6idFocTGSfZKjqVoeDYBs'
         );
 
-        async function testConnection() {
+        function copyScript() {
+            const textarea = document.getElementById('sqlScript');
+            textarea.select();
+            document.execCommand('copy');
+            alert('✅ Script copiato! Incolla in SQL Editor e clicca RUN');
+        }
+
+        async function testDatabase() {
             showResult('🔍 Test in corso...', 'loading');
             
-            const tests = [
-                { name: 'veicoli', action: 'Lettura' },
-                { name: 'utenti', action: 'Lettura' }, 
-                { name: 'tipoveicoli', action: 'Lettura' }
-            ];
+            try {
+                // Test lettura
+                const tests = [
+                    { name: 'veicoli', action: supabase.from('veicoli').select('count') },
+                    { name: 'utenti', action: supabase.from('utenti').select('count') },
+                    { name: 'tipoveicoli', action: supabase.from('tipoveicoli').select('count') }
+                ];
 
-            let results = [];
-            let allSuccess = true;
-
-            for (let test of tests) {
-                try {
-                    const { data, error } = await supabase.from(test.name).select('count').limit(1);
+                let results = [];
+                
+                for (let test of tests) {
+                    const { data, error } = await test.action;
                     if (error) {
                         results.push(`❌ ${test.name}: ${error.message}`);
-                        allSuccess = false;
                     } else {
                         results.push(`✅ ${test.name}: Accessibile`);
                     }
-                } catch (e) {
-                    results.push(`❌ ${test.name}: ${e.message}`);
-                    allSuccess = false;
                 }
-            }
 
-            if (allSuccess) {
-                showResult(`🎉 Tutto OK!<br>${results.join('<br>')}`, 'success');
-                document.getElementById('successSection').style.display = 'block';
-            } else {
-                showResult(`Problemi:<br>${results.join('<br>')}<br><br>Esegui lo script SQL sopra.`, 'error');
-            }
-        }
-
-        async function showVehicles() {
-            showDataResult('🚗 Caricamento veicoli...', 'loading');
-            
-            try {
-                const { data, error } = await supabase.from('veicoli').select('*').limit(10);
-                
-                if (error) throw error;
-                
-                if (data.length === 0) {
-                    showDataResult('Nessun veicolo trovato. Puoi crearne uno!', 'success');
-                } else {
-                    const vehiclesList = data.map(v => 
-                        `• ${v.nomeveicolo || 'Veicolo'} (${v.targa || 'N/T'}) - ${v.kmattuali || 0} km`
-                    ).join('<br>');
+                // Test scrittura
+                try {
+                    const testVehicle = {
+                        nomeveicolo: 'Test ' + Date.now(),
+                        targa: 'TEST' + Date.now(),
+                        kmattuali: 1000,
+                        utente_id: 'test-user',
+                        dataora: new Date().toISOString()
+                    };
                     
-                    showDataResult(`Trovati ${data.length} veicoli:<br>${vehiclesList}`, 'success');
+                    const { error } = await supabase.from('veicoli').insert([testVehicle]);
+                    if (error) {
+                        results.push(`❌ Scrittura veicoli: ${error.message}`);
+                    } else {
+                        results.push(`✅ Scrittura veicoli: Funziona`);
+                    }
+                } catch (e) {
+                    results.push(`❌ Scrittura veicoli: ${e.message}`);
                 }
-            } catch (error) {
-                showDataResult(`Errore: ${error.message}`, 'error');
-            }
-        }
 
-        function copySQL() {
-            const sqlText = document.getElementById('sqlCode').textContent;
-            navigator.clipboard.writeText(sqlText).then(() => {
-                alert('✅ Script copiato! Ora:\n1. Vai su Supabase → SQL Editor\n2. Incolla lo script\n3. Clicca RUN');
-            });
+                const allSuccess = results.filter(r => r.includes('✅')).length === results.length;
+                
+                if (allSuccess) {
+                    showResult(`🎉 TUTTO FUNZIONA!<br><br>${results.join('<br>')}`, 'success');
+                } else {
+                    showResult(`Problemi:<br>${results.join('<br>')}`, 'error');
+                }
+
+            } catch (error) {
+                showResult(`❌ Errore nel test: ${error.message}`, 'error');
+            }
         }
 
         function showResult(message, type) {
-            document.getElementById('testResult').innerHTML = message;
-            document.getElementById('testResult').className = `result ${type}`;
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = message;
+            resultDiv.style.background = type === 'success' ? '#d4edda' : 
+                                       type === 'error' ? '#f8d7da' : '#d1ecf1';
+            resultDiv.style.color = type === 'success' ? '#155724' : 
+                                  type === 'error' ? '#721c24' : '#0c5460';
         }
 
-        function showDataResult(message, type) {
-            document.getElementById('dataResult').innerHTML = message;
-            document.getElementById('dataResult').className = `result ${type}`;
-        }
-
-        // Test automatico al caricamento
-        setTimeout(testConnection, 1000);
+        // Test automatico
+        setTimeout(testDatabase, 1000);
     </script>
 </body>
 </html>
