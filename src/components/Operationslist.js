@@ -1,222 +1,244 @@
 import React, { useState } from 'react'
 import { useSupabase } from '../hooks/useSupabase'
+import { useTraduzioni } from '../i18n'
 import AdBanner from './AdBanner'
+import SelettoreLingua from './SelettoreLingua'
 
 const OperationsList = () => {
+  const { t, lingua } = useTraduzioni()
   const { 
-    data: operations, 
-    loading, 
-    error, 
-    config,
-    insertData, 
-    deleteData 
+    dati: operazioni, 
+    caricamento, 
+    errore, 
+    configurazione,
+    inserisciDati, 
+    eliminaDati 
   } = useSupabase('operations', {
-    orderBy: 'created_at',
-    ascending: false
+    ordinamento: 'created_at',
+    ascendente: false
   })
 
-  const [newOperation, setNewOperation] = useState({
+  const [nuovaOperazione, setNuovaOperazione] = useState({
     nome: '',
     descrizione: '',
     stato: 'pending',
-    priorita: 'media'
+    priorita: 'medium'
   })
 
-  const handleSubmit = async (e) => {
+  // Mappatura stati per database (sempre in inglese)
+  const mappaStati = {
+    pending: 'pending',
+    in_corso: 'in_progress', 
+    completata: 'completed'
+  }
+
+  const mappaStatiInverso = {
+    pending: 'pending',
+    in_progress: 'in_corso',
+    completed: 'completata'
+  }
+
+  const gestisciInvio = async (e) => {
     e.preventDefault()
-    if (!newOperation.nome.trim()) {
-      alert('Inserisci un nome per l\'operazione!')
+    if (!nuovaOperazione.nome.trim()) {
+      alert(t('enterOperationName'))
       return
     }
 
-    const result = await insertData(newOperation)
-    if (result) {
-      setNewOperation({ 
+    // Converti stato per database
+    const datiPerDB = {
+      ...nuovaOperazione,
+      stato: mappaStati[nuovaOperazione.stato] || nuovaOperazione.stato
+    }
+
+    const risultato = await inserisciDati(datiPerDB)
+    if (risultato) {
+      setNuovaOperazione({ 
         nome: '', 
         descrizione: '', 
         stato: 'pending',
-        priorita: 'media'
+        priorita: 'medium'
       })
-      
-      // Mostra conferma
-      alert('✅ Operazione aggiunta con successo!')
+      alert(t('operationAdded'))
     }
   }
 
-  const handleDelete = async (id, nome) => {
-    if (window.confirm(`Sei sicuro di voler eliminare l'operazione "${nome}"?`)) {
-      await deleteData(id)
+  const gestisciEliminazione = async (id, nome) => {
+    if (window.confirm(`${t('confirmDelete')} "${nome}"?`)) {
+      await eliminaDati(id)
     }
   }
 
-  // Statistiche
-  const stats = {
-    total: operations.length,
-    pending: operations.filter(op => op.stato === 'pending').length,
-    inProgress: operations.filter(op => op.stato === 'in_progress').length,
-    completed: operations.filter(op => op.stato === 'completed').length
+  // Statistiche con stati localizzati
+  const statistiche = {
+    totali: operazioni.length,
+    inAttesa: operazioni.filter(op => op.stato === 'pending').length,
+    inCorso: operazioni.filter(op => op.stato === 'in_progress').length,
+    completate: operazioni.filter(op => op.stato === 'completed').length
   }
 
-  if (loading && operations.length === 0) {
+  if (caricamento && operazioni.length === 0) {
     return (
       <div className="loading-container">
         <div className="loading-spinner">⏳</div>
-        <div className="loading-text">Caricamento operazioni...</div>
-        <AdBanner type="adsense" config={config} />
+        <div className="loading-text">{t('loading')}</div>
+        <AdBanner tipo="adsense" configurazione={configurazione} />
       </div>
     )
   }
 
-  if (error) {
+  if (errore) {
     return (
       <div className="error-container">
         <div className="error-message">
           <div className="error-icon">❌</div>
-          <h3>Errore di caricamento</h3>
-          <p>{error}</p>
+          <h3>{t('connectionError')}</h3>
+          <p>{errore}</p>
           <button 
             onClick={() => window.location.reload()} 
             className="btn-retry"
           >
-            🔄 Ricarica la pagina
+            🔄 {t('reloadPage')}
           </button>
         </div>
-        <AdBanner type="adsense" config={config} />
+        <AdBanner tipo="adsense" configurazione={configurazione} />
       </div>
     )
   }
 
   return (
     <div className="operations-container">
-      {/* Header con Stats e Ad */}
+      {/* Header con selettore lingua */}
       <div className="operations-header">
         <div className="header-main">
-          <h1>🎯 Gestione Operazioni</h1>
-          <p>Gestisci tutte le tue attività in un unico posto</p>
+          <div className="header-top">
+            <h1>🎯 {t('appTitle')}</h1>
+            <SelettoreLingua />
+          </div>
+          <p>{t('appDescription')}</p>
         </div>
-        <AdBanner type="adsense" config={config} />
+        <AdBanner tipo="adsense" configurazione={configurazione} />
       </div>
 
       {/* Statistiche */}
       <div className="stats-container">
         <div className="stat-card">
-          <div className="stat-number">{stats.total}</div>
-          <div className="stat-label">Totali</div>
+          <div className="stat-number">{statistiche.totali}</div>
+          <div className="stat-label">{t('total')}</div>
         </div>
-        <div className="stat-card pending">
-          <div className="stat-number">{stats.pending}</div>
-          <div className="stat-label">In Attesa</div>
+        <div className="stat-card in-attesa">
+          <div className="stat-number">{statistiche.inAttesa}</div>
+          <div className="stat-label">{t('pending')}</div>
         </div>
-        <div className="stat-card in-progress">
-          <div className="stat-number">{stats.inProgress}</div>
-          <div className="stat-label">In Corso</div>
+        <div className="stat-card in-corso">
+          <div className="stat-number">{statistiche.inCorso}</div>
+          <div className="stat-label">{t('inProgress')}</div>
         </div>
-        <div className="stat-card completed">
-          <div className="stat-number">{stats.completed}</div>
-          <div className="stat-label">Completate</div>
+        <div className="stat-card completate">
+          <div className="stat-number">{statistiche.completate}</div>
+          <div className="stat-label">{t('completed')}</div>
         </div>
       </div>
 
-      {/* Form Inserimento */}
-      <form onSubmit={handleSubmit} className="operation-form">
+      {/* Form */}
+      <form onSubmit={gestisciInvio} className="operation-form">
         <div className="form-section">
-          <h3>➕ Nuova Operazione</h3>
+          <h3>➕ {t('newOperation')}</h3>
           
           <div className="form-row">
             <input
               type="text"
-              placeholder="Nome operazione *"
-              value={newOperation.nome}
-              onChange={(e) => setNewOperation({...newOperation, nome: e.target.value})}
+              placeholder={`${t('operationName')} *`}
+              value={nuovaOperazione.nome}
+              onChange={(e) => setNuovaOperazione({...nuovaOperazione, nome: e.target.value})}
               required
               className="form-input"
             />
             <select
-              value={newOperation.priorita}
-              onChange={(e) => setNewOperation({...newOperation, priorita: e.target.value})}
+              value={nuovaOperazione.priorita}
+              onChange={(e) => setNuovaOperazione({...nuovaOperazione, priorita: e.target.value})}
               className="form-select"
             >
-              <option value="bassa">📋 Bassa Priorità</option>
-              <option value="media">📝 Media Priorità</option>
-              <option value="alta">🚨 Alta Priorità</option>
+              <option value="low">📋 {t('low')}</option>
+              <option value="medium">📝 {t('medium')}</option>
+              <option value="high">🚨 {t('high')}</option>
             </select>
           </div>
           
           <textarea
-            placeholder="Descrizione dettagliata..."
-            value={newOperation.descrizione}
-            onChange={(e) => setNewOperation({...newOperation, descrizione: e.target.value})}
+            placeholder={t('description')}
+            value={nuovaOperazione.descrizione}
+            onChange={(e) => setNuovaOperazione({...nuovaOperazione, descrizione: e.target.value})}
             rows="3"
             className="form-textarea"
           />
           
           <div className="form-actions">
             <select
-              value={newOperation.stato}
-              onChange={(e) => setNewOperation({...newOperation, stato: e.target.value})}
+              value={nuovaOperazione.stato}
+              onChange={(e) => setNuovaOperazione({...nuovaOperazione, stato: e.target.value})}
               className="form-select"
             >
-              <option value="pending">⏳ In Attesa</option>
-              <option value="in_progress">🚀 In Corso</option>
-              <option value="completed">✅ Completato</option>
+              <option value="pending">⏳ {t('pending')}</option>
+              <option value="in_corso">🚀 {t('inProgress')}</option>
+              <option value="completata">✅ {t('completed')}</option>
             </select>
             <button type="submit" className="btn-primary">
-              ➕ Aggiungi Operazione
+              ➕ {t('add')} {t('newOperation')}
             </button>
           </div>
         </div>
       </form>
 
-      {/* Banner Ad Middle */}
-      <AdBanner type="admob" config={config} />
+      <AdBanner tipo="admob" configurazione={configurazione} />
 
-      {/* Lista Operazioni */}
+      {/* Lista operazioni */}
       <div className="operations-list-section">
-        <h3>📋 Lista Operazioni ({operations.length})</h3>
+        <h3>📋 {t('operations')} ({operazioni.length})</h3>
         
-        {operations.length === 0 ? (
+        {operazioni.length === 0 ? (
           <div className="empty-state">
             <div className="empty-icon">📭</div>
-            <h4>Nessuna operazione presente</h4>
-            <p>Crea la tua prima operazione usando il form sopra!</p>
+            <h4>{t('emptyList')}</h4>
+            <p>{t('emptyDescription')}</p>
           </div>
         ) : (
           <div className="operations-list">
-            {operations.map((op, index) => (
-              <div key={op.id} className="operation-card">
+            {operazioni.map((operazione, indice) => (
+              <div key={operazione.id} className="operation-card">
                 <div className="operation-main">
                   <div className="operation-header">
-                    <h4 className="operation-title">{op.nome}</h4>
+                    <h4 className="operation-title">{operazione.nome}</h4>
                     <div className="operation-badges">
-                      <span className={`priority-badge priority-${op.priorita}`}>
-                        {op.priorita === 'alta' && '🚨'}
-                        {op.priorita === 'media' && '📝'}
-                        {op.priorita === 'bassa' && '📋'}
-                        {op.priorita}
+                      <span className={`priority-badge priority-${operazione.priorita}`}>
+                        {operazione.priorita === 'high' && '🚨'}
+                        {operazione.priorita === 'medium' && '📝'}
+                        {operazione.priorita === 'low' && '📋'}
+                        {t(operazione.priorita)}
                       </span>
-                      <span className={`status-badge status-${op.stato}`}>
-                        {op.stato === 'pending' && '⏳'}
-                        {op.stato === 'in_progress' && '🚀'}
-                        {op.stato === 'completed' && '✅'}
-                        {op.stato}
+                      <span className={`status-badge status-${operazione.stato}`}>
+                        {operazione.stato === 'pending' && '⏳'}
+                        {operazione.stato === 'in_progress' && '🚀'}
+                        {operazione.stato === 'completed' && '✅'}
+                        {t(mappaStatiInverso[operazione.stato] || operazione.stato)}
                       </span>
                     </div>
                   </div>
                   
-                  {op.descrizione && (
-                    <p className="operation-description">{op.descrizione}</p>
+                  {operazione.descrizione && (
+                    <p className="operation-description">{operazione.descrizione}</p>
                   )}
                   
                   <div className="operation-meta">
                     <small className="operation-id">
-                      ID: {op.operazione_id || op.id}
+                      ID: {operazione.operazione_id || operazione.id}
                     </small>
                     <small className="operation-date">
-                      Creata: {new Date(op.created_at).toLocaleDateString('it-IT')}
+                      {t('created')}: {new Date(operazione.created_at).toLocaleDateString(lingua)}
                     </small>
-                    {op.updated_at !== op.created_at && (
+                    {operazione.updated_at !== operazione.created_at && (
                       <small className="operation-updated">
-                        Aggiornata: {new Date(op.updated_at).toLocaleDateString('it-IT')}
+                        {t('updated')}: {new Date(operazione.updated_at).toLocaleDateString(lingua)}
                       </small>
                     )}
                   </div>
@@ -224,18 +246,17 @@ const OperationsList = () => {
                 
                 <div className="operation-actions">
                   <button 
-                    onClick={() => handleDelete(op.id, op.nome)}
+                    onClick={() => gestisciEliminazione(operazione.id, operazione.nome)}
                     className="btn-delete"
-                    title="Elimina operazione"
+                    title={t('delete')}
                   >
-                    🗑️ Elimina
+                    🗑️ {t('delete')}
                   </button>
                 </div>
 
-                {/* Mostra Ad ogni 3 operazioni */}
-                {(index + 1) % 3 === 0 && (
+                {(indice + 1) % 3 === 0 && (
                   <div className="operation-ad">
-                    <AdBanner type="adsense" config={config} />
+                    <AdBanner tipo="adsense" configurazione={configurazione} />
                   </div>
                 )}
               </div>
@@ -244,8 +265,7 @@ const OperationsList = () => {
         )}
       </div>
 
-      {/* Banner Ad Bottom */}
-      <AdBanner type="adsense" config={config} />
+      <AdBanner tipo="adsense" configurazione={configurazione} />
     </div>
   )
 }
