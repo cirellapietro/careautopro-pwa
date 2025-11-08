@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#667eea" />
+    <meta name="description" content="Sistema avanzato di gestione operazioni con Supabase, React e integrazione AdSense/AdMob" />
+    
+    <!-- Meta tags per SEO -->
+    <meta name="keywords" content="gestione operazioni, task management, supabase, react, adsense, admob, productivity" />
+    <meta name="author" content="Gestione Operazioni Pro" />
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="Gestione Operazioni Pro" />
+    <meta property="og:description" content="Sistema avanzato di gestione attività con Supabase e React" />
+    <meta property="og:type" content="website" />
+    <meta property="og:image" content="%PUBLIC_URL%/og-image.png" />
+    
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Gestione Operazioni Pro" />
+    <meta name="twitter:description" content="Sistema avanzato di gestione attività con Supabase e React" />
+    <meta name="twitter:image" content="%PUBLIC_URL%/og-image.png" />
+    
+    <!-- Preload e Preconnect per performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://pagead2.googlesyndication.com">
+    <link rel="preconnect" href="https://googleads.g.doubleclick.net">
+    
+    <!-- Manifest per PWA -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Gestione Operazioni Pro",
+      "description": "Sistema avanzato di gestione attività con Supabase e React",
+      "url": "https://la-tua-app.vercel.app",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web",
+      "permissions": "browser",
+      "author": {
+        "@type": "Organization",
+        "name": "Gestione Operazioni Pro"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR"
+      }
+    }
+    </script>
+    
+    <title>Gestione Operazioni Pro - Sistema di Gestione Attività</title>
+    
+    <!-- Google AdSense (verrà caricato dinamicamente dal componente) -->
+    <!-- <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-TUO_CLIENT_ID"></script> -->
+    
+    <style>
+      /* Loading styles per migliorare LCP */
+      #root {
+        min-height: 100vh;
+      }
+      
+      /* Smooth scrolling */
+      html {
+        scroll-behavior: smooth;
+      }
+      
+      /* Prevent flash of unstyled content */
+      .js-loading *,
+      .js-loading *:before,
+      .js-loading *:after {
+        animation-play-state: paused !important;
+      }
+      
+      /* Basic reset for critical elements */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+      
+      /* Focus styles per accessibilità */
+      *:focus {
+        outline: 2px solid #667eea;
+        outline-offset: 2px;
+      }
+      
+      /* Hide visually but keep for screen readers */
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <noscript>
+      <div style="padding: 2rem; text-align: center; background: #f8f9fa; color: #333; font-family: sans-serif;">
+        <h1>JavaScript Richiesto</h1>
+        <p>Per utilizzare Gestione Operazioni Pro, è necessario abilitare JavaScript nel tuo browser.</p>
+        <p>Questa applicazione React richiede JavaScript per funzionare correttamente.</p>
+        <div style="margin-top: 2rem;">
+          <a href="https://www.enable-javascript.com/it/" 
+             target="_blank" 
+             rel="noopener"
+             style="background: #667eea; color: white; padding: 1rem 2rem; text-decoration: none; border-radius: 8px;">
+            Scopri come abilitare JavaScript
+          </a>
+        </div>
+      </div>
+    </noscript>
+    
+    <!-- Loading indicator iniziale -->
+    <div id="initial-loading" style="
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-family: 'Segoe UI', sans-serif;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+    ">
+      <div style="text-align: center; animation: pulse 2s infinite;">
+        <div style="font-size: 4rem; margin-bottom: 1rem;">⚡</div>
+        <h1 style="margin-bottom: 0.5rem; font-size: 2rem;">Gestione Operazioni Pro</h1>
+        <p style="opacity: 0.8;">Caricamento applicazione...</p>
+      </div>
+    </div>
+
+    <div id="root"></div>
+    
+    <script>
+      // Gestione loading iniziale
+      window.addEventListener('load', function() {
+        const loadingElement = document.getElementById('initial-loading');
+        if (loadingElement) {
+          setTimeout(() => {
+            loadingElement.style.opacity = '0';
+            setTimeout(() => {
+              loadingElement.remove();
+              document.body.classList.remove('js-loading');
+            }, 500);
+          }, 1000);
+        }
+        
+        // Service Worker per PWA (opzionale)
+        if ('serviceWorker' in navigator) {
+          window.addEventListener('load', function() {
+            navigator.serviceWorker.register('/sw.js')
+              .then(function(registration) {
+                console.log('SW registered: ', registration);
+              })
+              .catch(function(registrationError) {
+                console.log('SW registration failed: ', registrationError);
+              });
+          });
+        }
+      });
+      
+      // Gestione errori non catturati
+      window.addEventListener('error', function(e) {
+        console.error('Errore non catturato:', e.error);
+      });
+      
+      // Gestione promise rejection non catturate
+      window.addEventListener('unhandledrejection', function(e) {
+        console.error('Promise rejection non catturata:', e.reason);
+        e.preventDefault();
+      });
+    </script>
+    
+    <!-- Analytics (opzionale) -->
+    <!--
+    <script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'GA_MEASUREMENT_ID');
+    </script>
+    -->
+  </body>
+</html>
