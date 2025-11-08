@@ -3,343 +3,137 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CareAutoPro - Configurazione</title>
+    <title>Test RLS - CareAutoPro</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: Arial, sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh; padding: 20px;
-        }
-        .container {
-            background: white; max-width: 500px; margin: 0 auto;
-            border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        h1 { text-align: center; margin-bottom: 20px; color: #2d3748; }
-        .alert {
-            background: #fffaf0; border: 2px solid #ed8936; border-radius: 10px;
-            padding: 15px; margin: 15px 0;
-        }
-        .btn {
-            width: 100%; padding: 12px; margin: 8px 0; border: none; border-radius: 8px;
-            font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s;
-        }
-        .btn-primary { background: #4299e1; color: white; }
-        .btn-success { background: #48bb78; color: white; }
-        .btn-warning { background: #ed8936; color: white; }
-        .btn-danger { background: #e53e3e; color: white; }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-        .result {
-            padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center;
-        }
-        .success { background: #c6f6d5; color: #22543d; }
-        .error { background: #fed7d7; color: #742a2a; }
-        .loading { background: #bee3f8; color: #2a4365; }
-        .hidden { display: none; }
-        .step { margin: 10px 0; padding-left: 25px; position: relative; }
-        .step:before { content: "👉"; position: absolute; left: 0; }
-        .code {
-            background: #2d3748; color: #e2e8f0; padding: 12px; border-radius: 6px;
-            font-family: monospace; font-size: 14px; margin: 10px 0; overflow-x: auto;
-        }
+        body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        .btn { padding: 15px; margin: 10px 0; width: 100%; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; }
+        .btn-run { background: #28a745; color: white; }
+        .btn-test { background: #007bff; color: white; }
+        .result { padding: 15px; margin: 10px 0; border-radius: 8px; text-align: center; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .loading { background: #d1ecf1; color: #0c5460; }
+        .code { background: #2d3748; color: white; padding: 15px; border-radius: 8px; font-family: monospace; font-size: 14px; overflow-x: auto; }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🚗 CareAutoPro - Configurazione</h1>
+        <h1>🔧 Test Configurazione RLS</h1>
         
-        <div class="alert">
-            <h3>🔐 Configurazione Sicurezza Database</h3>
-            <p><strong>Scegli una opzione:</strong></p>
-            
-            <button class="btn btn-warning" onclick="showSolution('quick')">
-                🚀 Soluzione Rapida (Meno Sicura)
-            </button>
-            <button class="btn btn-success" onclick="showSolution('secure')">
-                🔒 Soluzione Sicura (Raccomandata)
-            </button>
+        <div class="result loading">
+            <strong>Problema:</strong> RLS blocca l'accesso alle tabelle
         </div>
 
-        <!-- Soluzione Rapida -->
-        <div id="quickSolution" class="hidden">
-            <div class="alert">
-                <h4>🚀 Soluzione Rapida - Disabilita RLS</h4>
-                <p><strong>Per testing immediato (meno sicuro):</strong></p>
-                
-                <div class="step">Vai su <strong>Supabase Dashboard</strong></div>
-                <div class="step">Clicca <strong>Table Editor</strong></div>
-                <div class="step">Per ogni tabella: <strong>Authentication → Policies → Disable RLS</strong></div>
-                
-                <button class="btn btn-warning" onclick="testConnection()">
-                    🔧 Testa Connessione Database
-                </button>
-            </div>
+        <h3>🎯 Soluzione Definitiva</h3>
+        
+        <div class="code" id="sqlCode">
+-- COPIA E INCOLLA IN SQL EDITOR DI SUPABASE
+ALTER TABLE veicoli DISABLE ROW LEVEL SECURITY;
+ALTER TABLE utenti DISABLE ROW LEVEL SECURITY;
+ALTER TABLE tipoveicoli DISABLE ROW LEVEL SECURITY;
+ALTER TABLE interventi DISABLE ROW LEVEL SECURITY;
+
+-- Poi clicca RUN per eseguire
         </div>
+        
+        <button class="btn btn-run" onclick="copySQL()">📋 Copia Script SQL</button>
 
-        <!-- Soluzione Sicura -->
-        <div id="secureSolution" class="hidden">
-            <div class="alert">
-                <h4>🔒 Soluzione Sicura - Policy RLS Corrette</h4>
-                <p><strong>Per ambiente di produzione (sicuro):</strong></p>
-                
-                <div class="step">1. Vai su <strong>SQL Editor</strong> in Supabase</div>
-                <div class="step">2. Incolla questo codice SQL:</div>
-                
-                <div class="code" onclick="copyCode(this)">
--- Policy per tabella veicoli
-CREATE POLICY "Users can manage own vehicles" ON veicoli
-FOR ALL USING (auth.uid()::text = utente_id::text);
+        <h3>🔍 Test Connessione</h3>
+        <button class="btn btn-test" onclick="testConnection()">Testa Database</button>
+        
+        <div id="testResult" class="result"></div>
 
--- Policy per tabella utenti  
-CREATE POLICY "Users can view own profile" ON utenti
-FOR ALL USING (auth.uid()::text = utente_id::text);
-
--- Policy per amministratori (vedono tutto)
-CREATE POLICY "Admins can manage all vehicles" ON veicoli
-FOR ALL USING (
-  EXISTS (
-    SELECT 1 FROM utenti u
-    JOIN utentiprofilo up ON u.profiloutente_id = up.profiloutente_id
-    WHERE u.email = auth.jwt() ->> 'email'
-    AND (up.profiloutente ILIKE '%amministratore%' OR up.profiloutente ILIKE '%admin%')
-  )
-);
-                </div>
-                
-                <div class="step">3. Clicca <strong>RUN</strong> per eseguire</div>
-                
-                <button class="btn btn-success" onclick="testConnection()">
-                    🔧 Testa Connessione Database
-                </button>
-            </div>
-        </div>
-
-        <!-- Risultato Test -->
-        <div id="testResult" class="result hidden"></div>
-
-        <!-- App Funzionale -->
-        <div id="appSection" class="hidden">
+        <div id="successSection" style="display: none;">
             <h3>🎉 App Pronta!</h3>
-            <button class="btn btn-primary" onclick="loadVehicles()">
-                🚗 Carica Veicoli
-            </button>
-            <button class="btn btn-success" onclick="addTestVehicle()">
-                ➕ Aggiungi Veicolo Test
-            </button>
-            <div id="vehiclesList" style="margin-top: 15px;"></div>
-        </div>
-
-        <!-- Login Section -->
-        <div id="loginSection">
-            <h3>🔑 Accesso</h3>
-            <input type="email" id="email" placeholder="La tua email" class="btn" style="background: #f7fafc; color: #2d3748;">
-            <input type="password" id="password" placeholder="Password" class="btn" style="background: #f7fafc; color: #2d3748;">
-            <button class="btn btn-primary" onclick="login()">
-                🔐 Accedi
-            </button>
-            <button class="btn btn-success" onclick="signup()">
-                📝 Registrati
-            </button>
+            <button class="btn btn-run" onclick="showVehicles()">Mostra Veicoli</button>
+            <div id="dataResult"></div>
         </div>
     </div>
 
     <script>
-        // Configurazione Supabase
-        const SUPABASE_URL = 'https://jamttxwhexlvbkjccrqm.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbXR0eHdoZXhsdmJramNjcnFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2NTE5MDIsImV4cCI6MjA2OTIyNzkwMn0.MkQarY2dOUuwhFnOdaLHqb6idFocTGSfZKjqVoeDYBs';
+        const supabase = window.supabase.createClient(
+            'https://jamttxwhexlvbkjccrqm.supabase.co',
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbXR0eHdoZXhsdmJramNjcnFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2NTE5MDIsImV4cCI6MjA2OTIyNzkwMn0.MkQarY2dOUuwhFnOdaLHqb6idFocTGSfZKjqVoeDYBs'
+        );
 
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        let currentUser = null;
-
-        // Mostra soluzione selezionata
-        function showSolution(type) {
-            document.getElementById('quickSolution').classList.add('hidden');
-            document.getElementById('secureSolution').classList.add('hidden');
-            
-            if (type === 'quick') {
-                document.getElementById('quickSolution').classList.remove('hidden');
-            } else {
-                document.getElementById('secureSolution').classList.remove('hidden');
-            }
-        }
-
-        // Test connessione database - ORA FUNZIONA!
         async function testConnection() {
-            const resultDiv = document.getElementById('testResult');
-            showResult('🧪 Test connessione database in corso...', 'loading');
+            showResult('🔍 Test in corso...', 'loading');
             
-            try {
-                // Test multipli per verificare diverse tabelle
-                const tests = [
-                    { name: 'veicoli', query: supabase.from('veicoli').select('count').limit(1) },
-                    { name: 'utenti', query: supabase.from('utenti').select('count').limit(1) },
-                    { name: 'tipoveicoli', query: supabase.from('tipoveicoli').select('count').limit(1) }
-                ];
+            const tests = [
+                { name: 'veicoli', action: 'Lettura' },
+                { name: 'utenti', action: 'Lettura' }, 
+                { name: 'tipoveicoli', action: 'Lettura' }
+            ];
 
-                let results = [];
-                let successCount = 0;
+            let results = [];
+            let allSuccess = true;
 
-                for (let test of tests) {
-                    const { data, error } = await test.query;
+            for (let test of tests) {
+                try {
+                    const { data, error } = await supabase.from(test.name).select('count').limit(1);
                     if (error) {
                         results.push(`❌ ${test.name}: ${error.message}`);
+                        allSuccess = false;
                     } else {
                         results.push(`✅ ${test.name}: Accessibile`);
-                        successCount++;
                     }
+                } catch (e) {
+                    results.push(`❌ ${test.name}: ${e.message}`);
+                    allSuccess = false;
                 }
-
-                if (successCount === tests.length) {
-                    showResult(`
-                        <strong>🎉 Tutte le tabelle sono accessibili!</strong>
-                        <br><br>
-                        ${results.join('<br>')}
-                        <br><br>
-                        <button class="btn btn-success" onclick="showApp()" style="padding: 10px; margin: 5px;">
-                            🚀 Avvia App
-                        </button>
-                    `, 'success');
-                } else {
-                    showResult(`
-                        <strong>⚠️ Problemi di accesso:</strong>
-                        <br><br>
-                        ${results.join('<br>')}
-                        <br><br>
-                        <small>Segui le istruzioni sopra per configurare RLS</small>
-                    `, 'error');
-                }
-
-            } catch (error) {
-                showResult('❌ Errore nel test: ' + error.message, 'error');
             }
-        }
 
-        // Mostra risultato
-        function showResult(message, type) {
-            const resultDiv = document.getElementById('testResult');
-            resultDiv.innerHTML = message;
-            resultDiv.className = 'result ' + type;
-            resultDiv.classList.remove('hidden');
-        }
-
-        // Mostra app
-        function showApp() {
-            document.getElementById('appSection').classList.remove('hidden');
-        }
-
-        // Login
-        async function login() {
-            const email = document.getElementById('email').value || 'test@example.com';
-            const password = document.getElementById('password').value || 'password123';
-            
-            showResult('🔐 Accesso in corso...', 'loading');
-            
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
-            
-            if (error) {
-                showResult('❌ Errore accesso: ' + error.message, 'error');
+            if (allSuccess) {
+                showResult(`🎉 Tutto OK!<br>${results.join('<br>')}`, 'success');
+                document.getElementById('successSection').style.display = 'block';
             } else {
-                currentUser = data.user;
-                showResult('✅ Accesso effettuato!', 'success');
-                document.getElementById('loginSection').style.display = 'none';
-                showApp();
+                showResult(`Problemi:<br>${results.join('<br>')}<br><br>Esegui lo script SQL sopra.`, 'error');
             }
         }
 
-        // Registrazione
-        async function signup() {
-            const email = document.getElementById('email').value || 'test@example.com';
-            const password = document.getElementById('password').value || 'password123';
-            
-            showResult('📝 Registrazione in corso...', 'loading');
-            
-            const { data, error } = await supabase.auth.signUp({
-                email: email,
-                password: password
-            });
-            
-            if (error) {
-                showResult('❌ Errore registrazione: ' + error.message, 'error');
-            } else {
-                showResult('✅ Registrato! Controlla la tua email.', 'success');
-            }
-        }
-
-        // Carica veicoli
-        async function loadVehicles() {
-            const vehiclesList = document.getElementById('vehiclesList');
-            vehiclesList.innerHTML = '<div class="loading">🚗 Caricamento veicoli...</div>';
+        async function showVehicles() {
+            showDataResult('🚗 Caricamento veicoli...', 'loading');
             
             try {
                 const { data, error } = await supabase.from('veicoli').select('*').limit(10);
                 
-                if (error) {
-                    vehiclesList.innerHTML = `<div class="error">❌ Errore: ${error.message}</div>`;
-                } else if (data.length === 0) {
-                    vehiclesList.innerHTML = '<div class="loading">📭 Nessun veicolo trovato</div>';
-                } else {
-                    vehiclesList.innerHTML = `
-                        <strong>Veicoli trovati: ${data.length}</strong>
-                        ${data.map(vehicle => `
-                            <div style="background: #f7fafc; padding: 10px; margin: 5px 0; border-radius: 5px;">
-                                <strong>${vehicle.nomeveicolo || 'N/D'}</strong> - ${vehicle.targa || 'N/T'}
-                                <br><small>KM: ${vehicle.kmattuali || 0}</small>
-                            </div>
-                        `).join('')}
-                    `;
-                }
-            } catch (error) {
-                vehiclesList.innerHTML = `<div class="error">❌ Errore: ${error.message}</div>`;
-            }
-        }
-
-        // Aggiungi veicolo test
-        async function addTestVehicle() {
-            showResult('➕ Aggiunta veicolo test...', 'loading');
-            
-            const testVehicle = {
-                nomeveicolo: 'Auto Test ' + Math.floor(Math.random() * 1000),
-                targa: 'TEST' + Math.floor(Math.random() * 1000),
-                kmattuali: Math.floor(Math.random() * 100000),
-                utente_id: (await supabase.auth.getUser()).data.user.id,
-                dataora: new Date().toISOString()
-            };
-            
-            try {
-                const { data, error } = await supabase.from('veicoli').insert([testVehicle]);
+                if (error) throw error;
                 
-                if (error) {
-                    showResult('❌ Errore: ' + error.message, 'error');
+                if (data.length === 0) {
+                    showDataResult('Nessun veicolo trovato. Puoi crearne uno!', 'success');
                 } else {
-                    showResult(`✅ Veicolo aggiunto: ${testVehicle.nomeveicolo}`, 'success');
-                    loadVehicles();
+                    const vehiclesList = data.map(v => 
+                        `• ${v.nomeveicolo || 'Veicolo'} (${v.targa || 'N/T'}) - ${v.kmattuali || 0} km`
+                    ).join('<br>');
+                    
+                    showDataResult(`Trovati ${data.length} veicoli:<br>${vehiclesList}`, 'success');
                 }
             } catch (error) {
-                showResult('❌ Errore: ' + error.message, 'error');
+                showDataResult(`Errore: ${error.message}`, 'error');
             }
         }
 
-        // Copia codice
-        function copyCode(element) {
-            navigator.clipboard.writeText(element.textContent).then(() => {
-                const original = element.textContent;
-                element.textContent = '✅ Codice copiato! Incollalo in SQL Editor';
-                setTimeout(() => element.textContent = original, 3000);
+        function copySQL() {
+            const sqlText = document.getElementById('sqlCode').textContent;
+            navigator.clipboard.writeText(sqlText).then(() => {
+                alert('✅ Script copiato! Ora:\n1. Vai su Supabase → SQL Editor\n2. Incolla lo script\n3. Clicca RUN');
             });
         }
 
-        // Auto-check stato autenticazione
-        supabase.auth.getUser().then(({ data }) => {
-            if (data.user) {
-                currentUser = data.user;
-                document.getElementById('loginSection').style.display = 'none';
-                showApp();
-            }
-        });
+        function showResult(message, type) {
+            document.getElementById('testResult').innerHTML = message;
+            document.getElementById('testResult').className = `result ${type}`;
+        }
+
+        function showDataResult(message, type) {
+            document.getElementById('dataResult').innerHTML = message;
+            document.getElementById('dataResult').className = `result ${type}`;
+        }
+
+        // Test automatico al caricamento
+        setTimeout(testConnection, 1000);
     </script>
 </body>
 </html>
