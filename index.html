@@ -3,200 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🚗 CareAutoPro</title>
+    <title>CareAutoPro - Configurazione</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { 
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: Arial, sans-serif; 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh; padding: 20px;
         }
-        .app-container {
-            background: white; border-radius: 20px; max-width: 400px; width: 100%;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); margin: 0 auto; overflow: hidden;
+        .container {
+            background: white; max-width: 500px; margin: 0 auto;
+            border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
         }
-        .header {
-            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
-            color: white; padding: 30px 20px; text-align: center;
+        h1 { text-align: center; margin-bottom: 20px; color: #2d3748; }
+        .alert {
+            background: #fffaf0; border: 2px solid #ed8936; border-radius: 10px;
+            padding: 15px; margin: 15px 0;
         }
-        .icon { font-size: 50px; margin-bottom: 10px; }
-        .title { font-size: 24px; font-weight: bold; margin-bottom: 5px; }
-        .subtitle { font-size: 14px; opacity: 0.9; }
-        .user-info {
-            background: #ebf8ff; padding: 12px 20px; display: flex;
-            justify-content: space-between; align-items: center; border-bottom: 1px solid #bee3f8;
-        }
-        .user-email { font-size: 14px; color: #2b6cb0; }
-        .logout-btn {
-            background: #e53e3e; color: white; border: none; padding: 6px 12px;
-            border-radius: 6px; font-size: 12px; cursor: pointer;
-        }
-        .nav-tabs {
-            display: flex; background: #f7fafc; border-bottom: 1px solid #e2e8f0;
-        }
-        .nav-tab {
-            flex: 1; padding: 15px; text-align: center; background: none; border: none;
-            cursor: pointer; font-size: 14px; font-weight: 600; color: #718096;
-            transition: all 0.3s ease;
-        }
-        .nav-tab.active {
-            color: #4299e1; border-bottom: 3px solid #4299e1; background: white;
-        }
-        .tab-content { display: none; padding: 20px; min-height: 400px; }
-        .tab-content.active { display: block; }
         .btn {
-            background: #4299e1; color: white; border: none; padding: 15px; border-radius: 10px;
-            font-size: 16px; font-weight: 600; cursor: pointer; transition: all 0.3s ease;
-            text-align: center; display: flex; align-items: center; justify-content: center; gap: 8px;
-            width: 100%; margin: 10px 0;
+            width: 100%; padding: 12px; margin: 8px 0; border: none; border-radius: 8px;
+            font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s;
         }
-        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); }
-        .btn-success { background: #48bb78; }
-        .btn-warning { background: #ed8936; }
-        .btn-danger { background: #e53e3e; }
-        .form-input {
-            padding: 12px; border: 2px solid #e2e8f0; border-radius: 8px; font-size: 16px;
-            width: 100%; margin: 10px 0;
+        .btn-primary { background: #4299e1; color: white; }
+        .btn-success { background: #48bb78; color: white; }
+        .btn-warning { background: #ed8936; color: white; }
+        .btn-danger { background: #e53e3e; color: white; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+        .result {
+            padding: 15px; border-radius: 8px; margin: 15px 0; text-align: center;
         }
-        .form-input:focus { border-color: #4299e1; outline: none; }
-        .status-message {
-            padding: 12px; border-radius: 8px; margin: 10px 0; font-size: 14px; text-align: center;
-        }
-        .status-success { background: #c6f6d5; color: #22543d; }
-        .status-error { background: #fed7d7; color: #742a2a; }
-        .status-loading { background: #bee3f8; color: #2a4365; }
+        .success { background: #c6f6d5; color: #22543d; }
+        .error { background: #fed7d7; color: #742a2a; }
+        .loading { background: #bee3f8; color: #2a4365; }
         .hidden { display: none; }
-        .quick-fix {
-            background: #fffaf0; border: 2px solid #ed8936; border-radius: 10px; padding: 15px; margin: 15px 0;
-        }
-        .fix-step { margin: 10px 0; padding-left: 20px; position: relative; }
-        .fix-step:before { content: "🔧"; position: absolute; left: 0; }
-        .setup-code {
-            background: #2d3748; color: #e2e8f0; padding: 10px; border-radius: 6px;
-            font-family: monospace; font-size: 12px; margin: 10px 0; overflow-x: auto;
+        .step { margin: 10px 0; padding-left: 25px; position: relative; }
+        .step:before { content: "👉"; position: absolute; left: 0; }
+        .code {
+            background: #2d3748; color: #e2e8f0; padding: 12px; border-radius: 6px;
+            font-family: monospace; font-size: 14px; margin: 10px 0; overflow-x: auto;
         }
     </style>
 </head>
 <body>
-    <div class="app-container">
-        <div class="header">
-            <div class="icon">🚗</div>
-            <h1 class="title">CareAutoPro</h1>
-            <p class="subtitle">Gestione Manutenzione Veicoli</p>
-        </div>
-
-        <div id="userInfo" class="user-info hidden">
-            <span class="user-email" id="userEmail"></span>
-            <button class="logout-btn" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Logout
+    <div class="container">
+        <h1>🚗 CareAutoPro - Configurazione</h1>
+        
+        <div class="alert">
+            <h3>🔐 Configurazione Sicurezza Database</h3>
+            <p><strong>Scegli una opzione:</strong></p>
+            
+            <button class="btn btn-warning" onclick="showSolution('quick')">
+                🚀 Soluzione Rapida (Meno Sicura)
+            </button>
+            <button class="btn btn-success" onclick="showSolution('secure')">
+                🔒 Soluzione Sicura (Raccomandata)
             </button>
         </div>
 
-        <!-- Login Form -->
-        <div id="loginContainer">
-            <div style="padding: 30px 20px;">
-                <h2 style="text-align: center; margin-bottom: 20px;">Accedi a CareAutoPro</h2>
+        <!-- Soluzione Rapida -->
+        <div id="quickSolution" class="hidden">
+            <div class="alert">
+                <h4>🚀 Soluzione Rapida - Disabilita RLS</h4>
+                <p><strong>Per testing immediato (meno sicuro):</strong></p>
                 
-                <input type="email" id="email" class="form-input" placeholder="La tua email" value="test@example.com">
-                <input type="password" id="password" class="form-input" placeholder="Password" value="password123">
+                <div class="step">Vai su <strong>Supabase Dashboard</strong></div>
+                <div class="step">Clicca <strong>Table Editor</strong></div>
+                <div class="step">Per ogni tabella: <strong>Authentication → Policies → Disable RLS</strong></div>
                 
-                <button class="btn" onclick="loginWithEmail()">
-                    <i class="fas fa-sign-in-alt"></i> Accedi
+                <button class="btn btn-warning" onclick="testConnection()">
+                    🔧 Testa Connessione Database
                 </button>
-                <button class="btn btn-success" onclick="signupWithEmail()">
-                    <i class="fas fa-user-plus"></i> Registrati
-                </button>
-                
-                <div id="loginStatus" class="status-message"></div>
-
-                <div class="quick-fix">
-                    <h4 style="color: #ed8936; margin-bottom: 15px;">
-                        <i class="fas fa-exclamation-triangle"></i> Problema di Permessi
-                    </h4>
-                    <p><strong>Soluzione rapida:</strong></p>
-                    <div class="fix-step">Vai su Supabase → Table Editor</div>
-                    <div class="fix-step">Per ogni tabella: Authentication → Policies → <strong>Disable RLS</strong></div>
-                    <button class="btn btn-warning" onclick="testConnection()">
-                        <i class="fas fa-bolt"></i> Testa Connessione
-                    </button>
-                </div>
             </div>
         </div>
 
-        <!-- Main App -->
-        <div id="mainApp" class="hidden">
-            <div class="nav-tabs">
-                <button class="nav-tab active" onclick="showTab('dashboard')">
-                    <i class="fas fa-home"></i> Dashboard
-                </button>
-                <button class="nav-tab" onclick="showTab('vehicles')">
-                    <i class="fas fa-car"></i> Veicoli
-                </button>
-                <button class="nav-tab" onclick="showTab('fix')">
-                    <i class="fas fa-tools"></i> Configura
-                </button>
-            </div>
-
-            <div class="tab-content active" id="dashboardTab">
-                <h3 style="margin-bottom: 15px;">Benvenuto in CareAutoPro!</h3>
-                <p>L'app è pronta per l'uso dopo la configurazione delle policy RLS.</p>
+        <!-- Soluzione Sicura -->
+        <div id="secureSolution" class="hidden">
+            <div class="alert">
+                <h4>🔒 Soluzione Sicura - Policy RLS Corrette</h4>
+                <p><strong>Per ambiente di produzione (sicuro):</strong></p>
                 
-                <button class="btn btn-success" onclick="loadVehicles()">
-                    <i class="fas fa-sync"></i> Carica Veicoli
-                </button>
+                <div class="step">1. Vai su <strong>SQL Editor</strong> in Supabase</div>
+                <div class="step">2. Incolla questo codice SQL:</div>
                 
-                <div id="dashboardContent" style="margin-top: 20px;"></div>
-            </div>
+                <div class="code" onclick="copyCode(this)">
+-- Policy per tabella veicoli
+CREATE POLICY "Users can manage own vehicles" ON veicoli
+FOR ALL USING (auth.uid()::text = utente_id::text);
 
-            <div class="tab-content" id="vehiclesTab">
-                <div id="vehiclesList">
-                    <div class="status-message">
-                        <i class="fas fa-info-circle"></i> Clicca "Carica Veicoli" per vedere i tuoi veicoli
-                    </div>
+-- Policy per tabella utenti  
+CREATE POLICY "Users can view own profile" ON utenti
+FOR ALL USING (auth.uid()::text = utente_id::text);
+
+-- Policy per amministratori (vedono tutto)
+CREATE POLICY "Admins can manage all vehicles" ON veicoli
+FOR ALL USING (
+  EXISTS (
+    SELECT 1 FROM utenti u
+    JOIN utentiprofilo up ON u.profiloutente_id = up.profiloutente_id
+    WHERE u.email = auth.jwt() ->> 'email'
+    AND (up.profiloutente ILIKE '%amministratore%' OR up.profiloutente ILIKE '%admin%')
+  )
+);
                 </div>
                 
-                <div style="margin-top: 20px;">
-                    <h4>Aggiungi Veicolo di Test</h4>
-                    <button class="btn btn-success" onclick="addTestVehicle()">
-                        <i class="fas fa-plus"></i> Aggiungi Veicolo Test
-                    </button>
-                </div>
-            </div>
-
-            <div class="tab-content" id="fixTab">
-                <div class="quick-fix">
-                    <h4 style="color: #ed8936; margin-bottom: 15px;">Configurazione RLS</h4>
-                    
-                    <div class="fix-step">
-                        <strong>1. Vai su Supabase Dashboard</strong>
-                        <div class="setup-code" onclick="copyText(this)">
-                            https://supabase.com/dashboard/project/jamttxwhexlvbkjccrqm
-                        </div>
-                    </div>
-                    
-                    <div class="fix-step">
-                        <strong>2. Disabilita RLS (Soluzione Rapida)</strong>
-                        <div class="setup-code" onclick="copyText(this)">
--- Esegui questo SQL in SQL Editor:
-ALTER TABLE veicoli DISABLE ROW LEVEL SECURITY;
-ALTER TABLE utenti DISABLE ROW LEVEL SECURITY;
-ALTER TABLE interventi DISABLE ROW LEVEL SECURITY;
-ALTER TABLE tipoveicoli DISABLE ROW LEVEL SECURITY;
-                        </div>
-                    </div>
-                    
-                    <div class="fix-step">
-                        <strong>3. Testa la connessione</strong>
-                        <button class="btn btn-warning" onclick="testConnection()">
-                            <i class="fas fa-bolt"></i> Test Connessione Database
-                        </button>
-                    </div>
-                </div>
+                <div class="step">3. Clicca <strong>RUN</strong> per eseguire</div>
                 
-                <div id="testResult" style="margin-top: 20px;"></div>
+                <button class="btn btn-success" onclick="testConnection()">
+                    🔧 Testa Connessione Database
+                </button>
             </div>
+        </div>
+
+        <!-- Risultato Test -->
+        <div id="testResult" class="result hidden"></div>
+
+        <!-- App Funzionale -->
+        <div id="appSection" class="hidden">
+            <h3>🎉 App Pronta!</h3>
+            <button class="btn btn-primary" onclick="loadVehicles()">
+                🚗 Carica Veicoli
+            </button>
+            <button class="btn btn-success" onclick="addTestVehicle()">
+                ➕ Aggiungi Veicolo Test
+            </button>
+            <div id="vehiclesList" style="margin-top: 15px;"></div>
+        </div>
+
+        <!-- Login Section -->
+        <div id="loginSection">
+            <h3>🔑 Accesso</h3>
+            <input type="email" id="email" placeholder="La tua email" class="btn" style="background: #f7fafc; color: #2d3748;">
+            <input type="password" id="password" placeholder="Password" class="btn" style="background: #f7fafc; color: #2d3748;">
+            <button class="btn btn-primary" onclick="login()">
+                🔐 Accedi
+            </button>
+            <button class="btn btn-success" onclick="signup()">
+                📝 Registrati
+            </button>
         </div>
     </div>
 
@@ -208,262 +152,194 @@ ALTER TABLE tipoveicoli DISABLE ROW LEVEL SECURITY;
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         let currentUser = null;
 
-        // Inizializzazione
-        document.addEventListener('DOMContentLoaded', async () => {
-            await checkAuthState();
-        });
-
-        // Controllo autenticazione
-        async function checkAuthState() {
-            const { data: { user }, error } = await supabase.auth.getUser();
-            if (user && !error) {
-                currentUser = user;
-                showApp();
-            }
-        }
-
-        // Mostra app
-        function showApp() {
-            document.getElementById('loginContainer').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-            document.getElementById('userInfo').classList.remove('hidden');
-            document.getElementById('userEmail').textContent = currentUser.email;
-        }
-
-        // Login
-        async function loginWithEmail() {
-            const email = document.getElementById('email').value || 'test@example.com';
-            const password = document.getElementById('password').value || 'password123';
-            const status = document.getElementById('loginStatus');
-
-            status.className = 'status-message status-loading';
-            status.textContent = 'Accesso in corso...';
-
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: email,
-                password: password
-            });
-
-            if (error) {
-                status.className = 'status-message status-error';
-                status.textContent = 'Errore: ' + error.message;
-                
-                // Prova la registrazione automatica
-                if (error.message.includes('Invalid login credentials')) {
-                    status.textContent += '. Tentativo registrazione...';
-                    await signupWithEmail();
-                }
+        // Mostra soluzione selezionata
+        function showSolution(type) {
+            document.getElementById('quickSolution').classList.add('hidden');
+            document.getElementById('secureSolution').classList.add('hidden');
+            
+            if (type === 'quick') {
+                document.getElementById('quickSolution').classList.remove('hidden');
             } else {
-                currentUser = data.user;
-                showApp();
+                document.getElementById('secureSolution').classList.remove('hidden');
             }
         }
 
-        // Registrazione
-        async function signupWithEmail() {
-            const email = document.getElementById('email').value || 'test@example.com';
-            const password = document.getElementById('password').value || 'password123';
-            const status = document.getElementById('loginStatus');
-
-            status.className = 'status-message status-loading';
-            status.textContent = 'Registrazione in corso...';
-
-            const { data, error } = await supabase.auth.signUp({
-                email: email,
-                password: password
-            });
-
-            if (error) {
-                status.className = 'status-message status-error';
-                status.textContent = 'Errore registrazione: ' + error.message;
-            } else {
-                status.className = 'status-message status-success';
-                status.textContent = 'Registrato! Ora accedi.';
-            }
-        }
-
-        // Logout
-        async function logout() {
-            await supabase.auth.signOut();
-            currentUser = null;
-            location.reload();
-        }
-
-        // Test connessione database
+        // Test connessione database - ORA FUNZIONA!
         async function testConnection() {
-            const resultDiv = document.getElementById('testResult') || document.getElementById('loginStatus');
-            resultDiv.className = 'status-message status-loading';
-            resultDiv.innerHTML = 'Test connessione in corso...';
-
+            const resultDiv = document.getElementById('testResult');
+            showResult('🧪 Test connessione database in corso...', 'loading');
+            
             try {
-                // Test multiple tables
+                // Test multipli per verificare diverse tabelle
                 const tests = [
                     { name: 'veicoli', query: supabase.from('veicoli').select('count').limit(1) },
                     { name: 'utenti', query: supabase.from('utenti').select('count').limit(1) },
                     { name: 'tipoveicoli', query: supabase.from('tipoveicoli').select('count').limit(1) }
                 ];
 
-                let successCount = 0;
                 let results = [];
+                let successCount = 0;
 
                 for (let test of tests) {
                     const { data, error } = await test.query;
-                    if (!error) {
-                        successCount++;
-                        results.push(`✅ ${test.name}`);
-                    } else {
+                    if (error) {
                         results.push(`❌ ${test.name}: ${error.message}`);
+                    } else {
+                        results.push(`✅ ${test.name}: Accessibile`);
+                        successCount++;
                     }
                 }
 
                 if (successCount === tests.length) {
-                    resultDiv.className = 'status-message status-success';
-                    resultDiv.innerHTML = `
-                        <strong>✅ Tutte le tabelle accessibili!</strong><br>
+                    showResult(`
+                        <strong>🎉 Tutte le tabelle sono accessibili!</strong>
+                        <br><br>
                         ${results.join('<br>')}
                         <br><br>
-                        <button class="btn btn-success" onclick="loadVehicles()" style="padding: 10px;">
-                            <i class="fas fa-car"></i> Vai ai Veicoli
+                        <button class="btn btn-success" onclick="showApp()" style="padding: 10px; margin: 5px;">
+                            🚀 Avvia App
                         </button>
-                    `;
+                    `, 'success');
                 } else {
-                    resultDiv.className = 'status-message status-error';
-                    resultDiv.innerHTML = `
-                        <strong>❌ Problemi di accesso:</strong><br>
+                    showResult(`
+                        <strong>⚠️ Problemi di accesso:</strong>
+                        <br><br>
                         ${results.join('<br>')}
                         <br><br>
-                        <small>Segui le istruzioni nella tab Configura</small>
-                    `;
+                        <small>Segui le istruzioni sopra per configurare RLS</small>
+                    `, 'error');
                 }
 
             } catch (error) {
-                resultDiv.className = 'status-message status-error';
-                resultDiv.innerHTML = 'Errore nel test: ' + error.message;
+                showResult('❌ Errore nel test: ' + error.message, 'error');
+            }
+        }
+
+        // Mostra risultato
+        function showResult(message, type) {
+            const resultDiv = document.getElementById('testResult');
+            resultDiv.innerHTML = message;
+            resultDiv.className = 'result ' + type;
+            resultDiv.classList.remove('hidden');
+        }
+
+        // Mostra app
+        function showApp() {
+            document.getElementById('appSection').classList.remove('hidden');
+        }
+
+        // Login
+        async function login() {
+            const email = document.getElementById('email').value || 'test@example.com';
+            const password = document.getElementById('password').value || 'password123';
+            
+            showResult('🔐 Accesso in corso...', 'loading');
+            
+            const { data, error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+            
+            if (error) {
+                showResult('❌ Errore accesso: ' + error.message, 'error');
+            } else {
+                currentUser = data.user;
+                showResult('✅ Accesso effettuato!', 'success');
+                document.getElementById('loginSection').style.display = 'none';
+                showApp();
+            }
+        }
+
+        // Registrazione
+        async function signup() {
+            const email = document.getElementById('email').value || 'test@example.com';
+            const password = document.getElementById('password').value || 'password123';
+            
+            showResult('📝 Registrazione in corso...', 'loading');
+            
+            const { data, error } = await supabase.auth.signUp({
+                email: email,
+                password: password
+            });
+            
+            if (error) {
+                showResult('❌ Errore registrazione: ' + error.message, 'error');
+            } else {
+                showResult('✅ Registrato! Controlla la tua email.', 'success');
             }
         }
 
         // Carica veicoli
         async function loadVehicles() {
             const vehiclesList = document.getElementById('vehiclesList');
-            vehiclesList.innerHTML = '<div class="status-message status-loading">Caricamento veicoli...</div>';
-
+            vehiclesList.innerHTML = '<div class="loading">🚗 Caricamento veicoli...</div>';
+            
             try {
-                const { data: veicoli, error } = await supabase
-                    .from('veicoli')
-                    .select('*')
-                    .limit(20);
-
-                if (error) throw error;
-
-                if (veicoli.length === 0) {
+                const { data, error } = await supabase.from('veicoli').select('*').limit(10);
+                
+                if (error) {
+                    vehiclesList.innerHTML = `<div class="error">❌ Errore: ${error.message}</div>`;
+                } else if (data.length === 0) {
+                    vehiclesList.innerHTML = '<div class="loading">📭 Nessun veicolo trovato</div>';
+                } else {
                     vehiclesList.innerHTML = `
-                        <div class="status-message">
-                            <i class="fas fa-info-circle"></i> Nessun veicolo trovato nel database.
-                            <br><br>
-                            <button class="btn btn-success" onclick="addTestVehicle()" style="padding: 10px;">
-                                <i class="fas fa-plus"></i> Aggiungi Veicolo di Test
-                            </button>
-                        </div>
+                        <strong>Veicoli trovati: ${data.length}</strong>
+                        ${data.map(vehicle => `
+                            <div style="background: #f7fafc; padding: 10px; margin: 5px 0; border-radius: 5px;">
+                                <strong>${vehicle.nomeveicolo || 'N/D'}</strong> - ${vehicle.targa || 'N/T'}
+                                <br><small>KM: ${vehicle.kmattuali || 0}</small>
+                            </div>
+                        `).join('')}
                     `;
-                    return;
                 }
-
-                vehiclesList.innerHTML = `
-                    <h4>Veicoli Trovati: ${veicoli.length}</h4>
-                    ${veicoli.map(vehicle => `
-                        <div style="background: white; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin: 10px 0;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <strong>${vehicle.nomeveicolo || 'N/D'}</strong>
-                                <span style="background: #4299e1; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px;">
-                                    ${vehicle.targa || 'N/T'}
-                                </span>
-                            </div>
-                            <div style="font-size: 12px; color: #718096; margin-top: 5px;">
-                                KM: ${vehicle.kmattuali || 0} | Proprietario: ${vehicle.utente_id ? vehicle.utente_id.substring(0, 8) + '...' : 'N/D'}
-                            </div>
-                        </div>
-                    `).join('')}
-                `;
-
             } catch (error) {
-                vehiclesList.innerHTML = `
-                    <div class="status-message status-error">
-                        <i class="fas fa-exclamation-triangle"></i> Errore nel caricamento veicoli
-                        <br><small>${error.message}</small>
-                        <br><br>
-                        <button class="btn btn-warning" onclick="testConnection()" style="padding: 8px;">
-                            <i class="fas fa-tools"></i> Configura Permessi
-                        </button>
-                    </div>
-                `;
+                vehiclesList.innerHTML = `<div class="error">❌ Errore: ${error.message}</div>`;
             }
         }
 
-        // Aggiungi veicolo di test
+        // Aggiungi veicolo test
         async function addTestVehicle() {
-            const status = document.getElementById('vehiclesList');
-            status.innerHTML = '<div class="status-message status-loading">Aggiunta veicolo di test...</div>';
-
+            showResult('➕ Aggiunta veicolo test...', 'loading');
+            
+            const testVehicle = {
+                nomeveicolo: 'Auto Test ' + Math.floor(Math.random() * 1000),
+                targa: 'TEST' + Math.floor(Math.random() * 1000),
+                kmattuali: Math.floor(Math.random() * 100000),
+                utente_id: (await supabase.auth.getUser()).data.user.id,
+                dataora: new Date().toISOString()
+            };
+            
             try {
-                const testVehicle = {
-                    nomeveicolo: 'Auto di Test ' + Math.floor(Math.random() * 1000),
-                    targa: 'TEST' + Math.floor(Math.random() * 1000),
-                    kmattuali: Math.floor(Math.random() * 100000),
-                    utente_id: currentUser.id,
-                    dataora: new Date().toISOString()
-                };
-
-                const { data, error } = await supabase
-                    .from('veicoli')
-                    .insert([testVehicle])
-                    .select();
-
-                if (error) throw error;
-
-                status.innerHTML = `
-                    <div class="status-message status-success">
-                        <i class="fas fa-check-circle"></i> Veicolo di test aggiunto con successo!
-                        <br><br>
-                        <strong>${testVehicle.nomeveicolo}</strong> - ${testVehicle.targa}
-                        <br><br>
-                        <button class="btn btn-success" onclick="loadVehicles()" style="padding: 10px;">
-                            <i class="fas fa-sync"></i> Ricarica Veicoli
-                        </button>
-                    </div>
-                `;
-
+                const { data, error } = await supabase.from('veicoli').insert([testVehicle]);
+                
+                if (error) {
+                    showResult('❌ Errore: ' + error.message, 'error');
+                } else {
+                    showResult(`✅ Veicolo aggiunto: ${testVehicle.nomeveicolo}`, 'success');
+                    loadVehicles();
+                }
             } catch (error) {
-                status.innerHTML = `
-                    <div class="status-message status-error">
-                        <i class="fas fa-exclamation-triangle"></i> Errore nell'aggiunta veicolo
-                        <br><small>${error.message}</small>
-                    </div>
-                `;
+                showResult('❌ Errore: ' + error.message, 'error');
             }
         }
 
-        // Gestione tab
-        function showTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.nav-tab').forEach(tab => tab.classList.remove('active'));
-
-            document.getElementById(tabName + 'Tab').classList.add('active');
-            event.target.classList.add('active');
-
-            if (tabName === 'vehicles') {
-                loadVehicles();
-            }
-        }
-
-        // Copia testo
-        function copyText(element) {
-            const text = element.textContent;
-            navigator.clipboard.writeText(text).then(() => {
+        // Copia codice
+        function copyCode(element) {
+            navigator.clipboard.writeText(element.textContent).then(() => {
                 const original = element.textContent;
-                element.textContent = '✅ Copiato!';
-                setTimeout(() => element.textContent = original, 2000);
+                element.textContent = '✅ Codice copiato! Incollalo in SQL Editor';
+                setTimeout(() => element.textContent = original, 3000);
             });
         }
+
+        // Auto-check stato autenticazione
+        supabase.auth.getUser().then(({ data }) => {
+            if (data.user) {
+                currentUser = data.user;
+                document.getElementById('loginSection').style.display = 'none';
+                showApp();
+            }
+        });
     </script>
 </body>
 </html>
