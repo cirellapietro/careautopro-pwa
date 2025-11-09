@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
+import { supabase } from './lib/supabase'
 import OperationsList from './components/OperationsList'
 import './App.css'
 
 function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine)
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true)
@@ -13,25 +14,16 @@ function App() {
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOffline)
 
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 1000)
-
     return () => {
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
-      clearTimeout(timer)
     }
   }, [])
 
-  if (isLoading) {
-    return (
-      <div className="app-loading">
-        <div className="loading-spinner">⚡</div>
-        <h1>CareAutoPro</h1>
-        <p>Caricamento...</p>
-      </div>
-    )
+  // BYPASS COMPLETO - nessun login richiesto
+  const mockUser = {
+    id: 'bypass-user',
+    email: 'user@careautopro.com'
   }
 
   return (
@@ -52,11 +44,11 @@ function App() {
       </header>
 
       <main className="app-main">
-        <OperationsList />
+        <OperationsList user={mockUser} />
       </main>
 
       <footer className="app-footer">
-        <p>© 2024 CareAutoPro - Sistema di gestione</p>
+        <p>© 2024 CareAutoPro - Accesso diretto</p>
       </footer>
     </div>
   )
