@@ -54,7 +54,7 @@ function App() {
       })
       
       if (error) throw error
-      alert('Controlla la tua email per confermare la registrazione!')
+      alert('🎉 Controlla la tua email per confermare la registrazione!')
     } catch (error) {
       setAuthError(error.message)
     }
@@ -69,7 +69,8 @@ function App() {
     return (
       <div className="app-loading">
         <div className="loading-spinner">⚡</div>
-        <div>Caricamento...</div>
+        <h1>CareAutoPro</h1>
+        <p>Caricamento...</p>
       </div>
     )
   }
