@@ -140,6 +140,6 @@ function App() {
   }
 
   return <OperationsList user={session.user} onLogout={handleLogout} />
-}
+} 
 
 export default App
