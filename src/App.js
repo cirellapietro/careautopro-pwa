@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import OperationsList from './components/OperationsList'
+import OperationsList from './components/OperationsList.js'
 import './App.css'
 
 function App() {
@@ -13,7 +13,6 @@ function App() {
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOffline)
 
-    // Simula caricamento iniziale
     const timer = setTimeout(() => {
       setIsLoading(false)
     }, 1000)
