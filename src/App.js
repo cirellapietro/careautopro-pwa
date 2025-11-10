@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react'
-import { supabase } from './lib/supabase'
 import OperationsList from './components/OperationsList'
 import './App.css'
 
 function App() {
   const [isOnline, setIsOnline] = useState(navigator.onLine)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const handleOnline = () => setIsOnline(true)
@@ -14,16 +13,26 @@ function App() {
     window.addEventListener('online', handleOnline)
     window.addEventListener('offline', handleOffline)
 
+    // Simula caricamento iniziale
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+    }, 1000)
+
     return () => {
       window.removeEventListener('online', handleOnline)
       window.removeEventListener('offline', handleOffline)
+      clearTimeout(timer)
     }
   }, [])
 
-  // BYPASS COMPLETO - nessun login richiesto
-  const mockUser = {
-    id: 'bypass-user',
-    email: 'user@careautopro.com'
+  if (isLoading) {
+    return (
+      <div className="app-loading">
+        <div className="loading-spinner">⚡</div>
+        <h1>CareAutoPro</h1>
+        <p>Caricamento applicazione...</p>
+      </div>
+    )
   }
 
   return (
@@ -32,7 +41,7 @@ function App() {
         <div className="header-content">
           <div className="header-title">
             <h1>🚗 CareAutoPro</h1>
-            <p>Gestione operazioni veicoli</p>
+            <p>Sistema di gestione operazioni veicoli</p>
           </div>
           <div className="header-status">
             <div className={`status-indicator ${isOnline ? 'online' : 'offline'}`}>
@@ -44,11 +53,11 @@ function App() {
       </header>
 
       <main className="app-main">
-        <OperationsList user={mockUser} />
+        <OperationsList />
       </main>
 
       <footer className="app-footer">
-        <p>© 2024 CareAutoPro - Accesso diretto</p>
+        <p>© 2024 CareAutoPro - Tutti i diritti riservati</p>
       </footer>
     </div>
   )
