@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { useSupabase } from '../hooks/useSupabase'
+import { useSupabase } from '../hooks/useSupabase.js'
 
 const OperationsList = () => {
   const { 
