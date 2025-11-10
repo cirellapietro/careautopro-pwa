@@ -1,66 +1,135 @@
-import React, { useState, useEffect } from 'react'
-import OperationsList from './components/OperationsList'
-import './App.css'
+import React, { useState } from 'react'
+import { useSupabase } from '../hooks/useSupabase'
 
-function App() {
-  const [isOnline, setIsOnline] = useState(navigator.onLine)
-  const [isLoading, setIsLoading] = useState(true)
+const OperationsList = () => {
+  const { 
+    data: operations, 
+    loading, 
+    error, 
+    insertData, 
+    deleteData 
+  } = useSupabase('operations', {
+    orderBy: 'created_at',
+    ascending: false
+  })
 
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true)
-    const handleOffline = () => setIsOnline(false)
+  const [newOperation, setNewOperation] = useState({
+    nome: '',
+    descrizione: '',
+    stato: 'pending',
+    priorita: 'medium'
+  })
 
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
-
-    // Simula caricamento iniziale
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 1000)
-
-    return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-      clearTimeout(timer)
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    if (!newOperation.nome.trim()) {
+      alert('Inserisci un nome per l\'operazione!')
+      return
     }
-  }, [])
 
-  if (isLoading) {
+    const result = await insertData(newOperation)
+    if (result) {
+      setNewOperation({ 
+        nome: '', 
+        descrizione: '', 
+        stato: 'pending',
+        priorita: 'medium'
+      })
+      alert('✅ Operazione aggiunta con successo!')
+    }
+  }
+
+  const handleDelete = async (id, nome) => {
+    if (window.confirm(`Sei sicuro di voler eliminare l'operazione "${nome}"?`)) {
+      await deleteData(id)
+    }
+  }
+
+  if (loading) {
     return (
-      <div className="app-loading">
-        <div className="loading-spinner">⚡</div>
-        <h1>CareAutoPro</h1>
-        <p>Caricamento applicazione...</p>
+      <div className="loading-container">
+        <div className="loading-spinner">⏳</div>
+        <div>Caricamento operazioni...</div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="error-container">
+        <div className="error-message">
+          <h3>Errore di caricamento</h3>
+          <p>{error}</p>
+          <button onClick={() => window.location.reload()} className="btn-retry">
+            🔄 Ricarica la pagina
+          </button>
+        </div>
       </div>
     )
   }
 
   return (
-    <div className="App">
-      <header className="app-header">
-        <div className="header-content">
-          <div className="header-title">
-            <h1>🚗 CareAutoPro</h1>
-            <p>Sistema di gestione operazioni veicoli</p>
-          </div>
-          <div className="header-status">
-            <div className={`status-indicator ${isOnline ? 'online' : 'offline'}`}>
-              <span className="status-dot"></span>
-              {isOnline ? 'Online' : 'Offline'}
-            </div>
-          </div>
+    <div className="operations-container">
+      <div className="operations-header">
+        <h2>📋 Gestione Operazioni</h2>
+        <p>Gestisci tutte le operazioni dei veicoli</p>
+      </div>
+
+      <form onSubmit={handleSubmit} className="operation-form">
+        <h3>➕ Nuova Operazione</h3>
+        <input
+          type="text"
+          placeholder="Nome operazione *"
+          value={newOperation.nome}
+          onChange={(e) => setNewOperation({...newOperation, nome: e.target.value})}
+          required
+        />
+        <textarea
+          placeholder="Descrizione"
+          value={newOperation.descrizione}
+          onChange={(e) => setNewOperation({...newOperation, descrizione: e.target.value})}
+          rows="3"
+        />
+        <div className="form-actions">
+          <button type="submit" className="btn-primary">
+            ➕ Aggiungi Operazione
+          </button>
         </div>
-      </header>
+      </form>
 
-      <main className="app-main">
-        <OperationsList />
-      </main>
-
-      <footer className="app-footer">
-        <p>© 2024 CareAutoPro - Tutti i diritti riservati</p>
-      </footer>
+      <div className="operations-list">
+        <h3>Operazioni ({operations.length})</h3>
+        {operations.length === 0 ? (
+          <div className="empty-state">
+            <p>Nessuna operazione presente. Creane una nuova!</p>
+          </div>
+        ) : (
+          operations.map((op) => (
+            <div key={op.id} className="operation-card">
+              <div className="operation-info">
+                <h4>{op.nome}</h4>
+                {op.descrizione && <p>{op.descrizione}</p>}
+                <div className="operation-meta">
+                  <span className={`status status-${op.stato}`}>
+                    {op.stato}
+                  </span>
+                  <span className={`priority priority-${op.priorita}`}>
+                    {op.priorita}
+                  </span>
+                </div>
+              </div>
+              <button 
+                onClick={() => handleDelete(op.id, op.nome)}
+                className="btn-delete"
+              >
+                🗑️ Elimina
+              </button>
+            </div>
+          ))
+        )}
+      </div>
     </div>
   )
 }
 
-export default App
+export default OperationsList
