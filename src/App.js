@@ -1,65 +1,24 @@
-import React, { useState, useEffect } from 'react'
-import OperationsList from './components/OperationsList.js'
-import './App.css'
+import React from 'react';
 
 function App() {
-  const [isOnline, setIsOnline] = useState(navigator.onLine)
-  const [isLoading, setIsLoading] = useState(true)
-
-  useEffect(() => {
-    const handleOnline = () => setIsOnline(true)
-    const handleOffline = () => setIsOnline(false)
-
-    window.addEventListener('online', handleOnline)
-    window.addEventListener('offline', handleOffline)
-
-    const timer = setTimeout(() => {
-      setIsLoading(false)
-    }, 1000)
-
-    return () => {
-      window.removeEventListener('online', handleOnline)
-      window.removeEventListener('offline', handleOffline)
-      clearTimeout(timer)
-    }
-  }, [])
-
-  if (isLoading) {
-    return (
-      <div className="app-loading">
-        <div className="loading-spinner">⚡</div>
-        <h1>CareAutoPro</h1>
-        <p>Caricamento applicazione...</p>
-      </div>
-    )
-  }
-
   return (
-    <div className="App">
-      <header className="app-header">
-        <div className="header-content">
-          <div className="header-title">
-            <h1>🚗 CareAutoPro</h1>
-            <p>Sistema di gestione operazioni veicoli</p>
-          </div>
-          <div className="header-status">
-            <div className={`status-indicator ${isOnline ? 'online' : 'offline'}`}>
-              <span className="status-dot"></span>
-              {isOnline ? 'Online' : 'Offline'}
-            </div>
-          </div>
-        </div>
-      </header>
-
-      <main className="app-main">
-        <OperationsList />
-      </main>
-
-      <footer className="app-footer">
-        <p>© 2024 CareAutoPro - Tutti i diritti riservati</p>
-      </footer>
+    <div style={styles.container}>
+      <h1>CareAuto Pro</h1>
+      <p>Applicazione caricata correttamente!</p>
+      <button onClick={() => alert('Funziona!')}>
+        Test Button
+      </button>
     </div>
-  )
+  );
 }
 
-export default App
+const styles = {
+  container: {
+    padding: 20,
+    textAlign: 'center',
+    backgroundColor: '#f5f5f5',
+    minHeight: '100vh'
+  }
+};
+
+export default App;
