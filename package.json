@@ -1,14 +1,35 @@
 {
+  "name": "careautopro-v2",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "react-scripts start",
+    "start": "react-scripts start", 
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
   "dependencies": {
-    "react-native-web": "^0.19.9",
+    "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    // ... le tue dipendenze esistenti
+    "react-scripts": "5.0.1",
+    "@supabase/supabase-js": "^2.38.0",
+    "web-vitals": "^2.1.4",
+    "react-native-web": "^0.19.9"
   },
   "devDependencies": {
-    "@expo/webpack-config": "^0.17.4"
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
   },
-  "scripts": {
-    "web": "expo start --web",
-    "build": "expo build:web"
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
