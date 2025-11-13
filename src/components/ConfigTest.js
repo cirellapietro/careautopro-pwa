@@ -1,6 +1,6 @@
 // src/components/ConfigTest.js
 import React, { useState, useEffect } from 'react';
-import configService from '../services/configService';
+import configService from '../services/configService.js';
 import './ConfigTest.css';
 
 const ConfigTest = () => {
