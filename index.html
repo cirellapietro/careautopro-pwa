@@ -1,324 +1,158 @@
 <!DOCTYPE html>
 <html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CareAutoPro - Problema Trigger Risolto</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta
+      name="description"
+      content="CareAuto Pro - Gestione professionale per officine auto"
+    />
+    <meta name="keywords" content="auto, officina, gestione, interventi, clienti" />
+    <meta name="author" content="CareAuto Pro" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://careautopro-v2.vercel.app/" />
+    <meta property="og:title" content="CareAuto Pro" />
+    <meta property="og:description" content="Gestione professionale per officine auto" />
+    <meta property="og:image" content="%PUBLIC_URL%/logo192.png" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="https://careautopro-v2.vercel.app/" />
+    <meta property="twitter:title" content="CareAuto Pro" />
+    <meta property="twitter:description" content="Gestione professionale per officine auto" />
+    <meta property="twitter:image" content="%PUBLIC_URL%/logo192.png" />
+
+    <!-- PWA Manifest -->
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <!-- Preload importanti risorse -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Stili di base -->
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: Arial, sans-serif; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh; padding: 20px;
-        }
-        .container {
-            background: white; max-width: 500px; margin: 0 auto;
-            border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        h1 { text-align: center; margin-bottom: 20px; color: #2d3748; }
-        .card {
-            background: #f8f9fa; padding: 15px; margin: 10px 0; border-radius: 8px;
-            border-left: 4px solid #dc3545;
-        }
-        .card.success { border-left-color: #28a745; }
-        .btn {
-            width: 100%; padding: 12px; margin: 8px 0; border: none; border-radius: 8px;
-            font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s;
-        }
-        .btn-primary { background: #4299e1; color: white; }
-        .btn-success { background: #48bb78; color: white; }
-        .btn-danger { background: #e53e3e; color: white; }
-        .btn-warning { background: #ed8936; color: white; }
-        .status {
-            padding: 12px; border-radius: 8px; margin: 10px 0; text-align: center;
-        }
-        .success { background: #c6f6d5; color: #22543d; }
-        .error { background: #fed7d7; color: #742a2a; }
-        .loading { background: #bee3f8; color: #2a4365; }
-        .hidden { display: none; }
-        .code {
-            background: #2d3748; color: white; padding: 10px; border-radius: 6px;
-            font-family: monospace; font-size: 12px; margin: 10px 0; overflow-x: auto;
-        }
+      /* Loading screen iniziale */
+      #loading-screen {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        z-index: 9999;
+      }
+      
+      .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(255, 255, 255, 0.3);
+        border-top: 4px solid white;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin-bottom: 20px;
+      }
+      
+      @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+      }
+      
+      .loading-text {
+        font-size: 18px;
+        font-weight: 500;
+      }
+      
+      /* Nascondi loading screen quando l'app è caricata */
+      .app-loaded #loading-screen {
+        display: none;
+      }
+      
+      /* Stili di base per il body */
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        background-color: #f8f9fa;
+      }
+      
+      /* Scrollbar personalizzata */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+      }
+      
+      ::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 4px;
+      }
+      
+      ::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+      }
     </style>
-</head>
-<body>
-    <div class="container">
-        <h1>🚗 CareAutoPro - Risoluzione Trigger</h1>
-        
-        <div class="card">
-            <h3>🚨 Problema Identificato</h3>
-            <p><strong>Errore:</strong> Trigger <code>generate_uuid()</code> cerca una colonna <code>operazione_id</code> inesistente.</p>
-            <p><strong>Soluzione:</strong> Disabilita i trigger problematici.</p>
-        </div>
-
-        <!-- Login -->
-        <div id="loginSection">
-            <h3>🔑 Accedi</h3>
-            <input type="email" id="email" placeholder="Email" value="test@example.com" class="btn" style="background: #f7fafc; color: #2d3748;">
-            <input type="password" id="password" placeholder="Password" value="password123" class="btn" style="background: #f7fafc; color: #2d3748;">
-            <button class="btn btn-primary" onclick="login()">🔐 Accedi</button>
-            <button class="btn btn-success" onclick="signup()">📝 Registrati</button>
-            <div id="loginStatus" class="status"></div>
-        </div>
-
-        <!-- Main App -->
-        <div id="mainApp" class="hidden">
-            <div class="card">
-                <h3>🔧 Script di Risoluzione</h3>
-                <div class="code" id="fixScript">
--- COPIA E INCOLLA IN SQL EDITOR
-
--- 1. Disabilita trigger problematici
-DO $$ 
-BEGIN
-    ALTER TABLE veicoli DISABLE TRIGGER ALL;
-    RAISE NOTICE 'Trigger disabilitati';
-EXCEPTION WHEN OTHERS THEN
-    RAISE NOTICE 'Errore: %', SQLERRM;
-END $$;
-
--- 2. Elimina funzione problematica
-DROP FUNCTION IF EXISTS generate_uuid() CASCADE;
-
--- 3. Test inserimento
-INSERT INTO veicoli (
-    nomeveicolo, targa, kmattuali, utente_id, dataora
-) VALUES (
-    'Test Risoluzione', 'FIXED001', 5000, 
-    '12345678-1234-1234-1234-123456789abc', NOW()
-);
-                </div>
-                <button class="btn btn-danger" onclick="copyScript()">📋 Copia Script Risoluzione</button>
-            </div>
-
-            <button class="btn btn-warning" onclick="testDatabase()">🔍 Test Database</button>
-            <button class="btn btn-success" onclick="addTestVehicle()">➕ Test Inserimento Veicolo</button>
-            
-            <div id="testResult" class="status"></div>
-
-            <div id="workingApp" class="hidden">
-                <div class="card success">
-                    <h3>🎉 App Funzionante!</h3>
-                    <button class="btn btn-primary" onclick="loadVehicles()">🚗 Carica Veicoli</button>
-                    <button class="btn btn-success" onclick="showAddForm()">➕ Aggiungi Veicolo</button>
-                </div>
-                <div id="vehiclesList" class="status"></div>
-                
-                <div id="addForm" class="hidden">
-                    <h3>Aggiungi Veicolo</h3>
-                    <input type="text" id="vName" placeholder="Nome veicolo" class="btn" style="background: #f7fafc;" value="Auto Test">
-                    <input type="text" id="vPlate" placeholder="Targa" class="btn" style="background: #f7fafc;" value="TEST001">
-                    <input type="number" id="vKm" placeholder="KM" class="btn" style="background: #f7fafc;" value="10000">
-                    <button class="btn btn-success" onclick="addVehicle()">➕ Aggiungi</button>
-                    <div id="addResult" class="status"></div>
-                </div>
-            </div>
-        </div>
+    
+    <title>CareAuto Pro - Gestione Officina Auto</title>
+  </head>
+  <body>
+    <noscript>
+      <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
+        <h1>JavaScript Richiesto</h1>
+        <p>Per utilizzare CareAuto Pro, è necessario abilitare JavaScript nel tuo browser.</p>
+        <p>Attiva JavaScript e ricarica la pagina.</p>
+      </div>
+    </noscript>
+    
+    <!-- Loading screen iniziale -->
+    <div id="loading-screen">
+      <div class="loading-spinner"></div>
+      <div class="loading-text">CareAuto Pro</div>
     </div>
+    
+    <!-- Root element per React -->
+    <div id="root"></div>
 
+    <!-- Script per nascondere il loading screen quando React è pronto -->
     <script>
-        const SUPABASE_URL = 'https://jamttxwhexlvbkjccrqm.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImphbXR0eHdoZXhsdmJramNjcnFtIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM2NTE5MDIsImV4cCI6MjA2OTIyNzkwMn0.MkQarY2dOUuwhFnOdaLHqb6idFocTGSfZKjqVoeDYBs';
-
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const SYSTEM_USER_ID = '12345678-1234-1234-1234-123456789abc';
-
-        // Auto-login
-        supabase.auth.getUser().then(({ data }) => {
-            if (data.user) showApp();
+      // Nascondi il loading screen quando la pagina è completamente caricata
+      window.addEventListener('load', function() {
+        setTimeout(function() {
+          document.body.classList.add('app-loaded');
+        }, 1000);
+      });
+      
+      // Fallback: nascondi comunque dopo 5 secondi
+      setTimeout(function() {
+        document.body.classList.add('app-loaded');
+      }, 5000);
+      
+      // Service Worker per PWA (opzionale)
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', function() {
+          navigator.serviceWorker.register('%PUBLIC_URL%/service-worker.js')
+            .then(function(registration) {
+              console.log('SW registered: ', registration);
+            })
+            .catch(function(registrationError) {
+              console.log('SW registration failed: ', registrationError);
+            });
         });
-
-        async function login() {
-            showResult('loginStatus', '🔐 Accesso...', 'loading');
-            const { data, error } = await supabase.auth.signInWithPassword({
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value
-            });
-            if (error) {
-                showResult('loginStatus', '❌ ' + error.message, 'error');
-            } else {
-                showResult('loginStatus', '✅ Accesso effettuato!', 'success');
-                showApp();
-            }
-        }
-
-        async function signup() {
-            showResult('loginStatus', '📝 Registrazione...', 'loading');
-            const { data, error } = await supabase.auth.signUp({
-                email: document.getElementById('email').value,
-                password: document.getElementById('password').value
-            });
-            if (error) {
-                showResult('loginStatus', '❌ ' + error.message, 'error');
-            } else {
-                showResult('loginStatus', '✅ Registrato! Controlla email.', 'success');
-            }
-        }
-
-        function showApp() {
-            document.getElementById('loginSection').classList.add('hidden');
-            document.getElementById('mainApp').classList.remove('hidden');
-            testDatabase();
-        }
-
-        function copyScript() {
-            const script = document.getElementById('fixScript').textContent;
-            navigator.clipboard.writeText(script).then(() => {
-                alert('✅ Script copiato! Incolla in SQL Editor e clicca RUN');
-            });
-        }
-
-        async function testDatabase() {
-            showResult('testResult', '🔍 Test database in corso...', 'loading');
-            
-            try {
-                // Test lettura
-                const { data: vehicles, error: readError } = await supabase.from('veicoli').select('count').limit(1);
-                if (readError) throw readError;
-
-                // Test scrittura
-                const testData = {
-                    nomeveicolo: 'Veicolo Test Trigger',
-                    targa: 'TRIGGER' + Date.now(),
-                    kmattuali: 5000,
-                    utente_id: SYSTEM_USER_ID,
-                    dataora: new Date().toISOString()
-                };
-
-                const { data, error: writeError } = await supabase.from('veicoli').insert([testData]);
-                
-                if (writeError) {
-                    if (writeError.message.includes('operazione_id')) {
-                        showResult('testResult', 
-                            `❌ Trigger problematica attivo!<br>
-                            <strong>Errore:</strong> ${writeError.message}<br><br>
-                            Usa lo script di risoluzione qui sopra.`, 
-                            'error'
-                        );
-                    } else {
-                        throw writeError;
-                    }
-                } else {
-                    showResult('testResult', 
-                        `🎉 Database funzionante!<br>
-                        Trigger disabilitati correttamente.`, 
-                        'success'
-                    );
-                    document.getElementById('workingApp').classList.remove('hidden');
-                    loadVehicles();
-                }
-
-            } catch (error) {
-                showResult('testResult', '❌ Errore: ' + error.message, 'error');
-            }
-        }
-
-        async function addTestVehicle() {
-            showResult('testResult', '➕ Test inserimento veicolo...', 'loading');
-            
-            const testData = {
-                nomeveicolo: 'Veicolo Test Manuale',
-                targa: 'MANUAL' + Date.now(),
-                kmattuali: Math.floor(Math.random() * 100000),
-                utente_id: SYSTEM_USER_ID,
-                dataora: new Date().toISOString()
-            };
-
-            try {
-                const { data, error } = await supabase.from('veicoli').insert([testData]);
-                if (error) throw error;
-                
-                showResult('testResult', 
-                    `✅ Veicolo test inserito!<br>
-                    <strong>${testData.nomeveicolo}</strong> - ${testData.targa}`, 
-                    'success'
-                );
-                
-                loadVehicles();
-                
-            } catch (error) {
-                showResult('testResult', '❌ Errore: ' + error.message, 'error');
-            }
-        }
-
-        async function loadVehicles() {
-            const vehiclesList = document.getElementById('vehiclesList');
-            showResult('vehiclesList', '🚗 Caricamento veicoli...', 'loading');
-            
-            try {
-                const { data, error } = await supabase.from('veicoli').select('*').limit(10).order('dataora', { ascending: false });
-                if (error) throw error;
-
-                if (data.length === 0) {
-                    showResult('vehiclesList', '📭 Nessun veicolo trovato', 'loading');
-                    return;
-                }
-
-                vehiclesList.innerHTML = `
-                    <h3>Ultimi Veicoli (${data.length})</h3>
-                    ${data.map(vehicle => `
-                        <div style="background: white; padding: 10px; margin: 5px 0; border-radius: 8px; border: 1px solid #e2e8f0;">
-                            <strong>${vehicle.nomeveicolo}</strong> 
-                            <span style="background: #4299e1; color: white; padding: 2px 6px; border-radius: 4px; font-size: 12px; float: right;">
-                                ${vehicle.targa}
-                            </span>
-                            <div style="font-size: 12px; color: #718096;">
-                                KM: ${vehicle.kmattuali} | 
-                                Data: ${new Date(vehicle.dataora).toLocaleDateString()}
-                            </div>
-                        </div>
-                    `).join('')}
-                `;
-
-            } catch (error) {
-                showResult('vehiclesList', '❌ Errore: ' + error.message, 'error');
-            }
-        }
-
-        function showAddForm() {
-            document.getElementById('addForm').classList.remove('hidden');
-        }
-
-        async function addVehicle() {
-            showResult('addResult', '➕ Aggiunta veicolo...', 'loading');
-            
-            const vehicleData = {
-                nomeveicolo: document.getElementById('vName').value,
-                targa: document.getElementById('vPlate').value,
-                kmattuali: parseInt(document.getElementById('vKm').value) || 0,
-                utente_id: SYSTEM_USER_ID,
-                dataora: new Date().toISOString()
-            };
-
-            try {
-                const { data, error } = await supabase.from('veicoli').insert([vehicleData]);
-                if (error) throw error;
-                
-                showResult('addResult', 
-                    `✅ Veicolo aggiunto!<br>
-                    <strong>${vehicleData.nomeveicolo}</strong> - ${vehicleData.targa}`, 
-                    'success'
-                );
-                
-                // Reset form
-                document.getElementById('vName').value = '';
-                document.getElementById('vPlate').value = '';
-                document.getElementById('vKm').value = '';
-                
-                loadVehicles();
-                
-            } catch (error) {
-                showResult('addResult', '❌ Errore: ' + error.message, 'error');
-            }
-        }
-
-        function showResult(elementId, message, type) {
-            const element = document.getElementById(elementId);
-            element.innerHTML = message;
-            element.className = `status ${type}`;
-        }
+      }
     </script>
-</body>
+  </body>
 </html>
