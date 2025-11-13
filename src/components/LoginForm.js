@@ -1,8 +1,9 @@
+// src/components/LoginForm.js
 import React, { useState } from 'react';
 import { supabase } from '../lib/supabase.js';
 import './LoginForm.css';
 
-const LoginForm = () => {
+const LoginForm = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,12 +18,13 @@ const LoginForm = () => {
     try {
       if (isLogin) {
         // Login
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
         if (error) throw error;
         setMessage('Accesso effettuato!');
+        onLoginSuccess?.(data.user);
       } else {
         // Registrazione
         const { error } = await supabase.auth.signUp({
