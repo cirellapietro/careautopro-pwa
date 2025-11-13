@@ -1,95 +1,56 @@
-import React, { useEffect } from 'react'
+// src/components/AdBanner.js
+import React, { useState, useEffect } from 'react';
+import useMonetization from '../hooks/useMonetization';
+import './AdBanner.css';
 
-const AdBanner = ({ type = 'adsense', config }) => {
+const AdBanner = ({ position = 'top', adType = 'banner' }) => {
+  const { adConfig, showAd } = useMonetization();
+  const [adVisible, setAdVisible] = useState(false);
+
   useEffect(() => {
-    if (config && type === 'adsense' && config.adsense_client_id) {
-      // Carica script AdSense solo se non è già presente
-      if (!window.adsbygoogle) {
-        const script = document.createElement('script')
-        script.src = `https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${config.adsense_client_id}`
-        script.async = true
-        script.crossOrigin = 'anonymous'
-        document.head.appendChild(script)
-
-        script.onload = () => {
-          // Forza il push degli annunci dopo il caricamento
-          try {
-            if (window.adsbygoogle) {
-              window.adsbygoogle.push({})
-            }
-          } catch (err) {
-            console.log('AdSense load error:', err)
-          }
-        }
-
-        return () => {
-          // Cleanup
-          if (document.head.contains(script)) {
-            document.head.removeChild(script)
-          }
-        }
-      }
+    if (adConfig?.admobAppId) {
+      initializeAd();
     }
-  }, [config, type])
+  }, [adConfig]);
 
-  if (!config) {
-    return (
-      <div className="ad-placeholder">
-        <div className="ad-placeholder-content">
-          <span>Spazio pubblicitario</span>
-          <small>Configurazione in caricamento...</small>
-        </div>
+  const initializeAd = async () => {
+    try {
+      await showAd(adType);
+      setAdVisible(true);
+    } catch (error) {
+      console.error('Errore nell inizializzazione ad:', error);
+    }
+  };
+
+  // Placeholder per sviluppo
+  const renderAdPlaceholder = () => (
+    <div className={`ad-container ad-${position}`}>
+      <div className="ad-label">
+        {adConfig?.admobAppId ? 'AdMob Configurato' : 'Configura AdMob'}
       </div>
-    )
-  }
-
-  if (type === 'adsense' && config.adsense_client_id) {
-    return (
-      <div className="ad-banner adsense">
-        <ins 
-          className="adsbygoogle"
-          style={{ 
-            display: 'block',
-            textAlign: 'center',
-            minHeight: '90px'
-          }}
-          data-ad-client={config.adsense_client_id}
-          data-ad-slot={config.adsense_ad_slot}
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        ></ins>
-        <script>
-          {`(adsbygoogle = window.adsbygoogle || []).push({})`}
-        </script>
-      </div>
-    )
-  }
-
-  if (type === 'admob' && config.admob_app_id) {
-    return (
-      <div className="ad-banner admob">
-        <div className="admob-banner">
-          <div className="admob-content">
-            <h4>📱 AdMob Banner</h4>
-            <div className="admob-info">
-              <small>App: {config.admob_app_id.substring(0, 20)}...</small>
-              <small>Unit: {config.admob_banner_unit_id.substring(0, 20)}...</small>
-            </div>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  // Fallback per configurazione mancante
-  return (
-    <div className="ad-banner fallback">
-      <div className="fallback-content">
-        <span>🤑 Spazio Pubblicitario</span>
-        <small>Configura AdSense o AdMob nella tabella config</small>
+      <div className="ad-content">
+        {adConfig?.admobAppId ? (
+          <>
+            <p>App ID: {adConfig.admobAppId}</p>
+            <p>Publisher: {adConfig.admobPublisherId}</p>
+            <small>Posizione: {position} - Tipo: {adType}</small>
+          </>
+        ) : (
+          <p>Configura admobidapp e admobidpublisher nel database</p>
+        )}
       </div>
     </div>
-  )
-}
+  );
 
-export default AdBanner
+  if (!adVisible) {
+    return (
+      <div className="ad-container ad-loading">
+        <p>Caricamento annuncio...</p>
+      </div>
+    );
+  }
+
+  return renderAdPlaceholder();
+};
+
+export default AdBanner;
