@@ -4,11 +4,13 @@ import { supabase } from './lib/supabase';
 import Header from './components/Header';
 import LoginForm from './components/LoginForm';
 import Dashboard from './components/Dashboard';
+import ConfigTest from './components/ConfigTest';
 import './App.css';
 
 function App() {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showConfigTest, setShowConfigTest] = useState(true); // TRUE per vedere il test
 
   useEffect(() => {
     checkAuth();
@@ -42,7 +44,38 @@ function App() {
     <div className="App">
       <Header user={user} />
       <main>
-        {user ? <Dashboard user={user} /> : <LoginForm />}
+        {user ? (
+          <div>
+            {/* MOSTRA PRIMA IL TEST CONFIGURAZIONE */}
+            {showConfigTest && (
+              <div>
+                <ConfigTest />
+                <div style={{ textAlign: 'center', margin: '20px' }}>
+                  <button 
+                    onClick={() => setShowConfigTest(false)}
+                    style={{
+                      padding: '10px 20px',
+                      background: '#3498db',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontSize: '16px',
+                      fontWeight: '600'
+                    }}
+                  >
+                    ✅ Test Completato - Vai alla Dashboard
+                  </button>
+                </div>
+              </div>
+            )}
+            
+            {/* POI MOSTRA LA DASHBOARD NORMALE */}
+            {!showConfigTest && <Dashboard user={user} />}
+          </div>
+        ) : (
+          <LoginForm />
+        )}
       </main>
     </div>
   );
