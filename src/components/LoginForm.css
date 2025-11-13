@@ -1,33 +1,55 @@
-/* src/components/LoginForm.css */
+/* ===== CONTAINER PRINCIPALE ===== */
 .login-container {
-  min-height: 70vh;
+  min-height: 80vh;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 .login-card {
   background: white;
-  padding: 2rem;
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 20px 40px rgba(0,0,0,0.1);
   width: 100%;
-  max-width: 400px;
+  max-width: 450px;
+  position: relative;
+  overflow: hidden;
 }
 
-.login-card h2 {
+.login-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+}
+
+/* ===== HEADER ===== */
+.login-header {
   text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-header h2 {
   margin-bottom: 0.5rem;
   color: #2c3e50;
+  font-size: 1.8rem;
+  font-weight: 700;
 }
 
 .subtitle {
   text-align: center;
   color: #7f8c8d;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
+  font-size: 0.95rem;
 }
 
+/* ===== FORM STYLES ===== */
 .form-group {
   margin-bottom: 1.5rem;
 }
@@ -37,51 +59,94 @@
   margin-bottom: 0.5rem;
   font-weight: 600;
   color: #2c3e50;
+  font-size: 0.9rem;
+}
+
+.required {
+  color: #e74c3c;
 }
 
 .form-group input {
   width: 100%;
-  padding: 12px;
+  padding: 14px;
   border: 2px solid #ecf0f1;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 16px;
-  transition: border-color 0.3s ease;
+  transition: all 0.3s ease;
+  background: #fafbfc;
 }
 
 .form-group input:focus {
   outline: none;
   border-color: #3498db;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
+.form-group input:disabled {
+  background: #f8f9fa;
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* ===== SUBMIT BUTTON ===== */
 .submit-btn {
   width: 100%;
-  padding: 12px;
+  padding: 16px;
   background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 8px;
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s ease;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  position: relative;
+  overflow: hidden;
 }
 
 .submit-btn:hover:not(:disabled) {
   transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
 }
 
 .submit-btn:disabled {
-  opacity: 0.6;
+  opacity: 0.7;
   cursor: not-allowed;
   transform: none;
 }
 
+.submit-btn.loading {
+  background: #95a5a6;
+}
+
+.btn-spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid transparent;
+  border-top: 2px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ===== MESSAGES ===== */
 .message {
-  margin-top: 1rem;
-  padding: 12px;
-  border-radius: 6px;
-  text-align: center;
-  font-weight: 500;
+  margin-top: 1.5rem;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  animation: slideIn 0.3s ease-out;
 }
 
 .message.success {
@@ -96,16 +161,129 @@
   border: 1px solid #f5c6cb;
 }
 
+.message-icon {
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.message-text {
+  flex: 1;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+/* ===== SEZIONE CONFERMA EMAIL ===== */
+.email-confirmation-section {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  animation: slideIn 0.3s ease-out;
+}
+
+.confirmation-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 1rem;
+}
+
+.confirmation-icon {
+  font-size: 1.5rem;
+}
+
+.confirmation-header h4 {
+  margin: 0;
+  color: #856404;
+  font-size: 1.1rem;
+}
+
+.confirmation-text {
+  margin: 0 0 1rem 0;
+  color: #856404;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+.confirmation-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.confirmation-btn {
+  padding: 10px 16px;
+  border: 1px solid #856404;
+  border-radius: 6px;
+  background: #856404;
+  color: white;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  flex: 1;
+  min-width: 120px;
+}
+
+.confirmation-btn:hover:not(:disabled) {
+  background: #6c5203;
+  transform: translateY(-1px);
+}
+
+.confirmation-btn.secondary {
+  background: transparent;
+  color: #856404;
+}
+
+.confirmation-btn.secondary:hover:not(:disabled) {
+  background: #856404;
+  color: white;
+}
+
+.confirmation-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* ===== PASSWORD RESET ===== */
+.password-reset {
+  text-align: center;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #ecf0f1;
+}
+
+.reset-link {
+  background: none;
+  border: none;
+  color: #3498db;
+  cursor: pointer;
+  font-size: 0.9rem;
+  text-decoration: underline;
+}
+
+.reset-link:hover:not(:disabled) {
+  color: #2980b9;
+}
+
+.reset-link:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== SWITCH MODE ===== */
 .switch-mode {
   text-align: center;
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
   border-top: 1px solid #ecf0f1;
 }
 
 .switch-mode p {
   color: #7f8c8d;
   margin: 0;
+  font-size: 0.95rem;
 }
 
 .switch-btn {
@@ -116,8 +294,175 @@
   font-weight: 600;
   margin-left: 5px;
   text-decoration: underline;
+  font-size: 0.95rem;
 }
 
-.switch-btn:hover {
+.switch-btn:hover:not(:disabled) {
   color: #2980b9;
+}
+
+.switch-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ===== LOGIN INFO ===== */
+.login-info {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #3498db;
+}
+
+.login-info h4 {
+  margin: 0 0 1rem 0;
+  color: #2c3e50;
+  font-size: 1rem;
+}
+
+.login-info ul {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #5a6c7d;
+}
+
+.login-info li {
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 480px) {
+  .login-container {
+    padding: 10px;
+    align-items: flex-start;
+    min-height: 100vh;
+  }
+  
+  .login-card {
+    padding: 2rem 1.5rem;
+    margin: 20px 0;
+  }
+  
+  .login-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .confirmation-actions {
+    flex-direction: column;
+  }
+  
+  .confirmation-btn {
+    min-width: auto;
+  }
+}
+
+@media (max-width: 360px) {
+  .login-card {
+    padding: 1.5rem 1rem;
+  }
+  
+  .login-header h2 {
+    font-size: 1.3rem;
+  }
+  
+  .form-group input {
+    padding: 12px;
+  }
+}
+
+/* ===== DARK MODE SUPPORT ===== */
+@media (prefers-color-scheme: dark) {
+  .login-card {
+    background: #2d2d2d;
+    color: #e0e0e0;
+  }
+  
+  .login-header h2 {
+    color: #e0e0e0;
+  }
+  
+  .form-group label {
+    color: #e0e0e0;
+  }
+  
+  .form-group input {
+    background: #3d3d3d;
+    border-color: #4d4d4d;
+    color: #e0e0e0;
+  }
+  
+  .form-group input:focus {
+    background: #2d2d2d;
+    border-color: #3498db;
+  }
+  
+  .login-info {
+    background: #3d3d3d;
+    border-left-color: #3498db;
+  }
+  
+  .login-info h4 {
+    color: #e0e0e0;
+  }
+  
+  .login-info ul {
+    color: #b0b0b0;
+  }
+  
+  .switch-mode p {
+    color: #b0b0b0;
+  }
+}
+
+/* ===== ACCESSIBILITY ===== */
+.form-group input:focus-visible {
+  outline: 2px solid #3498db;
+  outline-offset: 2px;
+}
+
+.submit-btn:focus-visible {
+  outline: 2px solid #2c3e50;
+  outline-offset: 2px;
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+  .login-container {
+    background: white !important;
+  }
+  
+  .login-card {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+  
+  .submit-btn,
+  .switch-btn,
+  .confirmation-btn,
+  .reset-link {
+    display: none !important;
+  }
 }
