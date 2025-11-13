@@ -1,27 +1,21 @@
-// src/App.js - VERSIONE TEST
+// src/App.js - STEP 1
 import React from 'react';
+import Header from './components/Header.js';
 import './App.css';
 
 function App() {
-  console.log('App component is rendering!'); // Questo deve apparire in console
+  console.log('App component is rendering!');
   
   return (
     <div className="App">
-      <header style={{ 
-        padding: '20px', 
-        background: '#2c3e50', 
-        color: 'white',
-        textAlign: 'center'
-      }}>
-        <h1>🚗 CareAuto Pro</h1>
-        <p>Versione Test - Applicazione Funzionante</p>
-      </header>
+      {/* Aggiungiamo l'Header */}
+      <Header user={null} />
       
       <main style={{ 
         padding: '40px 20px',
         textAlign: 'center'
       }}>
-        <h2>✅ App Caricata Correttamente!</h2>
+        <h2>✅ Step 1 Completato - Header Aggiunto!</h2>
         <div style={{ margin: '20px 0' }}>
           <button 
             onClick={() => alert('Bottone funzionante!')}
@@ -64,11 +58,11 @@ function App() {
           maxWidth: '600px',
           margin: '30px auto'
         }}>
-          <h3>Stato Applicazione:</h3>
-          <p><strong>React:</strong> ✅ Caricato</p>
-          <p><strong>Componenti:</strong> ✅ Funzionanti</p>
-          <p><strong>JavaScript:</strong> ✅ Attivo</p>
-          <p><strong>CSS:</strong> ✅ Applicato</p>
+          <h3>Progresso Sviluppo:</h3>
+          <p><strong>Step 1 - Header:</strong> ✅ Completato</p>
+          <p><strong>Step 2 - Auth:</strong> ⏳ Prossimo</p>
+          <p><strong>Step 3 - Dashboard:</strong> ⏳ In attesa</p>
+          <p><strong>Step 4 - Config:</strong> ⏳ In attesa</p>
         </div>
       </main>
       
