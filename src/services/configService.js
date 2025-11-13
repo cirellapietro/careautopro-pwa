@@ -1,5 +1,5 @@
 // src/services/configService.js
-import { supabase } from '../lib/supabase';
+import { supabase } from '../lib/supabase.js';
 
 class ConfigService {
   constructor() {
