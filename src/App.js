@@ -1,10 +1,10 @@
 // src/App.js
 import React, { useState, useEffect } from 'react';
-import { supabase } from './lib/supabase';
-import Header from './components/Header';
-import LoginForm from './components/LoginForm';
-import Dashboard from './components/Dashboard';
-import ConfigTest from './components/ConfigTest';
+import { supabase } from './lib/supabase.js';
+import Header from './components/Header.js';
+import LoginForm from './components/LoginForm.js';
+import Dashboard from './components/Dashboard.js';
+import ConfigTest from './components/ConfigTest.js';
 import './App.css';
 
 function App() {
