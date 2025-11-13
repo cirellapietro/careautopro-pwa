@@ -1,6 +1,6 @@
 // src/hooks/useMonetization.js
 import { useState, useEffect } from 'react';
-import configService from '../services/configService';
+import configService from '../services/configService.js';
 
 const useMonetization = () => {
   const [adConfig, setAdConfig] = useState(null);
