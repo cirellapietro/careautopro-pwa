@@ -1,7 +1,14 @@
+// src/components/Header.js - AGGIORNATO
 import React from 'react';
 import './Header.css';
 
-const Header = ({ user }) => {
+const Header = ({ user, onLogout }) => {
+  const handleLogout = async () => {
+    if (onLogout) {
+      onLogout();
+    }
+  };
+
   return (
     <header className="header">
       <div className="header-container">
@@ -16,7 +23,11 @@ const Header = ({ user }) => {
               <span className="user-info">
                 Ciao, <strong>{user.email}</strong>
               </span>
-              <button className="logout-btn">
+              <button 
+                onClick={handleLogout}
+                className="logout-btn"
+                title="Esci dall'applicazione"
+              >
                 Esci
               </button>
             </div>
