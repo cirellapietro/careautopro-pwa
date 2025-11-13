@@ -1,82 +1,85 @@
-// src/App.js
-import React, { useState, useEffect } from 'react';
-import { supabase } from './lib/supabase.js';
-import Header from './components/Header.js';
-import LoginForm from './components/LoginForm.js';
-import Dashboard from './components/Dashboard.js';
-import ConfigTest from './components/ConfigTest.js';
+// src/App.js - VERSIONE TEST
+import React from 'react';
 import './App.css';
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [showConfigTest, setShowConfigTest] = useState(true); // TRUE per vedere il test
-
-  useEffect(() => {
-    checkAuth();
-    
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    setUser(session?.user ?? null);
-    setLoading(false);
-  };
-
-  if (loading) {
-    return (
-      <div className="loading-screen">
-        <div className="spinner"></div>
-        <p>Caricamento CareAuto Pro...</p>
-      </div>
-    );
-  }
-
+  console.log('App component is rendering!'); // Questo deve apparire in console
+  
   return (
     <div className="App">
-      <Header user={user} />
-      <main>
-        {user ? (
-          <div>
-            {/* MOSTRA PRIMA IL TEST CONFIGURAZIONE */}
-            {showConfigTest && (
-              <div>
-                <ConfigTest />
-                <div style={{ textAlign: 'center', margin: '20px' }}>
-                  <button 
-                    onClick={() => setShowConfigTest(false)}
-                    style={{
-                      padding: '10px 20px',
-                      background: '#3498db',
-                      color: 'white',
-                      border: 'none',
-                      borderRadius: '6px',
-                      cursor: 'pointer',
-                      fontSize: '16px',
-                      fontWeight: '600'
-                    }}
-                  >
-                    ✅ Test Completato - Vai alla Dashboard
-                  </button>
-                </div>
-              </div>
-            )}
-            
-            {/* POI MOSTRA LA DASHBOARD NORMALE */}
-            {!showConfigTest && <Dashboard user={user} />}
-          </div>
-        ) : (
-          <LoginForm />
-        )}
+      <header style={{ 
+        padding: '20px', 
+        background: '#2c3e50', 
+        color: 'white',
+        textAlign: 'center'
+      }}>
+        <h1>🚗 CareAuto Pro</h1>
+        <p>Versione Test - Applicazione Funzionante</p>
+      </header>
+      
+      <main style={{ 
+        padding: '40px 20px',
+        textAlign: 'center'
+      }}>
+        <h2>✅ App Caricata Correttamente!</h2>
+        <div style={{ margin: '20px 0' }}>
+          <button 
+            onClick={() => alert('Bottone funzionante!')}
+            style={{
+              padding: '12px 24px',
+              background: '#3498db',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '16px',
+              cursor: 'pointer',
+              margin: '10px'
+            }}
+          >
+            Test Button 1
+          </button>
+          
+          <button 
+            onClick={() => alert('Anche questo funziona!')}
+            style={{
+              padding: '12px 24px',
+              background: '#27ae60',
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              fontSize: '16px',
+              cursor: 'pointer',
+              margin: '10px'
+            }}
+          >
+            Test Button 2
+          </button>
+        </div>
+        
+        <div style={{ 
+          background: '#f8f9fa', 
+          padding: '20px', 
+          borderRadius: '8px',
+          marginTop: '30px',
+          maxWidth: '600px',
+          margin: '30px auto'
+        }}>
+          <h3>Stato Applicazione:</h3>
+          <p><strong>React:</strong> ✅ Caricato</p>
+          <p><strong>Componenti:</strong> ✅ Funzionanti</p>
+          <p><strong>JavaScript:</strong> ✅ Attivo</p>
+          <p><strong>CSS:</strong> ✅ Applicato</p>
+        </div>
       </main>
+      
+      <footer style={{
+        padding: '20px',
+        background: '#ecf0f1',
+        textAlign: 'center',
+        marginTop: '40px'
+      }}>
+        <p>CareAuto Pro © 2024 - Tutti i diritti riservati</p>
+      </footer>
     </div>
   );
 }
