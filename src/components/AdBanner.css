@@ -1,0 +1,61 @@
+/* src/components/AdBanner.css */
+.ad-container {
+  border: 2px dashed #3498db;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 10px 0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  text-align: center;
+}
+
+.ad-top {
+  margin-bottom: 20px;
+}
+
+.ad-middle {
+  margin: 30px 0;
+}
+
+.ad-bottom {
+  margin-top: 20px;
+}
+
+.ad-label {
+  font-size: 0.8rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.ad-content {
+  color: #495057;
+}
+
+.ad-content p {
+  margin: 5px 0;
+}
+
+.ad-content small {
+  color: #6c757d;
+  font-size: 0.7rem;
+}
+
+.ad-loading {
+  background: #fff3cd;
+  border-color: #ffeaa7;
+}
+
+.ad-error {
+  background: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .ad-container {
+    padding: 10px;
+    margin: 5px 0;
+  }
+}
