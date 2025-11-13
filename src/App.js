@@ -1,79 +1,107 @@
-// src/App.js - STEP 1
-import React from 'react';
+// src/App.js - STEP 2
+import React, { useState, useEffect } from 'react';
+import { supabase } from './lib/supabase.js';
 import Header from './components/Header.js';
+import LoginForm from './components/LoginForm.js';
 import './App.css';
 
 function App() {
-  console.log('App component is rendering!');
-  
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log('Session:', session);
+      setUser(session?.user ?? null);
+    } catch (error) {
+      console.error('Auth error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      setUser(null);
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="loading-screen">
+        <div className="spinner"></div>
+        <p>Caricamento CareAuto Pro...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="App">
-      {/* Aggiungiamo l'Header */}
-      <Header user={null} />
+      <Header user={user} onLogout={handleLogout} />
       
-      <main style={{ 
-        padding: '40px 20px',
-        textAlign: 'center'
-      }}>
-        <h2>✅ Step 1 Completato - Header Aggiunto!</h2>
-        <div style={{ margin: '20px 0' }}>
-          <button 
-            onClick={() => alert('Bottone funzionante!')}
-            style={{
-              padding: '12px 24px',
-              background: '#3498db',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '16px',
-              cursor: 'pointer',
-              margin: '10px'
-            }}
-          >
-            Test Button 1
-          </button>
-          
-          <button 
-            onClick={() => alert('Anche questo funziona!')}
-            style={{
-              padding: '12px 24px',
-              background: '#27ae60',
-              color: 'white',
-              border: 'none',
-              borderRadius: '6px',
-              fontSize: '16px',
-              cursor: 'pointer',
-              margin: '10px'
-            }}
-          >
-            Test Button 2
-          </button>
-        </div>
-        
-        <div style={{ 
-          background: '#f8f9fa', 
-          padding: '20px', 
-          borderRadius: '8px',
-          marginTop: '30px',
-          maxWidth: '600px',
-          margin: '30px auto'
-        }}>
-          <h3>Progresso Sviluppo:</h3>
-          <p><strong>Step 1 - Header:</strong> ✅ Completato</p>
-          <p><strong>Step 2 - Auth:</strong> ⏳ Prossimo</p>
-          <p><strong>Step 3 - Dashboard:</strong> ⏳ In attesa</p>
-          <p><strong>Step 4 - Config:</strong> ⏳ In attesa</p>
-        </div>
+      <main>
+        {user ? (
+          // UTENTE LOGGATO - Mostriamo dashboard semplice
+          <div style={{ 
+            padding: '40px 20px',
+            textAlign: 'center',
+            maxWidth: '800px',
+            margin: '0 auto'
+          }}>
+            <h2>✅ Step 2 Completato - Auth Funzionante!</h2>
+            <div style={{ 
+              background: '#d4edda', 
+              padding: '20px', 
+              borderRadius: '8px',
+              margin: '20px 0'
+            }}>
+              <h3>🎉 Benvenuto, {user.email}!</h3>
+              <p>L'autenticazione funziona correttamente</p>
+            </div>
+            
+            <div style={{ margin: '20px 0' }}>
+              <button 
+                onClick={handleLogout}
+                style={{
+                  padding: '12px 24px',
+                  background: '#e74c3c',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '6px',
+                  fontSize: '16px',
+                  cursor: 'pointer'
+                }}
+              >
+                Logout
+              </button>
+            </div>
+
+            <div style={{ 
+              background: '#f8f9fa', 
+              padding: '20px', 
+              borderRadius: '8px',
+              marginTop: '30px'
+            }}>
+              <h3>Progresso Sviluppo:</h3>
+              <p><strong>Step 1 - Header:</strong> ✅ Completato</p>
+              <p><strong>Step 2 - Auth:</strong> ✅ Completato</p>
+              <p><strong>Step 3 - Dashboard:</strong> ⏳ Prossimo</p>
+              <p><strong>Step 4 - Config:</strong> ⏳ In attesa</p>
+            </div>
+          </div>
+        ) : (
+          // UTENTE NON LOGGATO - Mostriamo login
+          <LoginForm onLoginSuccess={(user) => setUser(user)} />
+        )}
       </main>
-      
-      <footer style={{
-        padding: '20px',
-        background: '#ecf0f1',
-        textAlign: 'center',
-        marginTop: '40px'
-      }}>
-        <p>CareAuto Pro © 2024 - Tutti i diritti riservati</p>
-      </footer>
     </div>
   );
 }
