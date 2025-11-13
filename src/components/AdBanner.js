@@ -1,6 +1,6 @@
 // src/components/AdBanner.js
 import React, { useState, useEffect } from 'react';
-import useMonetization from '../hooks/useMonetization';
+import useMonetization from '../hooks/useMonetization.js';
 import './AdBanner.css';
 
 const AdBanner = ({ position = 'top', adType = 'banner' }) => {
