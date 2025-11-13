@@ -2,14 +2,6 @@ import React from 'react';
 import './Header.css';
 
 const Header = ({ user }) => {
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-    } catch (error) {
-      console.error('Errore durante il logout:', error);
-    }
-  };
-
   return (
     <header className="header">
       <div className="header-container">
@@ -24,11 +16,7 @@ const Header = ({ user }) => {
               <span className="user-info">
                 Ciao, <strong>{user.email}</strong>
               </span>
-              <button 
-                onClick={handleLogout}
-                className="logout-btn"
-                title="Esci dall'applicazione"
-              >
+              <button className="logout-btn">
                 Esci
               </button>
             </div>
