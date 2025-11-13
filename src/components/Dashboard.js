@@ -1,6 +1,6 @@
 // Aggiornamento di src/components/Dashboard.js
 import React from 'react';
-import AdBanner from './AdBanner';
+import AdBanner from './AdBanner.js';
 import './Dashboard.css';
 
 const Dashboard = ({ user }) => {
