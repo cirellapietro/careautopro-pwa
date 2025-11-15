@@ -1,7 +1,7 @@
 // src/components/Dashboard.js - VERSIONE AGGIORNATA
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase.js';
-import VehicleManager from './VehicleManager.js'; // Aggiungi questo import
+import VehicleManager from './services/VehicleManager.js'; // Aggiungi questo import
 import './Dashboard.css';
 
 const Dashboard = ({ user }) => {
