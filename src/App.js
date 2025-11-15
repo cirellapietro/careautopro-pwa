@@ -1,9 +1,8 @@
-// src/App.js - STEP 3
 import React, { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase.js';
 import Header from './components/Header.js';
 import LoginForm from './components/LoginForm.js';
-import Dashboard from './components/Dashboard.js';
+import DashboardWithVehicles from './components/DashboardWithVehicles.js';
 import './App.css';
 
 function App() {
@@ -52,8 +51,8 @@ function App() {
       
       <main>
         {user ? (
-          // 🎯 STEP 3: DASHBOARD COMPLETA
-          <Dashboard user={user} />
+          // 🎯 USA LA DASHBOARD CON GESTIONE VEICOLI INTEGRATA
+          <DashboardWithVehicles user={user} />
         ) : (
           <LoginForm onLoginSuccess={(user) => setUser(user)} />
         )}
