@@ -1,40 +1,110 @@
-/* src/components/Dashboard.css */
-.dashboard {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
+/* Aggiungi a src/components/Dashboard.css */
+
+/* Header Vehicle Manager */
+.vehicle-manager-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #ecf0f1;
 }
 
-/* Loading */
-.dashboard-loading {
+.back-to-dashboard-btn {
+  background: #95a5a6;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.back-to-dashboard-btn:hover {
+  background: #7f8c8d;
+  transform: translateY(-1px);
+}
+
+.vehicle-manager-header h1 {
+  color: #2c3e50;
+  margin: 0;
+}
+
+/* Veicolo Selezionato in Header */
+.selected-vehicle-info {
+  margin-top: 0.5rem;
+}
+
+.vehicle-badge {
+  background: #3498db;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Sezione Veicolo Attivo */
+.active-vehicle-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.manage-vehicles-btn {
+  background: #3498db;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.3s ease;
+}
+
+.manage-vehicles-btn:hover {
+  background: #2980b9;
+}
+
+.vehicle-quick-info {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.vehicle-detail {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  text-align: center;
+  gap: 0.25rem;
 }
 
-.loading-spinner {
-  width: 50px;
-  height: 50px;
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
-  margin-bottom: 1rem;
+.vehicle-detail strong {
+  color: #7f8c8d;
+  font-size: 0.9rem;
 }
 
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+.vehicle-detail span {
+  color: #2c3e50;
+  font-weight: 600;
+  font-size: 1.1rem;
 }
 
-/* Header */
-.dashboard-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+/* Responsive */
+@media (max-width: 768px) {
+  .vehicle-manager-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+  
+  .vehicle-quick-info {
+    grid-template-columns: 1fr;
+  }
+}  align-items: flex-start;
   margin-bottom: 2rem;
   flex-wrap: wrap;
   gap: 1rem;
