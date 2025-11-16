@@ -1,10 +1,9 @@
-// TEST: Dashboard semplice senza VehicleManager
+// src/App.js - COPIA E INCOLLA QUESTO CODICE COMPLETO
 import React, { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase.js';
 import Header from './components/Header.js';
 import LoginForm from './components/LoginForm.js';
-// src/App.js - CAMBIA SOLO QUESTA RIGA:
-import Dashboard from './components/DashboardWithVehicles.js';
+import DashboardWithVehicles from './components/DashboardWithVehicles.js';
 import './App.css';
 
 function App() {
@@ -53,20 +52,7 @@ function App() {
       
       <main>
         {user ? (
-          // 🎯 VERSIONE SEMPLICE PER TEST
-          <div style={{ padding: '2rem', textAlign: 'center' }}>
-            <h1>CareAuto Pro - Test</h1>
-            <p>Applicazione funzionante</p>
-            <div style={{ 
-              background: '#d4edda', 
-              padding: '2rem', 
-              borderRadius: '8px',
-              margin: '2rem 0'
-            }}>
-              <h2>✅ Build Success</h2>
-              <p>Se vedi questa pagina, il deployment funziona</p>
-            </div>
-          </div>
+          <DashboardWithVehicles user={user} />
         ) : (
           <LoginForm onLoginSuccess={(user) => setUser(user)} />
         )}
