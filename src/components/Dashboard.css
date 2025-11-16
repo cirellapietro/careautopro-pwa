@@ -431,3 +431,114 @@
     padding: 1.5rem 1rem;
   }
 }
+/* Aggiungi in fondo a src/components/Dashboard.css */
+
+/* Card Gestione Veicoli */
+.vehicle-manager-card {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+  margin: 2rem 0;
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  border-left: 4px solid #3498db;
+}
+
+.vehicle-card-icon {
+  font-size: 3rem;
+  flex-shrink: 0;
+}
+
+.vehicle-card-content {
+  flex: 1;
+}
+
+.vehicle-card-content h3 {
+  color: #2c3e50;
+  margin: 0 0 0.5rem 0;
+  font-size: 1.4rem;
+}
+
+.vehicle-card-content p {
+  color: #7f8c8d;
+  margin: 0 0 1.5rem 0;
+}
+
+.vehicle-manager-main-btn {
+  background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+  color: white;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.vehicle-manager-main-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+
+/* Header Vehicle Manager */
+.vehicle-manager-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #ecf0f1;
+}
+
+.back-to-dashboard-btn {
+  background: #95a5a6;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.back-to-dashboard-btn:hover {
+  background: #7f8c8d;
+  transform: translateY(-1px);
+}
+
+.vehicle-manager-header h1 {
+  color: #2c3e50;
+  margin: 0;
+}
+
+/* Veicolo Selezionato */
+.selected-vehicle-info {
+  margin-top: 0.5rem;
+}
+
+.vehicle-badge {
+  background: #27ae60;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .vehicle-manager-card {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+  
+  .vehicle-manager-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+}
