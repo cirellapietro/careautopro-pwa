@@ -1,40 +1,74 @@
-// src/components/DashboardWithVehicles.js - CREA QUESTO NUOVO FILE
+// VERIFICA CHE DashboardWithVehicles.js CONTENGA QUESTO CODICE COMPLETO:
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase.js';
 import VehicleManager from './VehicleManager.js';
 import './Dashboard.css';
 
 const DashboardWithVehicles = ({ user }) => {
-  const [stats, setStats] = useState({
-    totalClients: 0,
-    todayServices: 0,
-    pendingAppointments: 0,
-    monthlyRevenue: 0
-  });
-  const [recentServices, setRecentServices] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [showVehicleManager, setShowVehicleManager] = useState(false);
 
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
+  // SE MOSTRIAMO IL VEHICLE MANAGER
+  if (showVehicleManager) {
+    return (
+      <div className="dashboard">
+        <div className="vehicle-manager-header">
+          <button 
+            className="back-to-dashboard-btn"
+            onClick={() => setShowVehicleManager(false)}
+          >
+            ← Torna alla Dashboard
+          </button>
+          <h1>🚗 Gestione Veicoli</h1>
+        </div>
+        <VehicleManager user={user} />
+      </div>
+    );
+  }
 
-  const loadDashboardData = async () => {
-    try {
-      // Dati mock per la dashboard
-      setTimeout(() => {
-        setStats({
-          totalClients: 24,
-          todayServices: 8,
-          pendingAppointments: 3,
-          monthlyRevenue: 2840
-        });
-        
-        setRecentServices([
-          { id: 1, client: 'Mario Rossi', service: 'Cambio olio', price: 85, status: 'completato', date: '2024-01-15' },
-          { id: 2, client: 'Luigi Verdi', service: 'Revisione', price: 120, status: 'in_corso', date: '2024-01-15' },
-          { id: 3, client: 'Anna Bianchi', service: 'Tagliando', price: 180, status: 'programmato', date: '2024-01-16' },
+  // DASHBOARD CON PULSANTE GESTIONE VEICOLI
+  return (
+    <div className="dashboard">
+      <div className="dashboard-header">
+        <div className="welcome-section">
+          <h1>Benvenuto, {user.email}!</h1>
+          <p>CareAuto Pro - Dashboard Completa</p>
+        </div>
+      </div>
+
+      {/* PULSANTE GESTIONE VEICOLI - DEVE ESSERE VISIBILE */}
+      <div className="vehicle-manager-card">
+        <div className="vehicle-card-icon">🚗</div>
+        <div className="vehicle-card-content">
+          <h3>Gestione Veicoli</h3>
+          <p>Aggiungi e gestisci i tuoi veicoli per il tracciamento GPS</p>
+          <button 
+            className="vehicle-manager-main-btn"
+            onClick={() => setShowVehicleManager(true)}
+          >
+            🚗 APRI GESTIONE VEICOLI
+          </button>
+        </div>
+      </div>
+
+      {/* Sezione Statistiche */}
+      <div className="stats-section">
+        <h2>📊 Riepilogo Attività</h2>
+        <div className="stats-grid">
+          <div className="stat-card">
+            <div className="stat-icon">👥</div>
+            <div className="stat-content">
+              <h3>24</h3>
+              <p>Clienti Totali</p>
+            </div>
+          </div>
+          {/* ... altre statistiche ... */}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DashboardWithVehicles;          { id: 3, client: 'Anna Bianchi', service: 'Tagliando', price: 180, status: 'programmato', date: '2024-01-16' },
         ]);
         
         setLoading(false);
