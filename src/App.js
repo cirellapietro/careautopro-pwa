@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase.js';
 import Header from './components/Header.js';
 import LoginForm from './components/LoginForm.js';
+// src/App.js - CAMBIA SOLO QUESTA RIGA:
+import Dashboard from './components/DashboardWithVehicles.js';
 import './App.css';
 
 function App() {
