@@ -1,8 +1,8 @@
+// TEST: Dashboard semplice senza VehicleManager
 import React, { useState, useEffect } from 'react';
 import { supabase } from './lib/supabase.js';
 import Header from './components/Header.js';
 import LoginForm from './components/LoginForm.js';
-import DashboardWithVehicles from './components/DashboardWithVehicles.js';
 import './App.css';
 
 function App() {
@@ -51,8 +51,20 @@ function App() {
       
       <main>
         {user ? (
-          // 🎯 USA LA DASHBOARD CON GESTIONE VEICOLI INTEGRATA
-          <DashboardWithVehicles user={user} />
+          // 🎯 VERSIONE SEMPLICE PER TEST
+          <div style={{ padding: '2rem', textAlign: 'center' }}>
+            <h1>CareAuto Pro - Test</h1>
+            <p>Applicazione funzionante</p>
+            <div style={{ 
+              background: '#d4edda', 
+              padding: '2rem', 
+              borderRadius: '8px',
+              margin: '2rem 0'
+            }}>
+              <h2>✅ Build Success</h2>
+              <p>Se vedi questa pagina, il deployment funziona</p>
+            </div>
+          </div>
         ) : (
           <LoginForm onLoginSuccess={(user) => setUser(user)} />
         )}
