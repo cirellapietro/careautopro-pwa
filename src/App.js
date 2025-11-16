@@ -4,6 +4,7 @@ import { supabase } from './lib/supabase.js';
 import Header from './components/Header.js';
 import LoginForm from './components/LoginForm.js';
 import DashboardWithVehicles from './components/DashboardWithVehicles.js';
+import Dashboard from './components/TestDashboard.js';
 import './App.css';
 
 function App() {
