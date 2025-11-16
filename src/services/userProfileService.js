@@ -47,4 +47,17 @@ class UserProfileService {
   }
 }
 
+export default new UserProfileService();        .select('profiloutente_id')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+      return { isAdmin: userData?.profiloutente_id === 1, error: null };
+    } catch (error) {
+      console.error('Errore nel verificare profilo admin:', error);
+      return { isAdmin: false, error };
+    }
+  }
+}
+
 export default new UserProfileService();
