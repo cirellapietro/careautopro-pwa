@@ -32,7 +32,7 @@ const DashboardWithVehicles = ({ user }) => {
         setRecentServices([
           { id: 1, client: 'Mario Rossi', service: 'Cambio olio', price: 85, status: 'completato', date: '2024-01-15' },
           { id: 2, client: 'Luigi Verdi', service: 'Revisione', price: 120, status: 'in_corso', date: '2024-01-15' },
-          { id: 3, client: 'Anna Bianchi', service: 'Tagliando', price: 180, status: 'programmato', date: '2024-01-16' }
+          { id: 3, client: 'Anna Bianchi', service: 'Tagliando', price: 180, status: 'programmato', date: '2024-01-16' },
         ]);
         
         setLoading(false);
