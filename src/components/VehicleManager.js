@@ -1,7 +1,7 @@
 // src/components/VehicleManager.js - VERSIONE CON RELAZIONE PROFILO
 import React, { useState, useEffect } from 'react';
 import vehicleService from '../services/vehicleService.js';
-import userProfileService from './userProfileService.js';
+
 import userProfileService from '../services/userProfileService.js';
 import './VehicleManager.css';
 
