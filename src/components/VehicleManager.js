@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import vehicleService from '../services/vehicleService.js';
 
 import userProfileService from '../services/profileService.js';
-import './VehicleManager.css';
+//import './VehicleManager.css';
 
 const VehicleManager = ({ user, onVehicleSelect }) => {
   const [vehicles, setVehicles] = useState([]);
