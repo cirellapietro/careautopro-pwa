@@ -1,4 +1,4 @@
-/* ===== RESET E STILI BASE ===== */
+/* src/App.css */
 * {
   margin: 0;
   padding: 0;
@@ -7,34 +7,165 @@
 
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  min-height: 100vh;
+  background-color: #f5f6fa;
   color: #2c3e50;
   line-height: 1.6;
 }
 
-#root {
-  min-height: 100vh;
-}
-
-/* ===== APP LAYOUT ===== */
 .App {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
 
-.App main {
+/* Utility Classes */
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-primary {
+  background: #3498db;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #2980b9;
+}
+
+.btn-secondary {
+  background: #95a5a6;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #7f8c8d;
+}
+
+.btn-danger {
+  background: #e74c3c;
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #c0392b;
+}
+
+/* Layout Base */
+.layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.layout-body {
+  display: flex;
   flex: 1;
+}
+
+.layout-content {
+  flex: 1;
+  padding: 0;
   background: #f8f9fa;
 }
 
-/* ===== LOADING SCREEN ===== */
-.loading-screen {
+/* Header Styling */
+.header {
+  background: #2c3e50;
+  color: white;
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.header-content {
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.logo h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-welcome {
+  font-weight: 500;
+}
+
+.logout-btn {
+  background: #e74c3c;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Sidebar Styling */
+.sidebar {
+  width: 250px;
+  background: white;
+  box-shadow: 2px 0 4px rgba(0,0,0,0.1);
+}
+
+.sidebar-nav ul {
+  list-style: none;
+  padding: 1rem 0;
+}
+
+.sidebar-nav li {
+  margin-bottom: 0.5rem;
+}
+
+.sidebar-nav a {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  color: #2c3e50;
+  text-decoration: none;
+  transition: all 0.3s ease;
+}
+
+.sidebar-nav a:hover,
+.sidebar-nav a.active {
+  background: #3498db;
+  color: white;
+}
+
+.sidebar-nav .icon {
+  margin-right: 0.75rem;
+  font-size: 1.2rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .layout-body {
+    flex-direction: column;
+  }
+  
+  .sidebar {
+    width: 100%;
+    order: 2;
+  }
+  
+  .header-content {
+    padding: 0 1rem;
+  }
+  
+  .logo h1 {
+    font-size: 1.2rem;
+  }
+}  justify-content: center;
   min-height: 100vh;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
